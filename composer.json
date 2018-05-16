@@ -1,0 +1,16 @@
+{
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "require": {
+        "bcosca/fatfree-core": "^3.6",
+        "gabordemooij/redbean": ">=4.2",
+        "plinker/iptables": "master",
+        "plinker/lxd": "master",
+        "plinker/nginx": "master",
+        "plinker/system": "master"
+    }
+}

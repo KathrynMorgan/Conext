@@ -1,0 +1,36 @@
+[2018-04-28T13:39:12+01:00] b49b9dc9-3d62-4d79-aaaa-5892faabc871: Example
+[2018-04-28T13:39:12+01:00] Create config directory: /etc/nginx/proxied/servers/b49b9dc9-3d62-4d79-aaaa-5892faabc871
+[2018-04-28T13:39:12+01:00] Building NGINX upstream config.
+[2018-04-28T13:39:12+01:00] Building NGINX HTTP server config.
+[2018-04-28T13:39:12+01:00] Testing NGINX config: [exit code: 0]: Array
+(
+    [0] => nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+    [1] => nginx: configuration file /etc/nginx/nginx.conf test is successful
+)
+
+[2018-04-28T13:39:12+01:00] Reloading NGINX: [exit code: 0]: Array
+(
+)
+
+[2018-04-28T13:39:12+01:00] NGINX was reloaded.
+[2018-04-28T13:39:12+01:00] ----------------------------------------
+[2018-04-28T13:39:24+01:00] 14c702b4-2470-4010-bc1b-81a93784ef76: Example
+[2018-04-28T13:39:24+01:00] Create config directory: /etc/nginx/proxied/servers/14c702b4-2470-4010-bc1b-81a93784ef76
+[2018-04-28T13:39:24+01:00] Building NGINX upstream config.
+[2018-04-28T13:39:24+01:00] Building NGINX HTTP server config.
+[2018-04-28T13:39:24+01:00] Testing NGINX config: [exit code: 0]: Array
+(
+    [0] => nginx: [warn] conflicting server name "example.com" on 0.0.0.0:80, ignored
+    [1] => nginx: [warn] conflicting server name "www.example.com" on 0.0.0.0:80, ignored
+    [2] => nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+    [3] => nginx: configuration file /etc/nginx/nginx.conf test is successful
+)
+
+[2018-04-28T13:39:24+01:00] Reloading NGINX: [exit code: 0]: Array
+(
+    [0] => nginx: [warn] conflicting server name "example.com" on 0.0.0.0:80, ignored
+    [1] => nginx: [warn] conflicting server name "www.example.com" on 0.0.0.0:80, ignored
+)
+
+[2018-04-28T13:39:24+01:00] NGINX was reloaded with warnings! Some routes may be effected.
+[2018-04-28T13:39:24+01:00] ----------------------------------------
