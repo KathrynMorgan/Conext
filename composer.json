@@ -10,7 +10,7 @@
         "gabordemooij/redbean": ">=4.2",
         "plinker/iptables": "master",
         "plinker/lxd": "master",
-        "plinker/nginx": "master",
+        "plinker/nginx": "^2.1",
         "plinker/system": "master"
     }
 }

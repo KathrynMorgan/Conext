@@ -1,0 +1,38 @@
+{
+  "name": "lxd-web-control-panel",
+  "version": "0.0.1",
+  "description": "LXD - Web Control Panel",
+  "author": "Lawrence Cherone <lawrence@cherone.co.uk>",
+  "private": true,
+  "scripts": {
+    "dev": "HOST=0.0.0.0 PORT=3000 nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "build:gh-pages": "DEPLOY_ENV=GH_PAGES nuxt build",
+    "generate:gh-pages": "DEPLOY_ENV=GH_PAGES nuxt generate",
+    "generate": "nuxt generate",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
+    "precommit": "npm run lint"
+  },
+  "dependencies": {
+    "@nuxtjs/font-awesome": "^1.0.3",
+    "@nuxtjs/vuetify": "^0.4.1",
+    "axios": "^0.18.0",
+    "js-cookie": "^2.2.0",
+    "jwt-decode": "^2.2.0",
+    "net": "^1.0.2",
+    "nuxt": "^1.0.0",
+    "tls": "0.0.1",
+    "ws": "^5.1.1",
+    "xterm": "^3.1.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.2.1",
+    "eslint": "^4.15.0",
+    "eslint-friendly-formatter": "^3.0.0",
+    "eslint-loader": "^1.7.1",
+    "eslint-plugin-vue": "^4.0.0",
+    "node-sass": "^4.7.2",
+    "sass-loader": "^6.0.7"
+  }
+}

@@ -1,0 +1,21 @@
+# todo
+remove apache
+install nginx
+
+setup a repo...
+
+as going along make notes of install as to be able to make a bash script later
+
+# Control panel
+
+install npm
+install node
+install nuxt
+install project and get it up and running
+
+# API
+instsll plinker
+install lxd
+install project
+
+once setup clone and set it up so one container is managing the other.
