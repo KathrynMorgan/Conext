@@ -73,15 +73,11 @@
   import { setToken } from '~/utils/auth'
   import axios from 'axios'
 
-  import MainNav from '~/components/MainNav.vue'
-
   export default {
     middleware: [
       // 'authenticated'
     ],
-    components: {
-      MainNav
-    },
+    components: {},
     computed: {
       ...mapGetters({
         isAuthenticated: 'auth/isAuthenticated',

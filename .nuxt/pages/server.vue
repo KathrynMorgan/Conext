@@ -1,6 +1,5 @@
 <template>
   <v-app>
-    <main-nav/>
     <nuxt-child ref="childComponent"/>
   </v-app>
 </template>
@@ -8,13 +7,9 @@
 <script>
   import { mapGetters } from 'vuex'
 
-  import MainNav from '~/components/MainNav.vue'
-
   export default {
     middleware: 'authenticated',
-    components: {
-      MainNav
-    },
+    components: {},
     computed: {
       ...mapGetters({
         isAuthenticated: 'auth/isAuthenticated',

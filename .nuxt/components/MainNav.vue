@@ -110,9 +110,22 @@ alt="Vuetify"
         loggedToken: 'auth/loggedToken'
       }),
       items () {
-        return (this.loggedUser && this.loggedUser.sub) ? [
-          { icon: 'chevron_right', text: 'My Servers', route: '/servers' },
-          {
+        //
+        var items = [
+          { icon: 'chevron_right', text: 'My Servers', route: '/servers' }
+        ];
+
+        // if not logged in
+        if (!this.loggedUser || !this.loggedUser.sub) {
+          items.push({ icon: 'chevron_right', text: 'About', route: '/about' });
+          return items
+        }
+
+        // logged in
+
+        // server
+        if (this.loggedUser.mod.server) {
+          items.push({
             icon: 'keyboard_arrow_up',
             'icon-alt': 'keyboard_arrow_down',
             text: 'Server',
@@ -126,8 +139,12 @@ alt="Vuetify"
               { icon: 'chevron_right', text: 'Logins', route: '/server/logins' },
               { icon: 'chevron_right', text: 'CPU Information', route: '/server/cpu-information' },
             ]
-          },
-          {
+          });
+        }
+
+        // api
+        if (this.loggedUser.mod.api) {
+          items.push({
             icon: 'keyboard_arrow_up',
             'icon-alt': 'keyboard_arrow_down',
             text: 'API',
@@ -135,8 +152,12 @@ alt="Vuetify"
             children: [
               { icon: 'chevron_right', text: 'Data', route: '/api/data' },
             ]
-          },
-          {
+          })
+        }
+
+        // lxd
+        if (this.loggedUser.mod.lxd) {
+          items.push({
             icon: 'keyboard_arrow_up',
             'icon-alt': 'keyboard_arrow_down',
             text: 'LXD',
@@ -152,8 +173,12 @@ alt="Vuetify"
               { icon: 'chevron_right', text: 'Metadata', route: '/lxd/metadata' },
               { icon: 'chevron_right', text: 'Operations', route: '/lxd/operations' },
             ]
-          },
-          {
+          })
+        }
+
+        // routes
+        if (this.loggedUser.mod.routes) {
+          items.push({
             icon: 'keyboard_arrow_up',
             'icon-alt': 'keyboard_arrow_down',
             text: 'Routes',
@@ -162,44 +187,17 @@ alt="Vuetify"
               { icon: 'chevron_right', text: 'Port Forwards', route: '/routes/port-forwards' },
               { icon: 'chevron_right', text: 'Web Forwards', route: '/routes/web-forwards' }
             ]
-          },
-          { icon: 'chevron_right', text: 'Tasks', route: '/tasks' },
-          { icon: 'exit_to_app', text: 'Sign Out', route: '/auth/sign-out' }
-          /*
-          { icon: 'history', text: 'Frequently contacted' },
-          { icon: 'content_copy', text: 'Duplicates' },
-          {
-            icon: 'keyboard_arrow_up',
-            'icon-alt': 'keyboard_arrow_down',
-            text: 'Labels',
-            model: true,
-            children: [
-              { icon: 'add', text: 'Create label' }
-            ]
-          },
-          {
-            icon: 'keyboard_arrow_up',
-            'icon-alt': 'keyboard_arrow_down',
-            text: 'More',
-            model: false,
-            children: [
-              { text: 'Import' },
-              { text: 'Export' },
-              { text: 'Print' },
-              { text: 'Undo changes' },
-              { text: 'Other contacts' }
-            ]
-          },
-          { icon: 'settings', text: 'Settings' },
-          { icon: 'chat_bubble', text: 'Send feedback' },
-          { icon: 'help', text: 'Help' },
-          { icon: 'phonelink', text: 'App downloads' },
-          { icon: 'keyboard', text: 'Go to the old version' }
-          */
-        ] : [
-          { icon: 'chevron_right', text: 'My Servers', route: '/servers' },
-          { icon: 'chevron_right', text: 'About', route: '/about' },
-        ]
+          })
+        }
+
+        // tasks
+        if (this.loggedUser.mod.tasks) {
+          items.push({ icon: 'chevron_right', text: 'Tasks', route: '/tasks' })
+        }
+        
+        items.push({ icon: 'exit_to_app', text: 'Sign Out', route: '/auth/sign-out' });
+        
+        return items
       }
     },
     components: { },

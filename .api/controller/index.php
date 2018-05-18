@@ -10,8 +10,8 @@ class Index extends \Base\Controller
     public function index(\Base $f3, $params)
     {
         // load spa if exists
-        if (file_exists('_dist/index.html')) {
-            exit(\View::instance()->render('_dist/index.html'));
+        if (file_exists('.dist/index.html')) {
+            exit(\View::instance()->render('.dist/index.html'));
         }
 
         //$this->user = new \Model\User($f3);

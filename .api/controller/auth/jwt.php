@@ -37,6 +37,7 @@ class Jwt
                 $token['exp'] = time() + $this->jwt_ttl; // expiration
                 $token['aud'] = $_SERVER['HTTP_HOST'];  // audience
                 $token['sub'] = $user->id;              // subject
+                $token['mod'] = $f3->get('modules');    // enabled modules
 
                 // Additional Claims
                 $token['role'] = 'user';

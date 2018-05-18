@@ -217,15 +217,11 @@ Tool Tip
   import { Terminal } from 'xterm'
   import * as fit from 'xterm/lib/addons/fit/fit'
 
-  import MainNav from '~/components/MainNav.vue'
-
   export default {
     middleware: [
       'authenticated'
     ],
-    components: {
-      MainNav
-    },
+    components: {},
     computed: {
      
       ...mapGetters({

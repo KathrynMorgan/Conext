@@ -85,8 +85,6 @@
   import { mapGetters } from 'vuex'
   import axios from 'axios'
 
-  import MainNav from '~/components/MainNav.vue'
-  
   const getInitialData = () => {
     return {
       form: {
@@ -109,10 +107,7 @@
   };
 
   export default {
-    layout: 'admin',
-    components: {
-      MainNav
-    },
+    components: {},
     computed: {
       ...mapGetters({
         isAuthenticated: 'auth/isAuthenticated',

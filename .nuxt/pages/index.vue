@@ -1,7 +1,6 @@
 <template>
   <div>
     <v-app>
-      <main-nav/>
       <v-content>
         <v-container
                      fluid
@@ -41,8 +40,6 @@
   import { mapGetters } from 'vuex'
   import axios from 'axios'
 
-  import MainNav from '~/components/MainNav.vue'
-
   export default {
     middleware: 'authenticated',
     computed: {
@@ -52,9 +49,7 @@
         loggedToken: 'auth/loggedToken',
       })
     },
-    components: {
-      MainNav
-    },
+    components: {},
     mounted: function () {
       this.getApi()
     },
