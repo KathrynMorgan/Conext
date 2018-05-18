@@ -13,6 +13,7 @@ import { createStore } from './store.js'
 
 /* Plugins */
 import nuxt_plugin_vuetify_32387960 from 'nuxt_plugin_vuetify_32387960' // Source: ./vuetify.js
+import nuxt_plugin_nuxtcodemirrorplugin_31859c54 from 'nuxt_plugin_nuxtcodemirrorplugin_31859c54' // Source: ../plugins/nuxt-codemirror-plugin.js (ssr: false)
 
 
 // Component: <no-ssr>
@@ -153,6 +154,9 @@ async function createApp (ssrContext) {
   
   if (typeof nuxt_plugin_vuetify_32387960 === 'function') await nuxt_plugin_vuetify_32387960(app.context, inject)
   
+  if (process.browser) { 
+    if (typeof nuxt_plugin_nuxtcodemirrorplugin_31859c54 === 'function') await nuxt_plugin_nuxtcodemirrorplugin_31859c54(app.context, inject)
+  }
 
   // If server-side, wait for async component to be resolved first
   if (process.server && ssrContext && ssrContext.url) {

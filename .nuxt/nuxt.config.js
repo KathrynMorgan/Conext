@@ -1,4 +1,4 @@
-const bodyParser = require('body-parser')
+//const bodyParser = require('body-parser')
 
 /* nuxt.config.js */
 // only add `router.base = '/<repository-name>/'` if `DEPLOY_ENV` is `GH_PAGES`
@@ -27,14 +27,16 @@ module.exports = {
     ]
   },
   loading: { color: '#3B8070' },
-  serverMiddleware: [
-    bodyParser.json(),
-    '~/api'
-  ],
+  //serverMiddleware: [
+  //  bodyParser.json(),
+  //  '~/api'
+  //],
   router: {
     ...router
   },
-  plugins: [],
+  plugins: [
+    { src: '~plugins/nuxt-codemirror-plugin.js', ssr: false }
+  ],
   modules: [
     '@nuxtjs/font-awesome',
     '@nuxtjs/vuetify'
@@ -44,7 +46,13 @@ module.exports = {
     // theme: { }
   },
   css: [
-    'xterm/dist/xterm.css'
+    'xterm/dist/xterm.css',
+    // lib css
+    'codemirror/lib/codemirror.css'//,
+    // merge css
+    // 'codemirror/addon/merge/merge.css',
+    // theme css
+    // 'codemirror/theme/default.css'
   ],
   generate: {
     minify: {
@@ -72,7 +80,7 @@ module.exports = {
     extractCSS: true,
     publicPath: publicPath,
     vendor: [
-      'axios',
+      'axios'
     ],
     postcss: {
       plugins: {

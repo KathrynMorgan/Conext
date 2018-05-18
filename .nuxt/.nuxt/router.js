@@ -8,6 +8,8 @@ const _40f2c212 = () => import('../pages/servers/index.vue' /* webpackChunkName:
 const _a6dba2f4 = () => import('../pages/servers/add.vue' /* webpackChunkName: "pages/servers/add" */).then(m => m.default || m)
 const _d438bfd4 = () => import('../pages/routes.vue' /* webpackChunkName: "pages/routes" */).then(m => m.default || m)
 const _26613530 = () => import('../pages/routes/web-forwards.vue' /* webpackChunkName: "pages/routes/web-forwards" */).then(m => m.default || m)
+const _e1bb1e04 = () => import('../pages/api.vue' /* webpackChunkName: "pages/api" */).then(m => m.default || m)
+const _ac69206a = () => import('../pages/api/data.vue' /* webpackChunkName: "pages/api/data" */).then(m => m.default || m)
 const _3b316788 = () => import('../pages/lxd.vue' /* webpackChunkName: "pages/lxd" */).then(m => m.default || m)
 const _5896d775 = () => import('../pages/lxd/containers.vue' /* webpackChunkName: "pages/lxd/containers" */).then(m => m.default || m)
 const _1cc8d8e2 = () => import('../pages/server.vue' /* webpackChunkName: "pages/server" */).then(m => m.default || m)
@@ -104,6 +106,18 @@ export function createRouter () {
 					path: "web-forwards",
 					component: _26613530,
 					name: "routes-web-forwards"
+				}
+			]
+		},
+		{
+			path: "/api",
+			component: _e1bb1e04,
+			name: "api",
+			children: [
+				{
+					path: "data",
+					component: _ac69206a,
+					name: "api-data"
 				}
 			]
 		},

@@ -101,6 +101,8 @@ class Controller extends \Base\Controller
         exit(ob_get_clean());
         
         
+        // url: /1.0/customers/123
+        
         // url: /1.0/customers/edit/a/b/c/d
         
         // lookup version    = 1.0

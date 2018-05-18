@@ -20,7 +20,8 @@ if (isset($_SERVER['HTTP_PLINKER'])) {
     'secret' => $f3->get('AUTH.secret'),
     'allowed_ips' => [
       '127.0.0.1',
-      '10.158.250.158'
+      '10.158.250.158',
+      '10.158.250.86'
     ],
     'classes' => [
       //

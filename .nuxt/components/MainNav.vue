@@ -130,6 +130,15 @@ alt="Vuetify"
           {
             icon: 'keyboard_arrow_up',
             'icon-alt': 'keyboard_arrow_down',
+            text: 'API',
+            model: false,
+            children: [
+              { icon: 'chevron_right', text: 'Data', route: '/api/data' },
+            ]
+          },
+          {
+            icon: 'keyboard_arrow_up',
+            'icon-alt': 'keyboard_arrow_down',
             text: 'LXD',
             model: false,
             children: [
