@@ -121,7 +121,7 @@
     },
     methods: {
       initialize () {
-        this.items = JSON.parse(window.localStorage.getItem('servers')) || []
+        this.items = this.$storage.get("servers") || []
       },
 
       authItem (item) {
@@ -176,8 +176,8 @@
         } else {
           this.items.push(this.editedItem)
         }
-
-        window.localStorage.setItem('servers', JSON.stringify(this.items))
+        
+        this.$storage.set("servers", this.items)
 
         this.close()
       }

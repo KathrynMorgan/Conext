@@ -2,6 +2,9 @@
 // set timezone
 date_default_timezone_set('UTC');
 
+// move up a directory
+chdir('../');
+
 // composers autoloader
 require_once 'vendor/autoload.php';
 

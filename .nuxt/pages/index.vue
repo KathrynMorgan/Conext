@@ -1,45 +1,35 @@
 <template>
-  <div>
-    <v-app>
-      <v-content>
-        <v-container
-                     fluid
-                     grid-list-sm
-                     tag="section"
-                     id="grid"
-                     >
-          <v-layout row wrap>
-            <v-flex d-flex xs12 order-xs5>
-              <v-layout column>
-                <v-flex tag="h1" class="display-1">Hello World</v-flex>
-                <v-flex>
-                  <v-card flat>
-                    <v-card-text>
-                      <pre>app rendered {{ rendered }} side</pre>
-                      <pre>{{ loggedUser }}</pre>
-                      <pre>{{ loggedToken }}</pre>
-                      <pre>isAuthenticated = {{ isAuthenticated }}</pre>
-                      <pre>{{ result }}</pre>
-                    </v-card-text>
-                    
-                    <pre>{{ foo }}</pre>
+  <v-app>
+    <v-content>
+      <v-container fluid tag="section" id="grid">
+        <v-layout row wrap>
+          
+          <v-flex tag="h1" class="display-1 mb-3">
+                Server - Memory
+          </v-flex>
+          <v-flex>
+            <v-alert type="error" :value="error">
+              {{ error }}
+            </v-alert>
+                
+           
+            <pre>app rendered {{ rendered }} side</pre>
+            <pre>{{ loggedUser }}</pre>
+            <pre>{{ loggedToken }}</pre>
+            <pre>isAuthenticated = {{ isAuthenticated }}</pre>
+            <pre>{{ result }}</pre>
 
-                  </v-card>
-                </v-flex>
-              </v-layout>
-            </v-flex>
-          </v-layout>
-
-        </v-container>
-      </v-content>
-    </v-app>
-  </div>
+          </v-flex>
+        </v-layout>
+      </v-container>
+    </v-content>
+  </v-app>
 </template>
 
 <script>
   import { mapGetters } from 'vuex'
   import axios from 'axios'
-
+  
   export default {
     middleware: 'authenticated',
     computed: {
@@ -50,7 +40,8 @@
       })
     },
     components: {},
-    mounted: function () {
+    mounted: function() {
+      this.initialize()
       this.getApi()
     },
     /*
@@ -65,17 +56,42 @@
       }
     },
     data: () => ({
+      error: '',
       result: []
     }),
     methods: {
-      async getApi () {
+      //
+      async initialize() {
+        
+        // set
+        this.$storage.set("xxx", {foo:'bar'})
+        
+        // get
+        console.log(this.$storage.get("xxx"));
+        console.log(this.$storage.isset("xxx"));
+        
+        // remove
+        this.$storage.remove("xxx")
+        
+        this.$storage.clear()
+        
+        
+        //
+        axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+        //
+        const response = await axios.get(this.loggedUser.sub + '/api/server/information/memory')
+        this.items = response.data.data
+      },
+      //
+      async getApi() {
         // set jwt into request header
         axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
         //
         const response = await axios.get(this.loggedUser.sub + '/api')
         this.result = response.data.data
       },
-      async remove (id) {
+      //
+      async remove(id) {
         // set jwt into request header
         axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
         // delete (server)
@@ -87,5 +103,4 @@
 </script>
 
 <style>
-
 </style>

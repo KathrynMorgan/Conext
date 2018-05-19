@@ -4,12 +4,14 @@
 // only add `router.base = '/<repository-name>/'` if `DEPLOY_ENV` is `GH_PAGES`
 const router = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
   middleware: 'check-auth',
-  base: '/LXD-Web-Control-Panel/'
+  base: '/Deval/'
 } : {
-  middleware: 'check-auth'
+  middleware: 'check-auth',
+  base: '/ui/'
 }
 
-const publicPath = process.env.DEPLOY_ENV === 'GH_PAGES' ? '/dist/' : '/_nuxt/'
+// where nuxt assets go
+const publicPath = process.env.DEPLOY_ENV === 'GH_PAGES' ? '/assets/' : '/assets/'
 
 /**
  * @see: node_modules/lib/common/options.js
@@ -35,6 +37,7 @@ module.exports = {
     ...router
   },
   plugins: [
+    { src: '~plugins/localStorage.js', ssr: false },
     { src: '~plugins/nuxt-codemirror-plugin.js', ssr: false }
   ],
   modules: [

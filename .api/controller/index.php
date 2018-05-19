@@ -10,8 +10,8 @@ class Index extends \Base\Controller
     public function index(\Base $f3, $params)
     {
         // load spa if exists
-        if (file_exists('.dist/index.html')) {
-            exit(\View::instance()->render('.dist/index.html'));
+        if (file_exists('public/ui/index.html')) {
+            exit(\View::instance()->render('public/ui/index.html'));
         }
 
         //$this->user = new \Model\User($f3);
@@ -26,22 +26,14 @@ class Index extends \Base\Controller
         ]);
     }
     
-    public function foo(\Base $f3, $params)
+    public function favicon(\Base $f3, $params)
     {
         // load spa if exists
-        if (file_exists('.api/_dist/index.html')) {
-            exit(\View::instance()->render('.api/_dist/index.html'));
+        if (file_exists('ui/favicon.ico')) {
+            \Web::instance()->send(
+                'ui/favicon.ico', 'image/x-icon', 1024, false
+            );
         }
-
-        //$this->user = new \Model\User($f3);
-
-        //
-        $f3->mset([
-            'template' => '.api/view/template.php',
-            'page'     => [
-                'title' => 'Home',
-                'body'  => \View::instance()->render('.api/view/index/index.php'),
-            ],
-        ]);
     }
+    
 }
