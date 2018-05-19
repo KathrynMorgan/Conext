@@ -17,9 +17,10 @@
                     </v-card-title>
                     <v-card-text>
                       <v-alert outline color="info" icon="info" :value="true">
-                        Servers are stored in your browser for easy selection.
+                        Servers are securely stored in your browser for easy selection.
                       </v-alert>
                       <v-container grid-list-md>
+                        <v-text-field label="Label" v-model="editedItem.label"></v-text-field>
                         <v-layout wrap>
                           <v-flex xs12 sm6 md6>
                             <v-text-field label="Host" v-model="editedItem.host"></v-text-field>
@@ -44,7 +45,8 @@
 
                 <v-data-table :headers="headers" :items="items" hide-actions class="elevation-1">
                   <template slot="items" slot-scope="props">
-                    <td><a href="javascript:void(0)" @click="authItem(props.item)">{{ props.item.host }}</a></td>
+                    <td><a href="javascript:void(0)" @click="authItem(props.item)">{{ props.item.label }}</a></td>
+                    <td><a :href="props.item.host" target="_blank" rel="noopener">{{ props.item.host }}</a></td>
                     <td>{{ props.item.secret }}</td>
                     <td class="justify-center layout px-0">
                       <v-btn icon class="mx-0" @click="editItem(props.item)">
@@ -92,11 +94,8 @@
       error: '',
       dialog: false,
       headers: [
-        {
-          text: 'Server',
-          align: 'left',
-          value: 'host'
-        },
+        { text: 'Label', align: 'left', value: 'host' },
+        { text: 'Host', value: 'host' },
         { text: 'Secret', value: 'secret' },
         { text: 'Actions', value: 'host', sortable: false }
       ],
@@ -129,6 +128,7 @@
         this.editedItem = Object.assign({}, item)
 
         axios.post(item.host + '/auth', {
+          label:  item.label,
           server: item.host,
           secret: item.secret
         }).then(response => {

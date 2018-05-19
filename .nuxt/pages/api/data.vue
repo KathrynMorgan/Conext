@@ -128,10 +128,7 @@
         isAuthenticated: 'auth/isAuthenticated',
         loggedUser: 'auth/loggedUser',
         loggedToken: 'auth/loggedToken'
-      }),
-      formTitle () {
-        return this.editedIndex === -1 ? 'New Container' : 'Edit Container'
-      }
+      })
     },
     data: () => ({
       // global error
@@ -204,7 +201,7 @@
       versionRules: [
         v => !!v || 'Version is required',
         v => (v && Number(v)) || 'Version must be a number'
-      ],
+      ]
     }),
     mounted: function () {
       this.initialize()

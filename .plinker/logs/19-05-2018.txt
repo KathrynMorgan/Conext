@@ -1,0 +1,48 @@
+[2018-05-19T11:52:02+00:00] d6cba3d7-e56c-4696-9e86-3fa94599ce77: Example
+[2018-05-19T11:52:02+00:00] Create config directory: /etc/nginx/proxied/servers/d6cba3d7-e56c-4696-9e86-3fa94599ce77
+[2018-05-19T11:52:02+00:00] Building NGINX upstream config.
+[2018-05-19T11:52:02+00:00] Building NGINX HTTP server config.
+[2018-05-19T11:52:02+00:00] Testing NGINX config: [exit code: 0]: Array
+(
+    [0] => nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+    [1] => nginx: configuration file /etc/nginx/nginx.conf test is successful
+)
+
+[2018-05-19T11:52:02+00:00] Reloading NGINX: [exit code: 0]: Array
+(
+)
+
+[2018-05-19T11:52:02+00:00] NGINX was reloaded.
+[2018-05-19T11:52:02+00:00] ----------------------------------------
+[2018-05-19T11:54:33+00:00] 08b51533-9227-43a8-87c1-b21a1fd74c79: fsdf
+[2018-05-19T11:54:33+00:00] Create config directory: /etc/nginx/proxied/servers/08b51533-9227-43a8-87c1-b21a1fd74c79
+[2018-05-19T11:54:33+00:00] Building NGINX upstream config.
+[2018-05-19T11:54:33+00:00] Building NGINX HTTP server config.
+[2018-05-19T11:54:33+00:00] Testing NGINX config: [exit code: 0]: Array
+(
+    [0] => nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+    [1] => nginx: configuration file /etc/nginx/nginx.conf test is successful
+)
+
+[2018-05-19T11:54:33+00:00] Reloading NGINX: [exit code: 0]: Array
+(
+)
+
+[2018-05-19T11:54:33+00:00] NGINX was reloaded.
+[2018-05-19T11:54:33+00:00] ----------------------------------------
+[2018-05-19T11:56:41+00:00] 84ad7062-6a08-460a-b650-38c2cf0249bd: dfg
+[2018-05-19T11:56:41+00:00] Create config directory: /etc/nginx/proxied/servers/84ad7062-6a08-460a-b650-38c2cf0249bd
+[2018-05-19T11:56:41+00:00] Building NGINX upstream config.
+[2018-05-19T11:56:41+00:00] Building NGINX HTTP server config.
+[2018-05-19T11:56:41+00:00] Testing NGINX config: [exit code: 0]: Array
+(
+    [0] => nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+    [1] => nginx: configuration file /etc/nginx/nginx.conf test is successful
+)
+
+[2018-05-19T11:56:41+00:00] Reloading NGINX: [exit code: 0]: Array
+(
+)
+
+[2018-05-19T11:56:41+00:00] NGINX was reloaded.
+[2018-05-19T11:56:41+00:00] ----------------------------------------

@@ -1,65 +1,37 @@
 <template>
   <v-app>
-    <v-snackbar
-                top
-                :timeout="snackbarTimeout"
-                :color="snackbarColor"
-                v-model="snackbar"
-                >
+    <!-- Snackbar Alert -->
+    <v-snackbar top :timeout="snackbarTimeout" :color="snackbarColor" v-model="snackbar">
       {{ snackbarText }}
       <v-btn dark flat @click.native="snackbar = false">Close</v-btn>
     </v-snackbar>
 
     <v-content>
       
+      <!-- Main Content -->
       <v-container fluid tag="section" id="grid">
         <v-layout row wrap>
           <v-flex d-flex xs12 order-xs5>
             <v-layout column>
               <v-flex tag="h1" class="display-1 mb-3">
                 Routes - Web Forwards
-                <v-btn color="success" @click="dialog = true" style="float:right">New</v-btn>
+                <v-btn color="success" @click="dialog = true" style="float:right">New Forward</v-btn>
               </v-flex>
               <v-flex>
-                <v-dialog v-model="dialog" max-width="500px">
-                  <v-card>
-                    <v-card-title>
-                      <span class="headline">{{ formTitle }}</span>
-                    </v-card-title>
-                    <v-card-text>
-                      <v-alert outline color="info" icon="info" :value="true"></v-alert>
-                      <v-container grid-list-md>
-                        <v-layout wrap>
-                          <v-flex xs12 sm6 md6>
-                            <v-text-field label="Host" v-model="editedItem.name"></v-text-field>
-                          </v-flex>
-                          <v-flex xs12 sm6 md6>
-                            <v-text-field label="Secret" v-model="editedItem.status"></v-text-field>
-                          </v-flex>
-                        </v-layout>
-                      </v-container>
-                    </v-card-text>
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn>
-                      <v-btn color="blue darken-1" flat @click.native="save">Save</v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-dialog>
-
                 <v-alert type="error" :value="error">
                   {{ error }}
                 </v-alert>
-
-                <v-data-table :headers="headers" :items="items" hide-actions class="elevation-1">
+                <p>Web forwards allow you to route HTTP/S traffic to containers or external upstreams.</p>
+                <v-data-table :headers="tableHeaders" :items="items" hide-actions class="elevation-1" :loading="tableLoading">
+                  <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                   <template slot="items" slot-scope="props">
-                    <td><a href="javascript:void(0)" @click.stop="viewContainer(props.item)">{{ props.item.label }}</a></td>
+                    <td><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.label }}</a></td>
                     <td>{{ props.item.ip }}</td>
                     <td>{{ props.item.port }}</td>
-                    <td><ul><li style="list-style-type: none;" v-for="domain in props.item.ownDomain" v-bind:key="domain.name">{{ domain.name }}</li></ul></td>
-                    <td>{{ props.item.ssl_type }}</td>
-                    <td>{{ props.item.has_change }}</td>
-                    <td class="justify-center layout px-0">
+                    <td><ul><li style="list-style-type: none;" v-for="domain in props.item.ownDomain" :key="domain.name">{{ domain.name }}</li></ul></td>
+                    <td><v-icon color="blue-grey lighten-3" v-if="props.item.ssl_type === 'letsencrypt'">https</v-icon></td>
+                    <td>
+                      <!--
                       <v-menu offset-y>
                         <v-btn icon class="mx-0" slot="activator">
                           <v-icon color="blue-grey lighten-3">view_headline</v-icon>
@@ -74,56 +46,114 @@
                       <v-btn icon class="mx-0" @click="editItem(props.item)">
                         <v-icon color="teal">edit</v-icon>
                       </v-btn>
-                      <!--
-<v-btn icon class="mx-0" @click="deleteItem(props.item)">
-<v-icon color="pink">delete</v-icon>
-</v-btn>
--->
+                      -->
+                      <v-btn icon class="mx-0" style="float:right" @click="deleteItem(props.item)">
+                        <v-icon color="pink">delete</v-icon>
+                      </v-btn>
                     </td>
                   </template>
                   <template slot="no-data">
-                    You have not added any servers, add a new server to continue.
+                    {{ tableLoading ? 'Fetching data, please wait...' : tableNoData }}
                   </template>
                 </v-data-table>
               </v-flex>
             </v-layout>
           </v-flex>
         </v-layout>
-        
-        <pre>{{items}}</pre>
-        
       </v-container>
       
-      
-      <v-dialog
-                v-model="containerDialog"
-                fullscreen
-                hide-overlay
-                transition="dialog-bottom-transition"
-                scrollable
-                >
+      <!-- Fullscreen Dialog -->
+      <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition" scrollable>
         <v-card tile>
           <v-toolbar card dark color="deep-orange accent-4">
-            <v-btn icon @click.native="containerDialog = false" dark>
+            <v-btn icon @click.native="dialog = false" dark>
               <v-icon>close</v-icon>
             </v-btn>
-            <v-toolbar-title>Container: {{ container.name }}</v-toolbar-title>
+            <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} Web Forward</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
-              <v-btn dark flat @click.native="containerDialog = false">Save</v-btn>
+              <v-btn dark flat @click.native="save()">Save</v-btn>
             </v-toolbar-items>
             <v-menu bottom right offset-y>
               <v-btn slot="activator" dark icon>
                 <v-icon>more_vert</v-icon>
               </v-btn>
+              <!--
+              <v-list>
+              <v-list-tile v-for="(item, i) in items" :key="i">
+              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+              </v-list-tile>
+              </v-list>
+              -->
             </v-menu>
           </v-toolbar>
-          <v-card-text>
+          <v-card-text style="padding: 0px;">
+            <v-card flat>
+              <v-card-text>
+                <!--
+                <v-alert :value="true" outline color="info" icon="info" style="margin-bottom: 10px;">
+                  <strong>Endpoint:</strong> {{loggedUser.sub}}/{{editingItem.version}}/{{editingItem.module}} [GET|POST|PUT|DELETE]
+                </v-alert>
+                -->
+                <v-form ref="form" v-model="valid" lazy-validation>
+                  <v-text-field v-model="editingItem.label" :rules="labelRule" label="Label:" placeholder="" required hint="Enter a label for the web forward." persistent-hint></v-text-field>
 
-            <pre>{{ container }}</pre>
+                  <h3 style="margin-top:15px">Domains</h3>
+                  <v-layout row wrap>
+                    <v-flex xs11>
+                      <v-text-field v-model="newDomain" label="Domain:" hint="Enter a domain name to forward to upstream/s."></v-text-field>
+                    </v-flex>
+                    <v-flex xs1>
+                      <v-btn flat icon color="success" @click.native="addDomain">
+                        <v-icon>add</v-icon>
+                      </v-btn>
+                    </v-flex>
+                  </v-layout>
+                  <v-layout row wrap v-for="domain in editingItem.ownDomain" :key="domain.id">
+                    <v-flex xs11>
+                      <v-text-field v-model="domain.name" label="Domain:" hint="Empty or invalid domains are removed."></v-text-field>
+                    </v-flex>
+                    <v-flex xs1>
+                      <v-btn flat icon color="error" @click.native="removeDomain(domain)">
+                        <v-icon>remove</v-icon>
+                      </v-btn>
+                    </v-flex>
+                  </v-layout>
 
+                  <h3 style="margin-top:15px">Upstream/s</h3>
+                  <v-layout row wrap>
+                    <v-flex xs6>
+                      <v-text-field v-model="newUpstream.ip" label="IP Address:" hint="Enter upstream IP address."></v-text-field>
+                    </v-flex>
+                    <v-flex xs5>
+                      <v-text-field v-model="newUpstream.port" label="Port:" hint="Enter upstream port."></v-text-field>
+                    </v-flex>
+                    <v-flex xs1>
+                      <v-btn flat icon color="success" @click.native="addUpstream">
+                        <v-icon>add</v-icon>
+                      </v-btn>
+                    </v-flex>
+                  </v-layout>
+                  <v-layout row wrap v-for="upstream in editingItem.ownUpstream" :key="upstream.id">
+                   <v-flex xs6>
+                      <v-text-field v-model="upstream.ip" label="IP Address:" hint="Empty or invalid ips are removed."></v-text-field>
+                    </v-flex>
+                    <v-flex xs5>
+                      <v-text-field v-model="upstream.port" label="Port:" hint="Empty or invalid ports are removed."></v-text-field>
+                    </v-flex>
+                    <v-flex xs1>
+                      <v-btn flat icon color="error" @click.native="removeUpstream(upstream)">
+                        <v-icon>remove</v-icon>
+                      </v-btn>
+                    </v-flex>
+                  </v-layout>
+            
+                  <h3 style="margin-top:15px">SSL</h3>
+                  <v-checkbox v-model="editingItem.letsencrypt" label="Let's Encrypt"></v-checkbox>
+                </v-form>
+              </v-card-text>
+            </v-card>
           </v-card-text>
-
           <div style="flex: 1 1 auto;"></div>
         </v-card>
       </v-dialog>
@@ -135,8 +165,6 @@
   import { mapGetters, mapMutations } from 'vuex'
   import { setToken } from '~/utils/auth'
   import axios from 'axios'
-  import { Terminal } from 'xterm'
-  import * as fit from 'xterm/lib/addons/fit/fit'
 
   export default {
     middleware: [
@@ -144,55 +172,98 @@
     ],
     components: {},
     computed: {
-     
       ...mapGetters({
         isAuthenticated: 'auth/isAuthenticated',
         loggedUser: 'auth/loggedUser',
         loggedToken: 'auth/loggedToken'
-      }),
-
-      formTitle () {
-        return this.editedIndex === -1 ? 'New Container' : 'Edit Container'
-      }
+      })
     },
     data: () => ({
-      // snackbar
+      // global error
+      error: '',
+
+      // snackbar (notification)
       snackbar: false,
       snackbarColor: 'green',
-      snackbarText: 'foobar',
+      snackbarText: '',
       snackbarTimeout: 5000,
 
-      active: null,
-      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-
-      error: '',
-      dialog: false,
-      containerDialog: false,
-      containerActions: [
-        { title: 'Start' },
-        { title: 'Stop' },
-        { title: 'Delete' }
-      ],
-      headers: [
-        { text: 'Name', value: 'name' },
+      // table & items
+      items: [],
+      
+      tableLoading: true,
+      tableNoData: 'You have not added any web forwards.',
+      tableHeaders: [
+        { text: 'Label', value: 'label' },
         { text: 'IP', value: 'ip' },
         { text: 'Port', value: 'port' },
         { text: 'Domains', value: 'ownDomain' },
         { text: 'SSL', value: 'ssl_type' },
-        { text: 'Has Change', value: 'has_change' },
-        { text: 'Actions', value: 'name', sortable: false }
+        { text: 'Actions', value: 'name', sortable: false, align: 'right' }
       ],
-      items: [],
-      editedIndex: -1,
-      editedItem: {
-        host: '',
-        secret: ''
+      itemActions: [
+        { title: 'Start' },
+        { title: 'Stop' },
+        { title: 'Delete' }
+      ],
+
+      // dialog
+      dialog: false,
+      
+      // item
+      editingIndex: -1,
+      editingItem: {
+        id: -1,
+        label: "",
+        name: "",
+        ssl_type: "",
+        letsencrypt: false,
+        added: "",
+        updated: "",
+        has_change: 1,
+        has_error: 0,
+        delete: 0,
+        enabled: 1,
+        update_ip: 0,
+        ip: "",
+        port: "",
+        error: "",
+        ownDomain: [],
+        ownUpstream: []
       },
       defaultItem: {
-        host: '',
-        secret: ''
+        id: -1,
+        label: "",
+        name: "",
+        ssl_type: "",
+        letsencrypt: false,
+        added: "",
+        updated: "",
+        has_change: 1,
+        has_error: 0,
+        delete: 0,
+        enabled: 1,
+        update_ip: 0,
+        ip: "",
+        port: "",
+        error: "",
+        ownDomain: [],
+        ownUpstream: []
       },
-      container: {}
+      
+      // new domain item
+      newDomain: '',
+      newUpstream: {
+        ip: '',
+        port: ''
+      },
+      
+      // item form & validation
+      valid: true,
+      labelRule: [
+        v => !!v || 'Label is required',
+        v => (v && v.length <= 100) || 'Label must be less than 100 characters'
+      ]
     }),
     mounted: function () {
       this.initialize()
@@ -204,7 +275,7 @@
     },
     methods: {
       async initialize () {
-        //
+        // fetch remote
         try {
           if (!this.loggedUser) {
             this.$router.replace('/servers')
@@ -215,108 +286,133 @@
           const response = await axios.get(this.loggedUser.sub + '/api/routes/web-forwards')
           this.items = response.data.data
         } catch (error) {
-          console.error(error);
+          this.tableNoData = 'No data.';
+          this.error = 'Could not fetch data from server.';
         }
+        this.tableLoading = false
       },
-
-
-      viewContainer (container) {
-        this.container = container
-        this.containerDialog = true
-        this.console()
-      },
-
-      async actionContainer (action, item) {
-        //
-        try {
-          if (!this.loggedUser) {
-            throw Error();
-          }
-
-          //
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-          //
-          const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + item + '/' + action)
-          setTimeout(this.initialize(), 1000)
-        } catch (error) {
-          console.error(error);
+      
+      //
+      addDomain () {
+        if (!this.editingItem.ownDomain) {
+          this.editingItem.ownDomain = [];
         }
+        this.editingItem.ownDomain.unshift({name:this.newDomain})
+        this.newDomain = '';
+      }, 
+      //
+      removeDomain (item) {
+        const index = this.editingItem.ownDomain.indexOf(item)
+        this.editingItem.ownDomain.splice(index, 1)
+      },
+      
+      //
+      addUpstream () {
+        if (!this.editingItem.ownUpstream) {
+          this.editingItem.ownUpstream = [];
+        }
+        this.editingItem.ownUpstream.unshift({ip: this.newUpstream.ip, port: this.newUpstream.port})
+        this.newUpstream = {
+          ip: '',
+          port: ''
+        };
+      }, 
+      //
+      removeUpstream (item) {
+        const index = this.editingItem.ownUpstream.indexOf(item)
+        this.editingItem.ownUpstream.splice(index, 1)
       },
 
-      /*
-      authItem (item) {
-        this.editedIndex = this.items.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-
-        axios.post(item.host + '/auth', {
-          server: item.host,
-          secret: item.secret
-        }).then(response => {
-          setToken(response.data['token'])
-          this.$router.replace('/')
-        }).catch(error => {
-          if (error.response) {
-            if (error.response.status === 401) {
-              this.error = 'Incorrect secret!'
-            } else {
-              this.error = 'Failed to connect to host, check details.'
-            }
-          } else if (error.request) {
-            this.error = 'Failed to connect to host, check details.'
-          } else {
-            this.error = error.message
-          }
-        })
-      },
-*/
+      // create or edit item
       editItem (item) {
-        this.editedIndex = this.items.indexOf(item)
-        this.editedItem = Object.assign({}, item)
+        this.editingIndex = this.items.indexOf(item)
+        
+        // ssl_type
+        if (item.ssl_type === 'letsencrypt') {
+          item.letsencrypt = true;
+        }
+        
+        this.editingItem = Object.assign({}, item)
         this.dialog = true
       },
 
-      deleteItem (item) {
+      // delete item
+      async deleteItem (item) {
         const index = this.items.indexOf(item)
-        confirm('Are you sure you want to delete this item?') && this.items.splice(index, 1)
+        
+        // local
+        //if (confirm('Are you sure you want to delete this item?')){
+          this.items.splice(index, 1)
+        //}
 
-        window.localStorage.setItem('servers', JSON.stringify(this.items))
+        // remote
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+
+          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+          //
+          const response = await axios.delete(this.loggedUser.sub + '/api/routes/web-forwards', { data: item })
+          //
+          this.snackbar = true;
+          this.snackbarText = 'Web forward successfully deleted.';
+          
+        } catch (error) {
+          this.error = 'Could not delete web forward from server.';
+        }
       },
 
+      // save item
+      async save () {
+        if (this.$refs.form.validate()) {
+          
+          if (this.newDomain.length > 0){
+            this.addDomain()
+          }
+          if (this.newUpstream.ip){
+            this.addUpstream()
+          }
+
+          // local
+          if (this.editingIndex > -1) {
+            Object.assign(this.items[this.editingIndex], this.editingItem)
+          } else {
+            this.items.push(Object.assign({}, this.editingItem))
+          }
+          
+          // remote
+          try {
+            if (!this.loggedUser) {
+              this.$router.replace('/servers')
+            }
+  
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+            //
+            const response = await axios.post(this.loggedUser.sub + '/api/routes/web-forwards', this.editingItem)
+            //
+            this.snackbar = true;
+            this.snackbarText = 'Web forward successfully saved.';
+          } catch (error) {
+            this.error = 'Could not save web forward to server.';
+          }
+          
+          // reload data
+          this.initialize()
+          
+          this.close()
+        }
+      },
+      
+      // close item dialog, and reset to default item
       close () {
         this.dialog = false
         setTimeout(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
+          this.editingItem = Object.assign({}, this.defaultItem)
+          this.editingIndex = -1
         }, 300)
-      },
-
-      save () {
-        if (this.editedIndex > -1) {
-          Object.assign(this.items[this.editedIndex], this.editedItem)
-        } else {
-          this.items.push(this.editedItem)
-        }
-
-        window.localStorage.setItem('servers', JSON.stringify(this.items))
-
-        this.close()
       }
 
-      /*
-      async getServers () {
-        // set jwt into request header
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-        // get (servers)
-        const response = await axios.get('https://fatfree-base-rest-cloned-lcherone.c9users.io/servers')
-        this.servers = response.data.data
-      },
-      async remove (id) {
-        // set jwt into request header
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-        // delete (server)
-        const response = await axios.delete('https://fatfree-base-rest-cloned-lcherone.c9users.io/servers/' + id)
-        this.getServers()
-      }*/
     }
   }
 </script>
