@@ -12,7 +12,7 @@ class Response extends \Prefab
     public function json($data = null)
     {
         header('Content-Type: application/json;charset=utf8');
-        exit(json_encode($data, JSON_PRETTY_PRINT | JSON_NUMERIC_CHECK));
+        exit(json_encode($data, JSON_PRETTY_PRINT | JSON_PRESERVE_ZERO_FRACTION));
     }
 
     public function html()

@@ -39,44 +39,36 @@ class Controller extends \Base\Controller
         $this->ams = new \Base\Model('ams');
         
         // load module
-        /*
-        $module = $this->ams->findOrCreate([
-            'module' => $params['module'],
-            'version' => $params['version'],
-            'source' => '<?php echo json_encode(["Hello World"]); ?>',
-            'config' => json_encode([
-                
-            ]),
-            'headers' => json_encode([
-                'Content-Type' => 'application/json'
-            ]),
-            'auth' => ''
-        ]);
-        */
-        
-        $module = $this->ams->find('module = ? AND version = ?', [$params['module'], $params['version']]);
+        $module = $this->ams->findOne('module = ? AND version = ?', [$params['module'], $params['version']]);
         
         // not found
         if (empty($module->id)) {
             $f3->error(404);
         }
-        
+
         ob_start();
         echo (function ($module) use ($f3, $params) {
             /**
              * Pre-setup - extract and set variables for source to use
              */
             // set headers
-            if (!empty($module->headers)) {
-                $module->headers = json_decode($module->headers, true);
-                foreach ((array) $module->headers as $key => $value) {
-                    header($key.': '.$value);
+            if (!empty($module->header)) {
+                // define allowed headers, if None dont set
+                $headers = [
+                    'JSON' => 'application/json;charset=utf-8',
+                    'HTML' => 'text/html;charset=utf-8',
+                    'TEXT' => 'text/plain;charset=utf-8',
+                    'JS'   => 'text/javascript;charset=utf-8',
+                    'XML'  => 'application/xml;charset=utf-8'
+                ];
+                if (array_key_exists($module->header, $headers)) {
+                    header('Content-Type: '.$headers[$module->header]);
                 }
-                unset($key, $value);
+                unset($headers);
             }
             
-            // check auth (jwt)
-            if (!empty($module->auth) && $module->auth === 'jwt') {
+            // check auth (JWT)
+            if (!empty($module->auth) && $module->auth === 'JWT') {
                 try {
                     \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
                         
@@ -92,7 +84,7 @@ class Controller extends \Base\Controller
             
             // extract config
             if (!empty($module->config)) {
-                $module->config = json_decode($module->config, true);
+                $module->config = (array) json_decode($module->config, true);
                 extract($module->config);
             }
             
@@ -105,7 +97,12 @@ class Controller extends \Base\Controller
             // unset module variable
             unset($module);
             
-            return eval('?>'.@$source);
+            try {
+                return eval('?>'.@$source);
+            } catch (\ParseError $e) {
+                header('Content-Type: text/plain');
+                return "API Error:\n".$e."\n";
+            }
         })($module);
         exit(ob_get_clean());
         

@@ -1,16 +1,19 @@
-//const bodyParser = require('body-parser')
-
-/* nuxt.config.js */
-// only add `router.base = '/<repository-name>/'` if `DEPLOY_ENV` is `GH_PAGES`
+/**
+ * Define router base folder path, for all situations.
+ * On:
+ *  - generate          - path will be /ui/
+ *  - generate:gh-pages - path will be /Deval/
+ *  - dev               - path will be /
+ */
 const router = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
   middleware: 'check-auth',
   base: '/Deval/'
 } : {
   middleware: 'check-auth',
-  base: '/ui/'
+  base: (process.env.npm_lifecycle_event === 'dev' ? '/' : '/ui/')
 }
 
-// where nuxt assets go
+// change _nuxt assets path, same for both on this project
 const publicPath = process.env.DEPLOY_ENV === 'GH_PAGES' ? '/assets/' : '/assets/'
 
 /**
@@ -29,10 +32,6 @@ module.exports = {
     ]
   },
   loading: { color: '#3B8070' },
-  //serverMiddleware: [
-  //  bodyParser.json(),
-  //  '~/api'
-  //],
   router: {
     ...router
   },
@@ -87,7 +86,7 @@ module.exports = {
     ],
     postcss: {
       plugins: {
-        // prevent compile warnings from bulma
+        // prevent compile CSS warnings
         'postcss-custom-properties': false
       }
     },

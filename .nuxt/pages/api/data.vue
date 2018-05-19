@@ -21,11 +21,12 @@
                 <v-alert type="error" :value="error">
                   {{ error }}
                 </v-alert>
+                <p>The data API allows you to create custom data endpoints on the server.</p>
                 <v-data-table :headers="tableHeaders" :items="items" hide-actions class="elevation-1">
                   <template slot="items" slot-scope="props">
-                    <td><a href="javascript:void(0)" @click.stop="manageItem(props.item)">{{ props.item.module }}</a></td>
+                    <td><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.module }}</a></td>
                     <td>{{ props.item.version }}</td>
-                    <td class="justify-center layout px-0">
+                    <td>
                       <!--
                       <v-menu offset-y>
                         <v-btn icon class="mx-0" slot="activator">
@@ -42,13 +43,13 @@
                         <v-icon color="teal">edit</v-icon>
                       </v-btn>
                       -->
-                      <v-btn icon class="mx-0" @click="deleteItem(props.item)">
+                      <v-btn icon class="mx-0" style="float:right" @click="deleteItem(props.item)">
                         <v-icon color="pink">delete</v-icon>
                       </v-btn>
                     </td>
                   </template>
                   <template slot="no-data">
-                    You have not added any items.
+                    You have not added any API endpoints.
                   </template>
                 </v-data-table>
               </v-flex>
@@ -67,7 +68,7 @@
             <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} Endpoint</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
-              <v-btn dark flat @click.native="dialog = false">Save</v-btn>
+              <v-btn dark flat @click.native="save()">Save</v-btn>
             </v-toolbar-items>
             <v-menu bottom right offset-y>
               <v-btn slot="activator" dark icon>
@@ -83,44 +84,33 @@
             </v-menu>
           </v-toolbar>
           <v-card-text style="padding: 0px;">
-            <!--
-            <v-tabs v-model="active">
-              <v-tab v-for="n in ['Information', 'Configuration', 'Console']" :key="n" ripple>
-                {{ n }}
-              </v-tab>
-              <v-tab-item v-for="n in ['Information', 'Configuration', 'Console']" :key="n">
-                <v-card flat>
-                  <div id="terminal"></div>
-                  <v-card-text>{{ text }}</v-card-text>
-                </v-card>
-              </v-tab-item>
-            </v-tabs>
-            -->
             <v-card flat>
               <v-card-text>
-                <v-text-field v-model="editingItem.module" label="Name" placeholder="" required></v-text-field>
-
+                <v-alert :value="true" outline color="info" icon="info" style="margin-bottom: 10px;">
+                  <strong>Endpoint:</strong> {{loggedUser.sub}}/{{editingItem.version}}/{{editingItem.module}} [GET|POST|PUT|DELETE]
+                </v-alert>
+                <v-form ref="form" v-model="valid" lazy-validation>
+                  <v-text-field v-model="editingItem.module" :rules="moduleRules" label="Name:" placeholder="" required hint="Enter the name of the endpoint." persistent-hint></v-text-field>
+                  <v-text-field v-model="editingItem.version" :rules="versionRules" label="Version:" placeholder="e.g: 1.0" required hint="Enter the version of the endpoint."></v-text-field>
                 
-                Define the endpoint use {var_name}, to interpolate into route paramitors.
-                <v-text-field v-model="editingItem.endpoint" label="Endpoint" placeholder="e.g: /customers/{id}" required></v-text-field>
-                <v-text-field v-model="editingItem.version" label="Version" placeholder="e.g: 1.0" required></v-text-field>
-              
-                <v-select :items="['None', 'JWT']" v-model="editingItem.auth" label="Authentication" single-line></v-select>
-                <v-select :items="['None', 'JSON', 'HTML', 'TEXT', 'JS', 'XML', 'JPG', 'PNG', 'GIF']" v-model="editingItem.header" label="Response Content Type" single-line></v-select>
-
-                <no-ssr placeholder="Codemirror Loading...">
-                  <codemirror v-model="editingItem.source" 
-                              :options="cmOption"
-                              @cursorActivity="onCmCursorActivity"
-                              @ready="onCmReady"
-                              @focus="onCmFocus"
-                              @blur="onCmBlur">
-                  </codemirror>
-                </no-ssr>
+                  <v-select :items="['None', 'JWT']" v-model="editingItem.auth" label="Authentication:"></v-select>
+                  <p v-if="editingItem.auth === 'JWT'" style="margin-top:-20px;color:rgba(0,0,0,0.54);font-size: 12px;">To obtain bearer token, authenticate using POST to {{loggedUser.sub}}/auth/jwt</p>
+                  
+                  <v-select :items="['None', 'JSON', 'HTML', 'TEXT', 'JS', 'XML']" v-model="editingItem.header" label="Response Content Type:" hint="Select response content-type."></v-select>
+                  
+                  <h3>Source</h3>
+                  <no-ssr placeholder="Loading...">
+                    <codemirror v-model="editingItem.source"
+                                :options="cmOption"
+                                @cursorActivity="onCmCursorActivity"
+                                @ready="onCmReady"
+                                @focus="onCmFocus"
+                                @blur="onCmBlur">
+                    </codemirror>
+                  </no-ssr>
+                </v-form>
               </v-card-text>
             </v-card>
-            
-            <pre>{{ editingItem }}</pre>
           </v-card-text>
           <div style="flex: 1 1 auto;"></div>
         </v-card>
@@ -150,45 +140,36 @@
       }
     },
     data: () => ({
+      // global error
       error: '',
-      
-      // code mirror
-        cmOption: {
-          tabSize: 4,
-          foldGutter: true,
-          styleActiveLine: true,
-          lineNumbers: true,
-          line: true,
-          keyMap: "sublime",
-          mode: 'text/x-vue',
-          theme: 'base16-dark',
-          extraKeys: {
-            'F11'(cm) {
-              cm.setOption("fullScreen", !cm.getOption("fullScreen"))
-            },
-            'Esc'(cm) {
-              if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false)
-            }
-          }
-        },
+
+      // code mirror options
+      cmOption: {
+        smartIndent: false,
+        indentWithTabs: true,
+        tabSize: 4,
+        indentUnit:4,
+        foldGutter: true,
+        styleActiveLine: true,
+        lineNumbers: true,
+        line: true,
+        keyMap: "sublime",
+        mode: 'text/x-php'
+      },
         
-      // snackbar
+      // snackbar (notification)
       snackbar: false,
       snackbarColor: 'green',
-      snackbarText: 'foobar',
+      snackbarText: '',
       snackbarTimeout: 5000,
-
-      // tabs
-      active: null,
-      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
 
       // table & items
       items: [],
       
       tableHeaders: [
         { text: 'Name', value: 'module' },
-        { text: 'Status', value: 'version' },
-        { text: 'Actions', value: 'module', sortable: false }
+        { text: 'Version', value: 'version' },
+        { text: 'Actions', value: 'module', sortable: false, align: 'right' }
       ],
       itemActions: [
         { title: 'Start' },
@@ -199,11 +180,12 @@
       // dialog
       dialog: false,
       
+      // item
       editingIndex: -1,
       editingItem: {
         id: -1,
         module: "",
-        version: 1.0,
+        version: "1.0",
         source: "",
         headers: "",
         config: null,
@@ -212,12 +194,23 @@
       defaultItem: {
         id: -1,
         module: "",
-        version: 1.0,
+        version: "1.0",
         source: "",
         headers: "",
         config: null,
         auth: null
-      }
+      },
+      
+      // item form & validation
+      valid: true,
+      moduleRules: [
+        v => !!v || 'Module name is required',
+        v => (v && v.length <= 100) || 'Module name must be less than 100 characters'
+      ],
+      versionRules: [
+        v => !!v || 'Version is required',
+        v => (v && Number(v)) || 'Version must be a number'
+      ],
     }),
     mounted: function () {
       this.initialize()
@@ -228,21 +221,8 @@
       }
     },
     methods: {
-      onCmCursorActivity(codemirror) {
-        console.log('onCmCursorActivity', codemirror)
-      },
-      onCmReady(codemirror) {
-        console.log('onCmReady', codemirror)
-      },
-      onCmFocus(codemirror) {
-        console.log('onCmFocus', codemirror)
-      },
-      onCmBlur(codemirror) {
-        console.log('onCmBlur', codemirror)
-      },
-
       async initialize () {
-        //
+        // fetch remote
         try {
           if (!this.loggedUser) {
             this.$router.replace('/servers')
@@ -253,22 +233,27 @@
           const response = await axios.get(this.loggedUser.sub + '/api/ams/data')
           this.items = response.data.data
         } catch (error) {
-          console.error(error);
+          this.error = 'Could not fetch data from server.';
         }
       },
 
-      manageItem (item) {
+      // create or edit item
+      editItem (item) {
         this.editingIndex = this.items.indexOf(item)
         this.editingItem = Object.assign({}, item)
         this.dialog = true
       },
 
+      // delete item
       async deleteItem (item) {
         const index = this.items.indexOf(item)
         
-        confirm('Are you sure you want to delete this item?') && this.items.splice(index, 1)
+        // local
+        //if (confirm('Are you sure you want to delete this item?')){
+          this.items.splice(index, 1)
+        //}
 
-        //
+        // remote
         try {
           if (!this.loggedUser) {
             this.$router.replace('/servers')
@@ -277,30 +262,53 @@
           axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
           const response = await axios.delete(this.loggedUser.sub + '/api/ams/data', { data: item })
-          //this.items = response.data.data
+          //
+          this.snackbar = true;
+          this.snackbarText = 'Endpoint successfully deleted.';
+          
         } catch (error) {
-          console.error(error);
+          this.error = 'Could not delete endpoint from server.';
         }
       },
 
+      // save item
+      async save () {
+        if (this.$refs.form.validate()) {
+          // local
+          if (this.editingIndex > -1) {
+            Object.assign(this.items[this.editingIndex], this.editingItem)
+          } else {
+            this.items.push(Object.assign({}, this.editingItem))
+          }
+          
+          // remote
+          try {
+            if (!this.loggedUser) {
+              this.$router.replace('/servers')
+            }
+  
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+            //
+            const response = await axios.post(this.loggedUser.sub + '/api/ams/data', this.editingItem)
+            //
+            this.snackbar = true;
+            this.snackbarText = 'Endpoint successfully saved.';
+          } catch (error) {
+            this.error = 'Could not save endpoint to server.';
+          }
+  
+          this.close()
+          this.$refs.form.reset()
+        }
+      },
+      
+      // close item dialog, and reset to default item
       close () {
         this.dialog = false
         setTimeout(() => {
           this.editingItem = Object.assign({}, this.defaultItem)
           this.editingIndex = -1
         }, 300)
-      },
-
-      save () {
-        if (this.editingIndex > -1) {
-          Object.assign(this.items[this.editingIndex], this.editingItem)
-        } else {
-          this.items.push(this.editingItem)
-        }
-
-        //window.localStorage.setItem('servers', JSON.stringify(this.items))
-
-        this.close()
       }
 
     }
@@ -308,5 +316,12 @@
 </script>
 
 <style>
-
+  .CodeMirror {
+    border: 1px solid #eee;
+    min-height:calc(100vh - 480px);
+    height: auto;
+  }
+  .CodeMirror-scroll{
+    min-height:calc(100vh - 490px);
+  }
 </style>

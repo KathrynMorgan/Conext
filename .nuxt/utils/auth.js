@@ -22,7 +22,6 @@ export const unsetToken = () => {
   window.localStorage.removeItem('user')
   window.localStorage.removeItem('secret')
   Cookie.remove('jwt')
-  window.localStorage.setItem('logout', Date.now())
 }
 
 /**
