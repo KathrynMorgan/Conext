@@ -57,6 +57,7 @@ module.exports = {
     // 'codemirror/theme/default.css'
   ],
   generate: {
+    extractCSS: true,
     minify: {
       collapseBooleanAttributes: true,
       collapseWhitespace: false,
