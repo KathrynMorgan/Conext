@@ -94,7 +94,7 @@
       error: '',
       dialog: false,
       headers: [
-        { text: 'Label', align: 'left', value: 'host' },
+        { text: 'Label', align: 'left', value: 'label' },
         { text: 'Host', value: 'host' },
         { text: 'Secret', value: 'secret' },
         { text: 'Actions', value: 'host', sortable: false }
