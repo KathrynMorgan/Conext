@@ -43,32 +43,11 @@ class Webforwards extends \Base\Controller
         $client = $f3->get('plinker');
         
         if ($verb === 'GET') {
-            
-            /*
-            $route = [
-                    'label' => 'Example',
-                    'ownDomain' => [
-                        'example.com',
-                        'www.example.com'
-                    ],
-                    'ownUpstream' => [
-                        ['ip' => '127.0.0.1', 'port' => '80']
-                    ],
-                    'letsencrypt' => 0,
-                    'enabled' => 1
-                ];
-                //
-                $client->nginx->reset();
-                $client->nginx->add($route);
-                */
-
-                $f3->response->json([
-                    'error' => null,
-                    'code'  => 200,
-                    'data'  => $client->nginx->fetch()
-                ]);
-            
-            
+            $f3->response->json([
+                'error' => null,
+                'code'  => 200,
+                'data'  => $client->nginx->fetch()
+            ]);
         }
         
         if ($verb === 'POST') {
@@ -99,26 +78,21 @@ class Webforwards extends \Base\Controller
                 $upstreams[] = ['ip' => $upstream['ip'], 'port' => $upstream['port']];
             }
             
+            // route
+            $route = [
+                'label' => $item['label'],
+                'ownDomain' => $domains,
+                'ownUpstream' => $upstreams,
+                 'letsencrypt' => $item['letsencrypt'],
+                'enabled' => 1
+            ];
+            
             // new
             if ($item['id'] == -1) {
-                $route = [
-                    'label' => $item['label'],
-                    'ownDomain' => $domains,
-                    'ownUpstream' => $upstreams,
-                    'letsencrypt' => $item['letsencrypt'],
-                    'enabled' => 1
-                ];
                 $client->nginx->add($route);
             } 
             // update
             else {
-                $route = [
-                    'label' => $item['label'],
-                    'ownDomain' => $domains,
-                    'ownUpstream' => $upstreams,
-                    'letsencrypt' => $item['letsencrypt'],
-                    'enabled' => 1
-                ];
                 $client->nginx->update('id = ? AND name = ?', [$item['id'], $item['name']], $route);
             }
 
@@ -144,7 +118,7 @@ class Webforwards extends \Base\Controller
                 ]); 
             }
             
-            $client->nginx->remove('id = ?', [$item['id']]);
+            $client->nginx->remove('id = ? AND name = ?', [$item['id'], $item['name']]);
 
             $f3->response->json([
                 'error' => '',
