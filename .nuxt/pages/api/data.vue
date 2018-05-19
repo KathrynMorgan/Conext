@@ -98,15 +98,9 @@
                   
                   <v-select :items="['None', 'JSON', 'HTML', 'TEXT', 'JS', 'XML']" v-model="editingItem.header" label="Response Content Type:" hint="Select response content-type."></v-select>
                   
-                  <h3>Source</h3>
+                  <h3>Source (PHP)</h3>
                   <no-ssr placeholder="Loading...">
-                    <codemirror v-model="editingItem.source"
-                                :options="cmOption"
-                                @cursorActivity="onCmCursorActivity"
-                                @ready="onCmReady"
-                                @focus="onCmFocus"
-                                @blur="onCmBlur">
-                    </codemirror>
+                    <codemirror v-model="editingItem.source" :options="cmOption"></codemirror>
                   </no-ssr>
                 </v-form>
               </v-card-text>
