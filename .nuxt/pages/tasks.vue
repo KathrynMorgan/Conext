@@ -68,16 +68,17 @@
                           <td>{{ props.item.repeats == 1 ? 'Yes' : 'No'}}</td>
                           <td>
                             <v-edit-dialog
-                              :return-value="props.item.sleep"
+                              :return-value.sync="props.item.sleep"
                               lazy
                             >{{ props.item.sleep }}
                               <v-text-field
                                 slot="input"
-                                v-model="props.item.sleep"
+                                v-model="sleep"
                                 :rules="sleepRule"
                                 label="Sleep time between iterations."
                                 single-line
-                                @change="saveInstance(props.item)"
+                                @focus="sleep = props.item.sleep"
+                                @change="saveInstance(props.item, sleep)"
                               ></v-text-field>
                             </v-edit-dialog>
                           </td>
@@ -102,8 +103,11 @@
                               <v-icon color="teal">edit</v-icon>
                             </v-btn>
                             -->
-                            <v-btn icon class="mx-0" style="float:right" @click="deleteItem(props.item)">
+                            <v-btn icon class="mx-0" style="float:right" @click="deleteInstance(props.item)">
                               <v-icon color="pink">delete</v-icon>
+                            </v-btn>
+                            <v-btn v-if="props.item.completed != 0" icon class="mx-0" style="float:right" @click="reloadInstance(props.item)">
+                              <v-icon color="blue">replay</v-icon>
                             </v-btn>
                           </td>
                         </tr>
@@ -113,7 +117,7 @@
                       </template>
                       <template slot="expand" slot-scope="props">
                         <v-card flat>
-                          <v-card-text v-html="props.result ? '<pre>' + props.result + '</pre>' : 'Task has no result value.'"></v-card-text>
+                          <v-card-text v-html="props.item.result ? '<pre>' + props.item.result + '</pre>' : 'Task has no result value.'"></v-card-text>
                         </v-card>
                       </template>
                     </v-data-table>
@@ -159,8 +163,8 @@
                 </v-alert>
                 -->
                 <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-text-field v-model="editingItem.name" :rules="labelRule" label="Label:" placeholder="" required hint="Enter a label for the port forward." persistent-hint></v-text-field>
-                  <v-text-field v-model="editingItem.description" label="Description:" placeholder="" required hint="Enter the task description." persistent-hint></v-text-field>
+                  <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter name of the task."></v-text-field>
+                  <v-text-field v-model="editingItem.description" label="Description:" placeholder="" required hint="Enter the task description."></v-text-field>
 
                   <v-select :items="['PHP', 'BASH']" v-model="editingItem.type" label="Task Source Type:" hint="Select the type of code the task is written in."></v-select>
                   
@@ -230,6 +234,7 @@
       // table & items
       items: [],
       item: [],
+      sleep: 0,
       
       tableLoading: true,
       tableNoData: 'You have not added any tasks.',
@@ -286,17 +291,23 @@
       
       // item form & validation
       valid: true,
-      labelRule: [
+      nameRule: [
         v => !!v || 'Name is required',
         v => (v && v.length <= 100) || 'Name must be less than 100 characters'
       ],
       sleepRule: [
         v => !!v || 'Sleep is required',
         v => (v && !isNaN(v)) || 'Sleep must be a number'
-      ]
+      ],
+      
+      // poller id
+      pollItem: 0
     }),
     mounted: function () {
       this.initialize()
+    },
+    beforeDestroy: function(){
+      clearInterval(this.pollId);
     },
     watch: {
       dialog (val) {
@@ -305,7 +316,6 @@
     },
     methods: {
       async initialize () {
-        // fetch remote
         try {
           if (!this.loggedUser) {
             this.$router.replace('/servers')
@@ -314,7 +324,8 @@
           axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
           const response = await axios.get(this.loggedUser.sub + '/api/tasks')
-          this.items = response.data.data
+          this.items = Object.assign([], this.items, response.data.data)
+          this.$set(this.items, response.data.data)
         } catch (error) {
           this.tableNoData = 'No data.';
           this.error = 'Could not fetch data from server.';
@@ -322,41 +333,52 @@
         this.tableLoading = false
       },
       
-      async tableExpand(prop) {
-        if (!prop.expanded) {
-          // get ats logs
-          // fetch remote
-          try {
-            if (!this.loggedUser) {
-              this.$router.replace('/servers')
-            }
-  
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-            //
-            const response = await axios.get(this.loggedUser.sub + '/api/tasks/' + prop.item.id)
-            this.item = response.data.data
-          } catch (error) {
-            this.tableNoData = 'No data.';
-            this.error = 'Could not fetch data from server.';
+      // called when polled
+      async taskItem(item) {
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
           }
+  
+          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/tasks/' + item.id)
+          this.item = response.data.data
+        } catch (error) {
+          this.tableNoData = 'No data.';
+          this.error = 'Could not fetch data from server.';
+        }
+      },
+      
+      async tableExpand(prop) {
+        this.item = [];
+        clearInterval(this.pollId);
+        if (!prop.expanded) {
+          this.taskItem(prop.item)
+          this.pollId = setInterval(function () {
+            this.taskItem(prop.item)
+          }.bind(this), 2000);
         }
         prop.expanded = !prop.expanded
       },
       
-      async saveInstance(item) {
+      async saveInstance(item, sleep) {
         const index = this.item.indexOf(item)
         try {
             if (!this.loggedUser) {
               this.$router.replace('/servers')
             }
+            
+            item.sleep = sleep || 0
   
             axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
             //
             const response = await axios.post(this.loggedUser.sub + '/api/tasks/' + item.id, item)
             
+            this.item[index] = Object.assign(this.item[index], response.data.data)
+            
             // check for error, reset values with response
             if (response.data.code === 422) {
-              this.item[index] = Object.assign(this.item[index], response.data.data)
               //
               this.snackbar = true;
               this.snackbarColor = 'red';
@@ -369,6 +391,87 @@
             }
           } catch (error) {
             this.error = 'Could not update task instance.';
+          }
+      },
+
+      async deleteInstance(item) {
+        const index = this.item.indexOf(item)
+        try {
+            if (!this.loggedUser) {
+              this.$router.replace('/servers')
+            }
+            
+            // delete local
+            this.item.splice(index, 1)
+  
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+            //
+            const response = await axios.delete(this.loggedUser.sub + '/api/tasks/' + item.id)
+
+            // check for error, reset values with response
+            if (response.data.code === 422) {
+              //
+              this.snackbar = true;
+              this.snackbarColor = 'red';
+              this.snackbarText = response.data.error;
+            } else {
+              //
+              this.snackbar = true;
+              this.snackbarColor = 'green';
+              this.snackbarText = 'Task instance deleted.';
+            }
+          } catch (error) {
+            this.error = 'Could not deleted task instance.';
+          }
+      },
+      
+      async reloadInstance(item) {
+        const index = this.item.indexOf(item)
+        try {
+            if (!this.loggedUser) {
+              this.$router.replace('/servers')
+            }
+
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+            //
+            const response = await axios.put(this.loggedUser.sub + '/api/tasks/' + item.id, item)
+            
+            this.item[index] = Object.assign(this.item[index], response.data.data)
+
+            // check for error, reset values with response
+            if (response.data.code === 422) {
+              //
+              this.snackbar = true;
+              this.snackbarColor = 'red';
+              this.snackbarText = response.data.error;
+            } else {
+              //
+              this.snackbar = true;
+              this.snackbarColor = 'green';
+              this.snackbarText = 'Task instance reloaded.';
+            }
+          } catch (error) {
+            this.error = 'Could not reloaded task instance.';
+          }
+      },
+      
+      async runTask(item) {
+        try {
+            if (!this.loggedUser) {
+              this.$router.replace('/servers')
+            }
+  
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+            //
+            const response = await axios.put(this.loggedUser.sub + '/api/tasks', item)
+            
+            this.snackbar = true;
+            this.snackbarColor = 'green';
+            this.snackbarText = 'Task run instance executed.';
+            
+            this.initialize()
+          } catch (error) {
+            this.error = 'Could not add task instance.';
           }
       },
 

@@ -64,35 +64,54 @@ class Index extends \Base\Controller
                 ]); 
             }
 
-            // route
-            $route = [
-                'label' => $item['label'],
-                'name' => $item['name'],
-                'ip' => $item['ip'],
-                'port' => $item['port'],
-                'srv_type' => $item['srv_type'],
-                'srv_port' => $item['srv_port'],
-                'enabled' => 1
-            ];
-            
             // new
             if ($item['id'] == -1) {
-                $response = $client->iptables->addForward($route);
+                $response = $client->tasks->create(
+                    $item['name'],
+                    $item['source'],
+                    strtolower($item['type']),
+                    $item['description'],
+                    (array) json_decode($item['params'])
+                );
             } 
             // update
             else {
-                $response = $client->iptables->updateForward('id = ? AND name = ?', [$item['id'], $item['name']], $route);
+                $response = $client->tasks->update(
+                    $item['id'],
+                    $item['name'],
+                    $item['source'],
+                    strtolower($item['type']),
+                    $item['description'],
+                    (array) json_decode($item['params'])
+                );
             }
 
             $f3->response->json([
-                'error' => $response['status'],
+                'error' => '',
                 'code'  => 200,
-                'data'  => $response['values']
+                'data'  => $response
             ]);
         }
         
+        // run task
         if ($verb === 'PUT') {
+            $item = json_decode($f3->get('BODY'), true);
             
+            if (empty($item) || !is_numeric($item['id'])) {
+               $f3->response->json([
+                    'error' => 'Invalid PUT body, expecting item',
+                    'code'  => 422,
+                    'data'  => []
+                ]); 
+            }
+            
+            $client->tasks->run($item['name'], [], 0);
+
+            $f3->response->json([
+                'error' => '',
+                'code'  => 204,
+                'data'  => []
+            ]);
         }
         
         if ($verb === 'DELETE') {
@@ -106,7 +125,7 @@ class Index extends \Base\Controller
                 ]); 
             }
             
-            $client->iptables->remove('id = ? AND name = ? AND type = ?', [$item['id'], $item['name'], 'forward']);
+            $client->tasks->removeById($item['id']);
 
             $f3->response->json([
                 'error' => '',
@@ -163,13 +182,11 @@ class Index extends \Base\Controller
                     'data'  => ['sleep' => $task->sleep]
                 ]); 
             }
-            
-            // find task
-            $task = $this->tasks->load($item['id']);
-            
+
             // update run next
             $task->run_next = date_create($task->run_last)->modify("+".$item['sleep']." seconds")->format('Y-m-d H:i:s');
-
+            // update repeats
+            $task->repeats = !empty($item['sleep']);
             // update
             $task->sleep = $item['sleep'];
             
@@ -178,26 +195,55 @@ class Index extends \Base\Controller
             $f3->response->json([
                 'error' => '',
                 'code'  => 200,
-                'data'  => []
+                'data'  => $task->fresh()
             ]);
         }
         
         if ($verb === 'PUT') {
-            
-        }
-        
-        if ($verb === 'DELETE') {
             $item = json_decode($f3->get('BODY'), true);
-            
-            if (empty($item) || !is_numeric($item['id'])) {
+           
+            if (empty($item) || !is_numeric($params['id'])) {
                $f3->response->json([
-                    'error' => 'Invalid DELETE body, expecting item',
+                    'error' => 'Invalid PUT body, expecting item',
                     'code'  => 422,
                     'data'  => []
                 ]); 
             }
             
-            $client->iptables->remove('id = ? AND name = ? AND type = ?', [$item['id'], $item['name'], 'forward']);
+            // find task
+            $task = $this->tasks->load($params['id']);
+
+            // update run next
+            $task->run_next = date_create($task->run_last)->modify("+".$item['sleep']." seconds")->format('Y-m-d H:i:s');
+            // update repeats
+            $task->repeats = !empty($item['sleep']);
+            // update
+            $task->sleep = $item['sleep'];
+            // 
+            $task->completed = 0;
+            $task->run_count = 0;
+            
+            $this->tasks->store($task);
+
+            $f3->response->json([
+                'error' => '',
+                'code'  => 200,
+                'data'  => $task->fresh()
+            ]);
+        }
+        
+        if ($verb === 'DELETE') {
+            $item = json_decode($f3->get('BODY'), true);
+            
+            if (!is_numeric($params['id'])) {
+               $f3->response->json([
+                    'error' => 'Invalid DELETE id, expecting integer',
+                    'code'  => 422,
+                    'data'  => []
+                ]); 
+            }
+            
+            $client->tasks->removeTasksLog($params['id']);
 
             $f3->response->json([
                 'error' => '',
