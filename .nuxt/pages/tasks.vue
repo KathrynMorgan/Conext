@@ -28,7 +28,7 @@
                     <tr @click="tableExpand(props)">
                     <td><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.name }}</a></td>
                     <td>{{ props.item.description }}</td>
-                    <td>{{ props.item.type }}</td>
+                    <td>{{ props.item.type.toUpperCase() }}</td>
                     <td>
                       <!--
                       <v-menu offset-y>
@@ -49,6 +49,9 @@
                       <v-btn icon class="mx-0" style="float:right" @click="deleteItem(props.item)">
                         <v-icon color="pink">delete</v-icon>
                       </v-btn>
+                      <v-btn icon class="mx-0" style="float:right" @click="runTask(props.item)">
+                        <v-icon color="green">play_arrow</v-icon>
+                      </v-btn>
                     </td>
                     </tr>
                   </template>
@@ -56,12 +59,66 @@
                     {{ tableLoading ? 'Fetching data, please wait...' : tableNoData }}
                   </template>
                   <template slot="expand" slot-scope="props">
-                    <v-card flat>
-                      <v-card-text>{{ props }}</v-card-text>
-                    </v-card>
+                    <v-data-table :headers="expandedTableHeaders" :items="item" hide-actions :loading="tableLoading">
+                      <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
+                      <template slot="items" slot-scope="props">
+                        <tr @click="props.expanded = !props.expanded">
+                          <td>{{ props.item.id }}</td>
+                          <td>{{ props.item.name }}</td>
+                          <td>{{ props.item.repeats == 1 ? 'Yes' : 'No'}}</td>
+                          <td>
+                            <v-edit-dialog
+                              :return-value="props.item.sleep"
+                              lazy
+                            >{{ props.item.sleep }}
+                              <v-text-field
+                                slot="input"
+                                v-model="props.item.sleep"
+                                :rules="sleepRule"
+                                label="Sleep time between iterations."
+                                single-line
+                                @change="saveInstance(props.item)"
+                              ></v-text-field>
+                            </v-edit-dialog>
+                          </td>
+                          <td>{{ props.item.run_last }}</td>
+                          <td>{{ props.item.run_next }}</td>
+                          <td>{{ props.item.completed }}</td>
+                          <td>{{ props.item.run_count }}</td>
+                          <td>
+                            <!--
+                            <v-menu offset-y>
+                              <v-btn icon class="mx-0" slot="activator">
+                                <v-icon color="blue-grey lighten-3">view_headline</v-icon>
+                              </v-btn>
+                              <v-list>
+                                <v-list-tile v-for="item in containerActions" :key="item.title" @click="actionContainer(item.title.toLowerCase(), props.item.name)">
+                                  <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+                                </v-list-tile>
+                              </v-list>
+                            </v-menu>
+      
+                            <v-btn icon class="mx-0" @click="editItem(props.item)">
+                              <v-icon color="teal">edit</v-icon>
+                            </v-btn>
+                            -->
+                            <v-btn icon class="mx-0" style="float:right" @click="deleteItem(props.item)">
+                              <v-icon color="pink">delete</v-icon>
+                            </v-btn>
+                          </td>
+                        </tr>
+                      </template>
+                      <template slot="no-data">
+                        {{ tableLoading ? 'Fetching data, please wait...' : 'Task has no task instances.' }}
+                      </template>
+                      <template slot="expand" slot-scope="props">
+                        <v-card flat>
+                          <v-card-text v-html="props.result ? '<pre>' + props.result + '</pre>' : 'Task has no result value.'"></v-card-text>
+                        </v-card>
+                      </template>
+                    </v-data-table>
                   </template>
                 </v-data-table>
-                <pre>{{items}}</pre>
               </v-flex>
             </v-layout>
           </v-flex>
@@ -172,6 +229,7 @@
 
       // table & items
       items: [],
+      item: [],
       
       tableLoading: true,
       tableNoData: 'You have not added any tasks.',
@@ -179,6 +237,17 @@
         { text: 'Name', value: 'name' },
         { text: 'Description', value: 'description' },
         { text: 'Source Type', value: 'type' },
+        { text: 'Actions', value: 'name', sortable: false, align: 'right' }
+      ],
+      expandedTableHeaders: [
+        { text: 'ID', value: 'id' },
+        { text: 'Name', value: 'name' },
+        { text: 'Repeats', value: 'repeats' },
+        { text: 'Sleep', value: 'sleep' },
+        { text: 'Last Run', value: 'run_last' },
+        { text: 'Next Run', value: 'run_next' },
+        { text: 'Completed', value: 'completed' },
+        { text: 'Run Count', value: 'run_count' },
         { text: 'Actions', value: 'name', sortable: false, align: 'right' }
       ],
       itemActions: [
@@ -220,6 +289,10 @@
       labelRule: [
         v => !!v || 'Name is required',
         v => (v && v.length <= 100) || 'Name must be less than 100 characters'
+      ],
+      sleepRule: [
+        v => !!v || 'Sleep is required',
+        v => (v && !isNaN(v)) || 'Sleep must be a number'
       ]
     }),
     mounted: function () {
@@ -250,23 +323,53 @@
       },
       
       async tableExpand(prop) {
-        prop.expanded = !prop.expanded
-        
-        // get ats logs
-        // fetch remote
-        try {
-          if (!this.loggedUser) {
-            this.$router.replace('/servers')
+        if (!prop.expanded) {
+          // get ats logs
+          // fetch remote
+          try {
+            if (!this.loggedUser) {
+              this.$router.replace('/servers')
+            }
+  
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+            //
+            const response = await axios.get(this.loggedUser.sub + '/api/tasks/' + prop.item.id)
+            this.item = response.data.data
+          } catch (error) {
+            this.tableNoData = 'No data.';
+            this.error = 'Could not fetch data from server.';
           }
-
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-          //
-          const response = await axios.get(this.loggedUser.sub + '/api/tasks/' + prop.item.id)
-          this.item = response.data.data
-        } catch (error) {
-          this.tableNoData = 'No data.';
-          this.error = 'Could not fetch data from server.';
         }
+        prop.expanded = !prop.expanded
+      },
+      
+      async saveInstance(item) {
+        const index = this.item.indexOf(item)
+        try {
+            if (!this.loggedUser) {
+              this.$router.replace('/servers')
+            }
+  
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+            //
+            const response = await axios.post(this.loggedUser.sub + '/api/tasks/' + item.id, item)
+            
+            // check for error, reset values with response
+            if (response.data.code === 422) {
+              this.item[index] = Object.assign(this.item[index], response.data.data)
+              //
+              this.snackbar = true;
+              this.snackbarColor = 'red';
+              this.snackbarText = response.data.error;
+            } else {
+              //
+              this.snackbar = true;
+              this.snackbarColor = 'green';
+              this.snackbarText = 'Task instance updated.';
+            }
+          } catch (error) {
+            this.error = 'Could not update task instance.';
+          }
       },
 
       // create or edit item
