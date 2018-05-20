@@ -18,7 +18,7 @@ $task = new Plinker\Tasks\Runner([
     'log'         => true,
     'sleep_time'  => 2,
     'tmp_path'    => './.plinker',
-    'auto_update' => 86400
+    'auto_update' => 0
 ]);
 
 $task->daemon('Queue');

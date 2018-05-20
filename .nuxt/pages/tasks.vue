@@ -46,7 +46,7 @@
                         <v-icon color="teal">edit</v-icon>
                       </v-btn>
                       -->
-                      <v-btn icon class="mx-0" style="float:right" @click="deleteItem(props.item)">
+                      <v-btn icon class="mx-0" style="float:right" @click="deleteItem(props.item)" :disabled="is_system_task(props.item)">
                         <v-icon color="pink">delete</v-icon>
                       </v-btn>
                       <v-btn icon class="mx-0" style="float:right" @click="runTask(props.item)">
@@ -157,13 +157,14 @@
           <v-card-text style="padding: 0px;">
             <v-card flat>
               <v-card-text>
-                <!--
-                <v-alert :value="true" outline color="info" icon="info" style="margin-bottom: 10px;">
-                  <strong>Endpoint:</strong> {{loggedUser.sub}}/{{editingItem.version}}/{{editingItem.module}} [GET|POST|PUT|DELETE]
+                <v-alert :value="true" outline color="error" icon="warning" v-if="editingItem.id !== -1 && is_system_task(editingItem)">
+                 Changes to system tasks should be done with caution!
                 </v-alert>
-                -->
+                <v-alert :value="true" outline color="error" icon="warning" v-if="editingItem.id === -1 && is_system_task(editingItem)">
+                 <strong>Error:</strong> Name is reserved for the system task!
+                </v-alert>
                 <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter name of the task."></v-text-field>
+                  <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" :disabled="editingItem.id !== -1 && is_system_task(editingItem)" required hint="Enter name of the task."></v-text-field>
                   <v-text-field v-model="editingItem.description" label="Description:" placeholder="" required hint="Enter the task description."></v-text-field>
 
                   <v-select :items="['PHP', 'BASH']" v-model="editingItem.type" label="Task Source Type:" hint="Select the type of code the task is written in."></v-select>
@@ -172,13 +173,6 @@
                   <no-ssr placeholder="Loading...">
                     <codemirror v-model="editingItem.source" :options="cmOption"></codemirror>
                   </no-ssr>
-                  
-                  
-                   <!--
-                  <v-text-field v-model="editingItem.srv_type" label="Service Type:" placeholder="" required hint="Enter the service type." persistent-hint></v-text-field>
-                  <v-text-field v-model="editingItem.srv_port" label="Service Port:" placeholder="" required hint="Enter the service port." persistent-hint></v-text-field>
-                  <pre>{{editingItem}}</pre>
-                  -->
                 </v-form>
               </v-card-text>
             </v-card>
@@ -208,6 +202,7 @@
       })
     },
     data: () => ({
+      system_tasks: ['nginx.build', 'nginx.auto_update', 'nginx.reconcile', 'nginx.reload', 'nginx.setup', 'tasks.auto_update'],
       // global error
       error: '',
 
@@ -474,6 +469,13 @@
             this.error = 'Could not add task instance.';
           }
       },
+      
+      is_system_task(item) {
+        if (!item.name) {
+          return false
+        }
+        return this.system_tasks.includes(item.name)
+      },
 
       // create or edit item
       editItem (item) {
@@ -518,6 +520,10 @@
           if (this.editingIndex > -1) {
             Object.assign(this.items[this.editingIndex], this.editingItem)
           } else {
+            // forbid new tasks with the same name as system tasks
+            if (this.is_system_task(this.editingItem)) {
+              return false;
+            }
             this.items.push(Object.assign({}, this.editingItem))
           }
           

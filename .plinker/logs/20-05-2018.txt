@@ -1,0 +1,16 @@
+[2018-05-20T22:45:47+00:00] dff588db-e24b-43a5-a2a4-1c605e40075f: my forward
+[2018-05-20T22:45:47+00:00] Create config directory: /etc/nginx/proxied/servers/dff588db-e24b-43a5-a2a4-1c605e40075f
+[2018-05-20T22:45:47+00:00] Building NGINX upstream config.
+[2018-05-20T22:45:47+00:00] Building NGINX HTTP server config.
+[2018-05-20T22:45:47+00:00] Testing NGINX config: [exit code: 0]: Array
+(
+    [0] => nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+    [1] => nginx: configuration file /etc/nginx/nginx.conf test is successful
+)
+
+[2018-05-20T22:45:47+00:00] Reloading NGINX: [exit code: 0]: Array
+(
+)
+
+[2018-05-20T22:45:47+00:00] NGINX was reloaded.
+[2018-05-20T22:45:47+00:00] ----------------------------------------
