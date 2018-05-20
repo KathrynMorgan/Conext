@@ -1,62 +1,62 @@
 {
   "publicPath": "/ui/assets/",
   "all": [
-    "pages/server/cpu-information.edd2231b214a6e02c6af.js",
+    "pages/server/logins.3d8e3c6897104b0641bf.js",
     "img/fontawesome-webfont.912ec66.svg",
     "fonts/fontawesome-webfont.674f50d.eot",
     "fonts/fontawesome-webfont.fee66e7.woff",
     "fonts/fontawesome-webfont.af7ae50.woff2",
     "pages/lxd/containers.d32648e7bce72b4a3130.js",
-    "layouts/default.5b2deaef91dcb6239695.js",
-    "pages/servers/index.35a79d2dd3de9c0fb0f5.js",
-    "pages/servers/add.66f518e24b9e263a8dfe.js",
-    "pages/servers.885db7956bb42e5796e3.js",
-    "pages/server/top.f04b5d991d81858d0bdd.js",
-    "pages/server/process-tree.15745797ae629e014802.js",
-    "pages/server/network-connections.5b8f4600192381a2c087.js",
-    "pages/server/memory.56fb075763de03783cfb.js",
-    "pages/server/logins.50382bd2933f8f79787b.js",
-    "pages/server/disks.1ba2ada239958f754ca6.js",
+    "pages/index.9a7589a259fd6e4193ed.js",
+    "pages/server/memory.2987a4ca9b98fdc34dcc.js",
+    "pages/server/cpu-information.3b4ddeed604f50ceaf9b.js",
+    "layouts/default.30424d717c263e096c99.js",
+    "pages/servers/index.9b0b79887c13787bee22.js",
+    "pages/servers/add.74fd51eb0862111a3d52.js",
+    "pages/servers.8957a64600fdbd6c7f5b.js",
+    "pages/server/top.fef00b0b939b16f798a8.js",
+    "pages/server/process-tree.46028e3486a44b1d93f4.js",
+    "pages/server/network-connections.f117f4c204554ec4a2d8.js",
     "fonts/fontawesome-webfont.b06871f.ttf",
-    "pages/server.5ec6e5d020b38b24485a.js",
-    "pages/routes/web-forwards.3e9ce0675769588e843d.js",
-    "pages/routes.09e586c80c4101ac1d50.js",
-    "pages/lxd.afeae6cd8379b62eebb3.js",
-    "pages/index.539f3fcacf822f98f59d.js",
+    "pages/server/disks.e5ce6e8817f7fbb9fb10.js",
+    "pages/server.938f46a2ca6c55c39502.js",
+    "pages/routes/web-forwards.48e661cb77d4024cf5c4.js",
+    "pages/routes.47aeec1010dadbd6cd69.js",
+    "pages/lxd.9b7c3f01bd95d313e493.js",
     "pages/auth/sign-out.bd4f9b66b70ea8517ee0.js",
     "pages/api/data.08968c9593fa1090f9a7.js",
     "pages/api.b4432e8a931c19484a53.js",
     "vendor.975a9b4fa8e17f696815.js",
-    "app.1fb45da2b0616935c45a.js",
-    "manifest.18cf744101b20363fbf0.js",
+    "app.664e997231b20bb67b55.js",
+    "manifest.8cf1b07f0be3102d628a.js",
     "app.14a43a39cb1df9132b2250f3a3468617.css",
     "LICENSES",
     "index.spa.html",
     "index.ssr.html"
   ],
   "initial": [
-    "manifest.18cf744101b20363fbf0.js",
+    "manifest.8cf1b07f0be3102d628a.js",
     "vendor.975a9b4fa8e17f696815.js",
-    "app.1fb45da2b0616935c45a.js"
+    "app.664e997231b20bb67b55.js"
   ],
   "async": [
-    "pages/server/cpu-information.edd2231b214a6e02c6af.js",
+    "pages/server/logins.3d8e3c6897104b0641bf.js",
     "pages/lxd/containers.d32648e7bce72b4a3130.js",
-    "layouts/default.5b2deaef91dcb6239695.js",
-    "pages/servers/index.35a79d2dd3de9c0fb0f5.js",
-    "pages/servers/add.66f518e24b9e263a8dfe.js",
-    "pages/servers.885db7956bb42e5796e3.js",
-    "pages/server/top.f04b5d991d81858d0bdd.js",
-    "pages/server/process-tree.15745797ae629e014802.js",
-    "pages/server/network-connections.5b8f4600192381a2c087.js",
-    "pages/server/memory.56fb075763de03783cfb.js",
-    "pages/server/logins.50382bd2933f8f79787b.js",
-    "pages/server/disks.1ba2ada239958f754ca6.js",
-    "pages/server.5ec6e5d020b38b24485a.js",
-    "pages/routes/web-forwards.3e9ce0675769588e843d.js",
-    "pages/routes.09e586c80c4101ac1d50.js",
-    "pages/lxd.afeae6cd8379b62eebb3.js",
-    "pages/index.539f3fcacf822f98f59d.js",
+    "pages/index.9a7589a259fd6e4193ed.js",
+    "pages/server/memory.2987a4ca9b98fdc34dcc.js",
+    "pages/server/cpu-information.3b4ddeed604f50ceaf9b.js",
+    "layouts/default.30424d717c263e096c99.js",
+    "pages/servers/index.9b0b79887c13787bee22.js",
+    "pages/servers/add.74fd51eb0862111a3d52.js",
+    "pages/servers.8957a64600fdbd6c7f5b.js",
+    "pages/server/top.fef00b0b939b16f798a8.js",
+    "pages/server/process-tree.46028e3486a44b1d93f4.js",
+    "pages/server/network-connections.f117f4c204554ec4a2d8.js",
+    "pages/server/disks.e5ce6e8817f7fbb9fb10.js",
+    "pages/server.938f46a2ca6c55c39502.js",
+    "pages/routes/web-forwards.48e661cb77d4024cf5c4.js",
+    "pages/routes.47aeec1010dadbd6cd69.js",
+    "pages/lxd.9b7c3f01bd95d313e493.js",
     "pages/auth/sign-out.bd4f9b66b70ea8517ee0.js",
     "pages/api/data.08968c9593fa1090f9a7.js",
     "pages/api.b4432e8a931c19484a53.js"
@@ -99,10 +99,10 @@
       4
     ],
     "21338106": [
-      21
+      6
     ],
     "27951500": [
-      15
+      17
     ],
     "34330032": [
       26,
@@ -112,10 +112,10 @@
       5
     ],
     "69283290": [
-      14
+      0
     ],
     "79844453": [
-      21
+      6
     ],
     "3011efc2": [
       25,
@@ -136,10 +136,10 @@
       4
     ],
     "23aa8fce": [
-      12
+      15
     ],
     "0c759883": [
-      18
+      19
     ],
     "c19bafe2": [
       25,
@@ -178,7 +178,7 @@
       4
     ],
     "0661092d": [
-      7
+      10
     ],
     "d830e5fe": [
       25,
@@ -208,10 +208,10 @@
       4
     ],
     "336b18e5": [
-      9
+      12
     ],
     "fa5bb1cc": [
-      8
+      11
     ],
     "47af5382": [
       25,
@@ -223,7 +223,7 @@
       4
     ],
     "688097bc": [
-      11
+      14
     ],
     "a28b34fa": [
       25,
@@ -235,7 +235,7 @@
       4
     ],
     "48a17f65": [
-      11
+      14
     ],
     "5dee5473": [
       5
@@ -257,10 +257,10 @@
       5
     ],
     "54fc0239": [
-      21
+      6
     ],
     "d4682e30": [
-      14
+      0
     ],
     "a7d6138e": [
       25,
@@ -296,7 +296,7 @@
       24
     ],
     "dba36bac": [
-      9
+      12
     ],
     "2c824fcd": [
       25,
@@ -308,7 +308,7 @@
       4
     ],
     "d5a2dc0e": [
-      8
+      11
     ],
     "cabdadca": [
       25,
@@ -365,7 +365,7 @@
       5
     ],
     "41bf7eed": [
-      14
+      0
     ],
     "76ec6a26": [
       25,
@@ -381,10 +381,10 @@
       28
     ],
     "66bb80fc": [
-      6
+      9
     ],
     "55e0e1f2": [
-      20
+      21
     ],
     "6ed9ee9f": [
       25,
@@ -409,7 +409,7 @@
       28
     ],
     "74002e6a": [
-      11
+      14
     ],
     "1c610dfd": [
       25,
@@ -468,7 +468,7 @@
       5
     ],
     "b4e41880": [
-      12
+      15
     ],
     "f9f1f15a": [
       5
@@ -495,7 +495,7 @@
       22
     ],
     "37778ccc": [
-      20
+      21
     ],
     "4884b02f": [
       5
@@ -510,7 +510,7 @@
       4
     ],
     "0263a76c": [
-      0
+      8
     ],
     "f1bdcc7e": [
       25,
@@ -522,10 +522,10 @@
       4
     ],
     "38ae5bb7": [
-      0
+      8
     ],
     "3c088158": [
-      6
+      9
     ],
     "434902e5": [
       25,
@@ -634,7 +634,7 @@
       4
     ],
     "1ebd52d6": [
-      8
+      11
     ],
     "0ca87072": [
       5
@@ -649,10 +649,10 @@
       4
     ],
     "bf650b42": [
-      8
+      11
     ],
     "1fffc054": [
-      15
+      17
     ],
     "0eff6d31": [
       26,
@@ -668,7 +668,7 @@
       4
     ],
     "5764a388": [
-      8
+      11
     ],
     "8cc1665c": [
       26,
@@ -726,7 +726,7 @@
       4
     ],
     "368cc4f6": [
-      10
+      13
     ],
     "37ca1968": [
       25,
@@ -738,13 +738,13 @@
       4
     ],
     "b8cfdcea": [
-      10
+      13
     ],
     "58295a5a": [
       24
     ],
     "135c9fbc": [
-      6
+      9
     ],
     "618c2a4d": [
       25,
@@ -865,7 +865,7 @@
       4
     ],
     "79b0c1f2": [
-      14
+      0
     ],
     "527cce00": [
       25,
@@ -886,7 +886,7 @@
       4
     ],
     "9c2254a2": [
-      15
+      17
     ],
     "a8192122": [
       25,
@@ -901,10 +901,10 @@
       5
     ],
     "989ad7fe": [
-      13
+      7
     ],
     "2d332756": [
-      15
+      17
     ],
     "cec40c92": [
       25,
@@ -916,7 +916,7 @@
       4
     ],
     "ea925776": [
-      17
+      18
     ],
     "96087d00": [
       5
@@ -942,7 +942,10 @@
       28
     ],
     "52c65bc0": [
-      19
+      20
+    ],
+    "4b647e4a": [
+      6
     ],
     "bb97505c": [
       5
@@ -965,12 +968,15 @@
       3,
       4
     ],
+    "93a541f2": [
+      6
+    ],
     "040e19fe": [
       26,
       28
     ],
     "12c709c6": [
-      19
+      20
     ],
     "38fc2831": [
       25,
@@ -1024,9 +1030,12 @@
       4
     ],
     "63f769d8": [
-      13
+      7
     ],
     "2a1dc322": [
+      9
+    ],
+    "271de688": [
       6
     ],
     "2c7b7e3c": [
@@ -1046,7 +1055,7 @@
       28
     ],
     "1ec2059e": [
-      10
+      13
     ],
     "8b6015a6": [
       25,
@@ -1064,7 +1073,7 @@
       5
     ],
     "53a5dc10": [
-      7
+      10
     ],
     "326d9abe": [
       25,
@@ -1091,10 +1100,10 @@
       22
     ],
     "9d19350c": [
-      6
+      9
     ],
     "c550941a": [
-      12
+      15
     ],
     "572ebc77": [
       25,
@@ -1162,10 +1171,10 @@
       4
     ],
     "6aab1ab4": [
-      20
+      21
     ],
     "732147e6": [
-      12
+      15
     ],
     "1448d7a1": [
       25,
@@ -1202,7 +1211,7 @@
       5
     ],
     "166ba5bc": [
-      11
+      14
     ],
     "0a45f418": [
       26,
@@ -1218,7 +1227,7 @@
       4
     ],
     "537dceac": [
-      14
+      0
     ],
     "0e52e04e": [
       26,
@@ -1234,7 +1243,7 @@
       4
     ],
     "4699ade7": [
-      13
+      7
     ],
     "09aab724": [
       26,
@@ -1319,7 +1328,7 @@
       4
     ],
     "3b106c97": [
-      7
+      10
     ],
     "2e013442": [
       5
@@ -1388,7 +1397,7 @@
       4
     ],
     "6a406fa2": [
-      6
+      9
     ],
     "54d9f55f": [
       25,
@@ -1404,10 +1413,10 @@
       28
     ],
     "8256c234": [
-      18
+      19
     ],
     "38decbce": [
-      17
+      18
     ],
     "0b325774": [
       26,
@@ -1423,10 +1432,10 @@
       4
     ],
     "1ba9ccaf": [
-      0
+      8
     ],
     "ce7ae2c2": [
-      17
+      18
     ],
     "37dc3dd2": [
       25,
@@ -1522,7 +1531,7 @@
       4
     ],
     "1dc1a2fe": [
-      19
+      20
     ],
     "20d319e5": [
       5
@@ -1549,14 +1558,14 @@
       4
     ],
     "650c4bc4": [
-      9
+      12
     ],
     "02e8f7c4": [
       26,
       28
     ],
     "0952d155": [
-      20
+      21
     ],
     "0d7f4586": [
       25,
@@ -1568,7 +1577,7 @@
       4
     ],
     "738b5a3e": [
-      18
+      19
     ],
     "5082a9a6": [
       25,
@@ -1651,7 +1660,7 @@
       4
     ],
     "6e7efd3f": [
-      17
+      18
     ],
     "636f2056": [
       25,
@@ -1666,19 +1675,10 @@
       5
     ],
     "7379ef47": [
-      7
-    ],
-    "0b9d3d5f": [
       10
     ],
-    "9a7805ea": [
-      25,
-      1,
-      16,
-      2,
-      2,
-      3,
-      4
+    "0b9d3d5f": [
+      13
     ],
     "a5611ede": [
       25,
@@ -1936,7 +1936,7 @@
       4
     ],
     "1e0f6260": [
-      6
+      9
     ],
     "03dd0498": [
       25,
@@ -1984,16 +1984,16 @@
       4
     ],
     "2d15aa86": [
-      11
+      14
     ],
     "fbbeb006": [
-      7
+      10
     ],
     "1443ca0a": [
       24
     ],
     "328b0980": [
-      18
+      19
     ],
     "6ac96ab2": [
       25,
@@ -2005,7 +2005,7 @@
       4
     ],
     "70c39734": [
-      21
+      6
     ],
     "5cfb80ef": [
       25,
@@ -2037,6 +2037,9 @@
       3,
       4
     ],
+    "34e7623c": [
+      6
+    ],
     "9d30da16": [
       25,
       1,
@@ -2056,16 +2059,19 @@
       4
     ],
     "a291916a": [
-      9
+      12
     ],
     "255ee206": [
       5
     ],
+    "c26226fe": [
+      6
+    ],
     "38e3c08c": [
-      20
+      21
     ],
     "12250cf4": [
-      9
+      12
     ],
     "7e577b85": [
       25,
@@ -2104,7 +2110,7 @@
       4
     ],
     "51e3f01c": [
-      13
+      7
     ],
     "4a3fadf6": [
       5
@@ -2119,7 +2125,7 @@
       4
     ],
     "14c95d4a": [
-      19
+      20
     ],
     "4556ad34": [
       25,
@@ -2252,10 +2258,10 @@
       4
     ],
     "1424cdf8": [
-      17
+      18
     ],
     "03d75d56": [
-      6
+      9
     ],
     "597d0ea6": [
       5
@@ -2270,7 +2276,7 @@
       4
     ],
     "73ead4af": [
-      6
+      9
     ],
     "2d1675e5": [
       5
@@ -2385,7 +2391,7 @@
       4
     ],
     "208b37b4": [
-      15
+      17
     ],
     "56509ad0": [
       25,
@@ -2433,7 +2439,7 @@
       4
     ],
     "3dcc629d": [
-      6
+      9
     ],
     "2811dbc0": [
       25,
@@ -2454,7 +2460,7 @@
       4
     ],
     "8ff8585a": [
-      13
+      7
     ],
     "1ace0856": [
       23
@@ -2469,7 +2475,7 @@
       4
     ],
     "c0a1f6de": [
-      0
+      8
     ],
     "4659c9c2": [
       25,
@@ -2488,7 +2494,7 @@
       28
     ],
     "19243e28": [
-      21
+      6
     ],
     "07457fd8": [
       25,
@@ -2500,13 +2506,13 @@
       4
     ],
     "10c72a70": [
-      0
+      8
     ],
     "6770c1d6": [
       5
     ],
     "7d7a3d1d": [
-      18
+      19
     ],
     "edca5dcc": [
       25,
@@ -2539,7 +2545,7 @@
       4
     ],
     "05bd6170": [
-      10
+      13
     ],
     "206ee5bd": [
       26,
@@ -2618,9 +2624,18 @@
       4
     ],
     "ae1ac850": [
-      12
+      15
     ],
     "5d318dcd": [
+      25,
+      1,
+      16,
+      2,
+      2,
+      3,
+      4
+    ],
+    "9a7805ea": [
       25,
       1,
       16,
@@ -2655,7 +2670,7 @@
       4
     ],
     "f04eb2c0": [
-      19
+      20
     ],
     "16a82e76": [
       5

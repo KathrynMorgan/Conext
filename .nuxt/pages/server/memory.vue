@@ -12,14 +12,20 @@
                 {{ error }}
               </v-alert>
               
-              <p>
-                Used: {{ items.memory_stats && items.memory_stats.used }}%
-                Cache: {{ items.memory_stats && items.memory_stats.cache }}%
-                Free: {{ items.memory_stats &&  items.memory_stats.free }}%
-              </p>
+              <v-container grid-list-md text-xs-center>
+                <v-layout row wrap>
+                  <v-flex xs4>
+                    <server-memory></server-memory>
+                  </v-flex>
+                  <v-flex xs4>
+                    <server-memory></server-memory>
+                  </v-flex>
+                  <v-flex xs4>
+                    <server-memory></server-memory>
+                  </v-flex>
+                </v-layout>
+              </v-container>
               
-              <p>Total: {{ items.memory_total }}</p>
-
             </v-flex>
           </v-layout>
         </v-flex>
@@ -30,13 +36,16 @@
 
 <script>
   import { mapGetters, mapMutations } from 'vuex'
+  import serverMemory from '~/components/server/memory.vue'
   import axios from 'axios'
 
   export default {
     middleware: [
       'authenticated'
     ],
-    components: {},
+    components: {
+      serverMemory
+    },
     computed: {
       ...mapGetters({
         isAuthenticated: 'auth/isAuthenticated',
@@ -49,16 +58,10 @@
       items: []
     }),
     mounted: function () {
-      this.initialize()
+      
     },
     methods: {
-      async initialize () {
-        //
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-        //
-        const response = await axios.get(this.loggedUser.sub + '/api/server/information/memory')
-        this.items = response.data.data
-      }
+      
     }
   }
 </script>

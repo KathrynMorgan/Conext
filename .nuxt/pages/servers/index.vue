@@ -159,7 +159,7 @@
         const index = this.items.indexOf(item)
         confirm('Are you sure you want to delete this item?') && this.items.splice(index, 1)
 
-        window.localStorage.setItem('servers', JSON.stringify(this.items))
+        this.$storage.set("servers", this.items)
       },
 
       close () {
@@ -181,22 +181,6 @@
 
         this.close()
       }
-
-      /*
-      async getServers () {
-        // set jwt into request header
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-        // get (servers)
-        const response = await axios.get('https://fatfree-base-rest-cloned-lcherone.c9users.io/servers')
-        this.servers = response.data.data
-      },
-      async remove (id) {
-        // set jwt into request header
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-        // delete (server)
-        const response = await axios.delete('https://fatfree-base-rest-cloned-lcherone.c9users.io/servers/' + id)
-        this.getServers()
-      }*/
     }
   }
 </script>

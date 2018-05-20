@@ -5,16 +5,27 @@
         <v-flex d-flex xs12 order-xs5>
           <v-layout column>
             <v-flex tag="h1" class="display-1 mb-3">
-              Server - CPU Information
+              Server - CPU
             </v-flex>
             <v-flex>
               <v-alert type="error" :value="error">
                 {{ error }}
               </v-alert>
-
-              <p>CPU Usage: {{ items.server_cpu_usage && items.server_cpu_usage }}%</p>
-              <pre><code>{{ items.cpuinfo && items.cpuinfo.trim() }}</code></pre>
-
+              
+              <v-container grid-list-md text-xs-center>
+                <v-layout row wrap>
+                  <v-flex xs4>
+                    <server-cpu></server-cpu>
+                  </v-flex>
+                  <v-flex xs4>
+                    <server-cpu></server-cpu>
+                  </v-flex>
+                  <v-flex xs4>
+                    <server-cpu></server-cpu>
+                  </v-flex>
+                </v-layout>
+              </v-container>
+              
             </v-flex>
           </v-layout>
         </v-flex>
@@ -25,13 +36,16 @@
 
 <script>
   import { mapGetters, mapMutations } from 'vuex'
+  import serverCpu from '~/components/server/cpu.vue'
   import axios from 'axios'
 
   export default {
     middleware: [
       'authenticated'
     ],
-    components: {},
+    components: {
+      serverCpu
+    },
     computed: {
       ...mapGetters({
         isAuthenticated: 'auth/isAuthenticated',
@@ -41,32 +55,17 @@
     },
     data: () => ({
       error: '',
-      items: {
-        cpuinfo: '',
-        server_cpu_usage: 0
-      }
+      items: []
     }),
     mounted: function () {
-      this.initialize()
+      
     },
     methods: {
-      async initialize () {
-        //
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-        //
-        const response = await axios.get(this.loggedUser.sub + '/api/server/information/cpu')
-        this.items = response.data.data
-      }
+      
     }
   }
 </script>
 
 <style>
-  code {
-    padding:5px
-  }
-  code:after, kbd:after, code:before, kbd:before {
-    content: "";
-    letter-spacing: -1px;
-  }
+
 </style>

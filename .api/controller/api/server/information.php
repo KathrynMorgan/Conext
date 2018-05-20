@@ -54,7 +54,7 @@ class Information extends \Base\Controller
                 $f3->response->json([
                     'error' => null,
                     'code'  => 200,
-                    'data'  => $client->system->system->enumerate(['server_cpu_usage', 'cpuinfo'])
+                    'data'  => $client->system->system->enumerate(['cpu_usage', 'cpu_info', 'load'])
                 ]);
             });
         } catch (\Exception $e) {
