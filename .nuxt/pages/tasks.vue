@@ -1,0 +1,363 @@
+<template>
+  <v-app>
+    <!-- Snackbar Alert -->
+    <v-snackbar top :timeout="snackbarTimeout" :color="snackbarColor" v-model="snackbar">
+      {{ snackbarText }}
+      <v-btn dark flat @click.native="snackbar = false">Close</v-btn>
+    </v-snackbar>
+
+    <v-content>
+      
+      <!-- Main Content -->
+      <v-container fluid tag="section" id="grid">
+        <v-layout row wrap>
+          <v-flex d-flex xs12 order-xs5>
+            <v-layout column>
+              <v-flex tag="h1" class="display-1 mb-3">
+                Tasks
+                <v-btn color="success" @click="dialog = true" style="float:right">New Task</v-btn>
+              </v-flex>
+              <v-flex>
+                <v-alert type="error" :value="error">
+                  {{ error }}
+                </v-alert>
+                <p>Tasks allow you to run custom or predefined code on the server.</p>
+                <v-data-table :headers="tableHeaders" :items="items" hide-actions class="elevation-1" :loading="tableLoading">
+                  <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
+                  <template slot="items" slot-scope="props">
+                    <tr @click="tableExpand(props)">
+                    <td><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.name }}</a></td>
+                    <td>{{ props.item.description }}</td>
+                    <td>{{ props.item.type }}</td>
+                    <td>
+                      <!--
+                      <v-menu offset-y>
+                        <v-btn icon class="mx-0" slot="activator">
+                          <v-icon color="blue-grey lighten-3">view_headline</v-icon>
+                        </v-btn>
+                        <v-list>
+                          <v-list-tile v-for="item in containerActions" :key="item.title" @click="actionContainer(item.title.toLowerCase(), props.item.name)">
+                            <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+                          </v-list-tile>
+                        </v-list>
+                      </v-menu>
+
+                      <v-btn icon class="mx-0" @click="editItem(props.item)">
+                        <v-icon color="teal">edit</v-icon>
+                      </v-btn>
+                      -->
+                      <v-btn icon class="mx-0" style="float:right" @click="deleteItem(props.item)">
+                        <v-icon color="pink">delete</v-icon>
+                      </v-btn>
+                    </td>
+                    </tr>
+                  </template>
+                  <template slot="no-data">
+                    {{ tableLoading ? 'Fetching data, please wait...' : tableNoData }}
+                  </template>
+                  <template slot="expand" slot-scope="props">
+                    <v-card flat>
+                      <v-card-text>{{ props }}</v-card-text>
+                    </v-card>
+                  </template>
+                </v-data-table>
+                <pre>{{items}}</pre>
+              </v-flex>
+            </v-layout>
+          </v-flex>
+        </v-layout>
+      </v-container>
+      
+      <!-- Fullscreen Dialog -->
+      <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition" scrollable>
+        <v-card tile>
+          <v-toolbar card dark color="deep-orange accent-4">
+            <v-btn icon @click.native="dialog = false" dark>
+              <v-icon>close</v-icon>
+            </v-btn>
+            <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} Task</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-btn dark flat @click.native="save()">Save</v-btn>
+            </v-toolbar-items>
+            <v-menu bottom right offset-y>
+              <v-btn slot="activator" dark icon>
+                <v-icon>more_vert</v-icon>
+              </v-btn>
+              <!--
+              <v-list>
+              <v-list-tile v-for="(item, i) in items" :key="i">
+              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+              </v-list-tile>
+              </v-list>
+              -->
+            </v-menu>
+          </v-toolbar>
+          <v-card-text style="padding: 0px;">
+            <v-card flat>
+              <v-card-text>
+                <!--
+                <v-alert :value="true" outline color="info" icon="info" style="margin-bottom: 10px;">
+                  <strong>Endpoint:</strong> {{loggedUser.sub}}/{{editingItem.version}}/{{editingItem.module}} [GET|POST|PUT|DELETE]
+                </v-alert>
+                -->
+                <v-form ref="form" v-model="valid" lazy-validation>
+                  <v-text-field v-model="editingItem.name" :rules="labelRule" label="Label:" placeholder="" required hint="Enter a label for the port forward." persistent-hint></v-text-field>
+                  <v-text-field v-model="editingItem.description" label="Description:" placeholder="" required hint="Enter the task description." persistent-hint></v-text-field>
+
+                  <v-select :items="['PHP', 'BASH']" v-model="editingItem.type" label="Task Source Type:" hint="Select the type of code the task is written in."></v-select>
+                  
+                  <h3>Source ({{editingItem.type}})</h3>
+                  <no-ssr placeholder="Loading...">
+                    <codemirror v-model="editingItem.source" :options="cmOption"></codemirror>
+                  </no-ssr>
+                  
+                  
+                   <!--
+                  <v-text-field v-model="editingItem.srv_type" label="Service Type:" placeholder="" required hint="Enter the service type." persistent-hint></v-text-field>
+                  <v-text-field v-model="editingItem.srv_port" label="Service Port:" placeholder="" required hint="Enter the service port." persistent-hint></v-text-field>
+                  <pre>{{editingItem}}</pre>
+                  -->
+                </v-form>
+              </v-card-text>
+            </v-card>
+          </v-card-text>
+          <div style="flex: 1 1 auto;"></div>
+        </v-card>
+      </v-dialog>
+    </v-content>
+  </v-app>
+</template>
+
+<script>
+  import { mapGetters, mapMutations } from 'vuex'
+  import { setToken } from '~/utils/auth'
+  import axios from 'axios'
+
+  export default {
+    middleware: [
+      'authenticated'
+    ],
+    components: {},
+    computed: {
+      ...mapGetters({
+        isAuthenticated: 'auth/isAuthenticated',
+        loggedUser: 'auth/loggedUser',
+        loggedToken: 'auth/loggedToken'
+      })
+    },
+    data: () => ({
+      // global error
+      error: '',
+
+      // snackbar (notification)
+      snackbar: false,
+      snackbarColor: 'green',
+      snackbarText: '',
+      snackbarTimeout: 5000,
+      
+      // code mirror options
+      cmOption: {
+        smartIndent: false,
+        indentWithTabs: true,
+        tabSize: 4,
+        indentUnit:4,
+        foldGutter: true,
+        styleActiveLine: true,
+        lineNumbers: true,
+        line: true,
+        keyMap: "sublime",
+        mode: 'text/x-php'
+      },
+
+      // table & items
+      items: [],
+      
+      tableLoading: true,
+      tableNoData: 'You have not added any tasks.',
+      tableHeaders: [
+        { text: 'Name', value: 'name' },
+        { text: 'Description', value: 'description' },
+        { text: 'Source Type', value: 'type' },
+        { text: 'Actions', value: 'name', sortable: false, align: 'right' }
+      ],
+      itemActions: [
+        { title: 'Start' },
+        { title: 'Stop' },
+        { title: 'Delete' }
+      ],
+
+      // dialog
+      dialog: false,
+      
+      // item
+      editingIndex: -1,
+      editingItem: {
+        id: -1,
+        name: "",
+        source: "",
+        checksum: "",
+        type: "PHP",
+        description: "",
+        params: "",
+        updated: "",
+        created: ""
+      },
+      defaultItem: {
+        id: -1,
+        name: "",
+        source: "",
+        checksum: "",
+        type: "PHP",
+        description: "",
+        params: "",
+        updated: "",
+        created: ""
+      },
+      
+      // item form & validation
+      valid: true,
+      labelRule: [
+        v => !!v || 'Name is required',
+        v => (v && v.length <= 100) || 'Name must be less than 100 characters'
+      ]
+    }),
+    mounted: function () {
+      this.initialize()
+    },
+    watch: {
+      dialog (val) {
+        val || this.close()
+      }
+    },
+    methods: {
+      async initialize () {
+        // fetch remote
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+
+          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/tasks')
+          this.items = response.data.data
+        } catch (error) {
+          this.tableNoData = 'No data.';
+          this.error = 'Could not fetch data from server.';
+        }
+        this.tableLoading = false
+      },
+      
+      async tableExpand(prop) {
+        prop.expanded = !prop.expanded
+        
+        // get ats logs
+        // fetch remote
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+
+          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/tasks/' + prop.item.id)
+          this.item = response.data.data
+        } catch (error) {
+          this.tableNoData = 'No data.';
+          this.error = 'Could not fetch data from server.';
+        }
+      },
+
+      // create or edit item
+      editItem (item) {
+        this.editingIndex = this.items.indexOf(item)
+        this.editingItem = Object.assign({}, item)
+        // mutate task source type
+        this.editingItem.type = this.editingItem.type.toUpperCase()
+        this.dialog = true
+      },
+
+      // delete item
+      async deleteItem (item) {
+        const index = this.items.indexOf(item)
+        
+        // local
+        //if (confirm('Are you sure you want to delete this item?')){
+          this.items.splice(index, 1)
+        //}
+
+        // remote
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+
+          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+          //
+          const response = await axios.delete(this.loggedUser.sub + '/api/tasks', { data: item })
+          //
+          this.snackbar = true;
+          this.snackbarText = 'Task successfully deleted.';
+          
+        } catch (error) {
+          this.error = 'Could not delete task from server.';
+        }
+      },
+
+      // save item
+      async save () {
+        if (this.$refs.form.validate()) {
+          // local
+          if (this.editingIndex > -1) {
+            Object.assign(this.items[this.editingIndex], this.editingItem)
+          } else {
+            this.items.push(Object.assign({}, this.editingItem))
+          }
+          
+          // remote
+          try {
+            if (!this.loggedUser) {
+              this.$router.replace('/servers')
+            }
+  
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+            //
+            const response = await axios.post(this.loggedUser.sub + '/api/tasks', this.editingItem)
+            //
+            this.snackbar = true;
+            this.snackbarText = 'Task successfully saved.';
+          } catch (error) {
+            this.error = 'Could not save task to server.';
+          }
+          
+          // reload data
+          this.initialize()
+          
+          this.close()
+        }
+      },
+      
+      // close item dialog, and reset to default item
+      close () {
+        this.dialog = false
+        setTimeout(() => {
+          this.editingItem = Object.assign({}, this.defaultItem)
+          this.editingIndex = -1
+        }, 300)
+      }
+
+    }
+  }
+</script>
+
+<style>
+  .CodeMirror {
+    border: 1px solid #eee;
+    min-height:calc(100vh - 350px);
+    height: auto;
+  }
+  .CodeMirror-scroll{
+    min-height:calc(100vh - 360px);
+  }
+</style>
