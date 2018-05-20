@@ -1,2 +1,2 @@
 #!/bin/bash
-composer update
+composer update plinker/tasks
