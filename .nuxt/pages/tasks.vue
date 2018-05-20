@@ -21,7 +21,7 @@
                 <v-alert type="error" :value="error">
                   {{ error }}
                 </v-alert>
-                <p>Tasks allow you to run custom or predefined code on the server.</p>
+                <p>Tasks allow you to run custom or predefined system tasks on the server.</p>
                 <v-data-table :headers="tableHeaders" :items="items" hide-actions class="elevation-1" :loading="tableLoading">
                   <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                   <template slot="items" slot-scope="props">
