@@ -14,6 +14,7 @@ const _1fbf43b1 = () => import('../pages/server/memory.vue' /* webpackChunkName:
 const _5c56c36c = () => import('../pages/server/process-tree.vue' /* webpackChunkName: "pages/server/process-tree" */).then(m => m.default || m)
 const _3b316788 = () => import('../pages/lxd.vue' /* webpackChunkName: "pages/lxd" */).then(m => m.default || m)
 const _5896d775 = () => import('../pages/lxd/containers.vue' /* webpackChunkName: "pages/lxd/containers" */).then(m => m.default || m)
+const _584b05f1 = () => import('../pages/about.vue' /* webpackChunkName: "pages/about" */).then(m => m.default || m)
 const _e1bb1e04 = () => import('../pages/api.vue' /* webpackChunkName: "pages/api" */).then(m => m.default || m)
 const _ac69206a = () => import('../pages/api/data.vue' /* webpackChunkName: "pages/api/data" */).then(m => m.default || m)
 const _d438bfd4 = () => import('../pages/routes.vue' /* webpackChunkName: "pages/routes" */).then(m => m.default || m)
@@ -141,6 +142,11 @@ export function createRouter () {
 					name: "lxd-containers"
 				}
 			]
+		},
+		{
+			path: "/about",
+			component: _584b05f1,
+			name: "about"
 		},
 		{
 			path: "/api",
