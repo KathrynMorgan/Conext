@@ -133,9 +133,6 @@ install_project() {
 # Main 
 #
 main() {
-    #
-    #ask_ssh_vcs
-    #
     setup_system
     #
     install_php

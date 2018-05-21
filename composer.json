@@ -25,7 +25,7 @@
         "plinker/system": "master"
     },
     "scripts": {
-        "post-create-project-cmd": "bash ./.api/setup.sh",
-        "setup": "bash ./.api/setup.sh"
+        "__post-create-project-cmd": "bash ./.api/setup.sh",
+        "__setup": "bash ./.api/setup.sh"
     }
 }
