@@ -1,11 +1,6 @@
 <template>
   <v-app>
-    <v-snackbar
-                top
-                :timeout="snackbarTimeout"
-                :color="snackbarColor"
-                v-model="snackbar"
-                >
+    <v-snackbar top :timeout="snackbarTimeout" :color="snackbarColor" v-model="snackbar">
       {{ snackbarText }}
       <v-btn dark flat @click.native="snackbar = false">Close</v-btn>
     </v-snackbar>
@@ -20,61 +15,40 @@
                 <v-btn color="success" @click="dialog = true" style="float:right">New Container</v-btn>
               </v-flex>
               <v-flex>
-                <v-dialog v-model="dialog" max-width="500px">
-                  <v-card>
-                    <v-card-title>
-                      <span class="headline">{{ formTitle }}</span>
-                    </v-card-title>
-                    <v-card-text>
-                      <v-alert outline color="info" icon="info" :value="true"></v-alert>
-                      <v-container grid-list-md>
-                        <v-layout wrap>
-                          <v-flex xs12 sm6 md6>
-                            <v-text-field label="Host" v-model="editedItem.name"></v-text-field>
-                          </v-flex>
-                          <v-flex xs12 sm6 md6>
-                            <v-text-field label="Secret" v-model="editedItem.status"></v-text-field>
-                          </v-flex>
-                        </v-layout>
-                      </v-container>
-                    </v-card-text>
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn>
-                      <v-btn color="blue darken-1" flat @click.native="save">Save</v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-dialog>
-
                 <v-alert type="error" :value="error">
                   {{ error }}
                 </v-alert>
 
                 <v-data-table :headers="headers" :items="items" hide-actions class="elevation-1">
                   <template slot="items" slot-scope="props">
-                    <td><a href="javascript:void(0)" @click.stop="viewContainer(props.item)">{{ props.item.name }}</a></td>
-                    <td>{{ props.item.status }}</td>
-                    <td class="justify-center layout px-0">
-                      <v-menu offset-y>
-                        <v-btn icon class="mx-0" slot="activator">
-                          <v-icon color="blue-grey lighten-3">view_headline</v-icon>
-                        </v-btn>
-                        <v-list>
-                          <v-list-tile v-for="item in containerActions" :key="item.title" @click="actionContainer(item.title.toLowerCase(), props.item.name)">
-                            <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                          </v-list-tile>
-                        </v-list>
-                      </v-menu>
+                    <tr>
+                      <td><a href="javascript:void(0)" @click.stop="viewContainer(props.item)">{{ props.item.name }}</a></td>
+                      <td>{{ props.item.network.eth0.addresses[0].address }}</td>
+                      <td>{{ props.item.cpu.usage }}</td>
+                      <td>{{ props.item.memory.usage }}</td>
+                      <td>{{ props.item.status }}</td>
+                      <td class="justify-center layout px-0">
+                        <v-menu offset-y>
+                          <v-btn icon class="mx-0" slot="activator">
+                            <v-icon color="blue-grey lighten-3">view_headline</v-icon>
+                          </v-btn>
+                          <v-list>
+                            <v-list-tile v-for="item in containerActions" :key="item.title" @click="actionContainer(item.title.toLowerCase(), props.item.name)">
+                              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+                            </v-list-tile>
+                          </v-list>
+                        </v-menu>
 
-                      <v-btn icon class="mx-0" @click="editItem(props.item)">
-                        <v-icon color="teal">edit</v-icon>
-                      </v-btn>
-                      <!--
-<v-btn icon class="mx-0" @click="deleteItem(props.item)">
-<v-icon color="pink">delete</v-icon>
-</v-btn>
--->
-                    </td>
+                        <v-btn icon class="mx-0" @click="editItem(props.item)">
+                          <v-icon color="teal">edit</v-icon>
+                        </v-btn>
+                        <!--
+                        <v-btn icon class="mx-0" @click="deleteItem(props.item)">
+                        <v-icon color="pink">delete</v-icon>
+                        </v-btn>
+                        -->
+                      </td>
+                    </tr>
                   </template>
                   <template slot="no-data">
                     You have not added any servers, add a new server to continue.
@@ -85,13 +59,34 @@
           </v-flex>
         </v-layout>
       </v-container>
-      <v-dialog
-                v-model="containerDialog"
-                fullscreen
-                hide-overlay
-                transition="dialog-bottom-transition"
-                scrollable
-                >
+
+      <v-dialog v-model="dialog" max-width="500px">
+        <v-card>
+          <v-card-title>
+            <span class="headline">{{ formTitle }}</span>
+          </v-card-title>
+          <v-card-text>
+            <v-alert outline color="info" icon="info" :value="true"></v-alert>
+            <v-container grid-list-md>
+              <v-layout wrap>
+                <v-flex xs12 sm6 md6>
+                  <v-text-field label="Host" v-model="editedItem.name"></v-text-field>
+                </v-flex>
+                <v-flex xs12 sm6 md6>
+                  <v-text-field label="Secret" v-model="editedItem.status"></v-text-field>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn>
+            <v-btn color="blue darken-1" flat @click.native="save">Save</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-dialog v-model="containerDialog" fullscreen hide-overlay transition="dialog-bottom-transition" scrollable>
         <v-card tile>
           <v-toolbar card dark color="deep-orange accent-4">
             <v-btn icon @click.native="containerDialog = false" dark>
@@ -107,102 +102,36 @@
                 <v-icon>more_vert</v-icon>
               </v-btn>
               <!--
-<v-list>
-<v-list-tile v-for="(item, i) in items" :key="i">
-<v-list-tile-title>{{ item.title }}</v-list-tile-title>
-</v-list-tile>
-</v-list>
--->
+              <v-list>
+              <v-list-tile v-for="(item, i) in items" :key="i">
+              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
+              </v-list-tile>
+              </v-list>
+              -->
             </v-menu>
           </v-toolbar>
           <v-card-text style="padding: 0px;">
-
-            <v-tabs
-                    v-model="active"
-
-                    >
-              <v-tab
-                     v-for="n in ['Information', 'Configuration', 'Console']"
-                     :key="n"
-                     ripple
-                     >
-                {{ n }}
-              </v-tab>
-              <v-tab-item
-                          v-for="n in ['Information', 'Configuration', 'Console']"
-                          :key="n"
-                          >
+            <v-tabs v-model="activeTab">
+              <v-tab ripple :href="`#tab-information`" >Information</v-tab>
+              <v-tab ripple :href="`#tab-configuration`">Configuration</v-tab>
+              <v-tab ripple :href="`#tab-console`">Console</v-tab>
+              <v-tab-item :id="`tab-information`">
                 <v-card flat>
-                  <div id="terminal"></div>
-                  <v-card-text>{{ text }}</v-card-text>
+                  <v-card-text><pre>{{ container }}</pre></v-card-text>
+                </v-card>
+              </v-tab-item>
+              <v-tab-item :id="`tab-configuration`">
+                <v-card flat>
+                  <v-card-text>configuration</v-card-text>
+                </v-card>
+              </v-tab-item>
+              <v-tab-item :id="`tab-console`">
+                <v-card flat>
+                  <v-card-text><div id="terminal"></div></v-card-text>
                 </v-card>
               </v-tab-item>
             </v-tabs>
-
-
-            <pre>{{ container }}</pre>
-            <!--            <v-btn color="primary" dark @click.stop="dialog2 = !dialog2">Open Dialog 2</v-btn>-->
-            <!--
-<v-tooltip right>
-<v-btn slot="activator">Tool Tip Activator</v-btn>
-Tool Tip
-</v-tooltip>
--->
-
-            <!--
-
-<v-list three-line subheader>
-<v-subheader>User Controls</v-subheader>
-<v-list-tile avatar>
-<v-list-tile-content>
-<v-list-tile-title>Content filtering</v-list-tile-title>
-<v-list-tile-sub-title>Set the content filtering level to restrict apps that can be downloaded</v-list-tile-sub-title>
-</v-list-tile-content>
-</v-list-tile>
-<v-list-tile avatar>
-<v-list-tile-content>
-<v-list-tile-title>Password</v-list-tile-title>
-<v-list-tile-sub-title>Require password for purchase or use password to restrict purchase</v-list-tile-sub-title>
-</v-list-tile-content>
-</v-list-tile>
-</v-list>
-<v-divider></v-divider>
-<v-list three-line subheader>
-<v-subheader>General</v-subheader>
-<v-list-tile avatar>
-<v-list-tile-action>
-<v-checkbox v-model="notifications"></v-checkbox>
-</v-list-tile-action>
-<v-list-tile-content>
-<v-list-tile-title>Notifications</v-list-tile-title>
-<v-list-tile-sub-title>Notify me about updates to apps or games that I downloaded</v-list-tile-sub-title>
-</v-list-tile-content>
-</v-list-tile>
-<v-list-tile avatar>
-<v-list-tile-action>
-<v-checkbox v-model="sound"></v-checkbox>
-</v-list-tile-action>
-<v-list-tile-content>
-<v-list-tile-title>Sound</v-list-tile-title>
-<v-list-tile-sub-title>Auto-update apps at any time. Data charges may apply</v-list-tile-sub-title>
-</v-list-tile-content>
-</v-list-tile>
-<v-list-tile avatar>
-<v-list-tile-action>
-<v-checkbox v-model="widgets"></v-checkbox>
-</v-list-tile-action>
-<v-list-tile-content>
-<v-list-tile-title>Auto-add widgets</v-list-tile-title>
-<v-list-tile-sub-title>Automatically add home screen widgets</v-list-tile-sub-title>
-</v-list-tile-content>
-</v-list-tile>
-</v-list>
-
--->
-
-
           </v-card-text>
-
           <div style="flex: 1 1 auto;"></div>
         </v-card>
       </v-dialog>
@@ -223,13 +152,11 @@ Tool Tip
     ],
     components: {},
     computed: {
-     
       ...mapGetters({
         isAuthenticated: 'auth/isAuthenticated',
         loggedUser: 'auth/loggedUser',
         loggedToken: 'auth/loggedToken'
       }),
-
       formTitle () {
         return this.editedIndex === -1 ? 'New Container' : 'Edit Container'
       }
@@ -238,11 +165,11 @@ Tool Tip
       // snackbar
       snackbar: false,
       snackbarColor: 'green',
-      snackbarText: 'foobar',
+      snackbarText: '',
       snackbarTimeout: 5000,
 
-      active: null,
-      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+      // tab
+      activeTab: 'tab-information',
 
       error: '',
       dialog: false,
@@ -254,6 +181,9 @@ Tool Tip
       ],
       headers: [
         { text: 'Name', value: 'name' },
+        { text: 'IP', value: 'network.eth0.addresses[0].address' },
+        { text: 'CPU', value: 'cpu' },
+        { text: 'Memory', value: 'memory' },
         { text: 'Status', value: 'status' },
         { text: 'Actions', value: 'host', sortable: false }
       ],
@@ -296,7 +226,7 @@ Tool Tip
 
       console () {
         //const WebSocket = require('ws')
-        
+
         //
         var width = 100
         var height = Math.max(Math.round(window.innerHeight / 19.50), 15)
@@ -308,7 +238,7 @@ Tool Tip
         } else {
           command = 'bash'
         }
-        
+
         // init request for websocket connection
         axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
         //
@@ -325,7 +255,7 @@ Tool Tip
           'height': 80
         }).then(function (response) {
           console.log(response);
-          
+
           response = response.data.data
           //
           Terminal.applyAddon(fit)
@@ -345,7 +275,7 @@ Tool Tip
           var sock = new WebSocket(wssurl)
           sock.binaryType = 'blob';
           sock.rejectUnauthorized = false;
-          
+
           sock.onopen = function (e) {
             //
             var previousResponse = null
@@ -355,19 +285,19 @@ Tool Tip
             xterm.fit()
             xterm.focus()
             //
-           
+
             window.addEventListener('resize', function (e) {
               var height = Math.max(Math.round(window.innerHeight / 19.50), 15)
               xterm.resize(0, height)
               xterm.fit()
             })
-            
+
             //
             xterm.on('data', (data) => {
               console.log(sock, data)
               sock.send(new Blob([data]))
             })
-            
+
             //
             sock.onmessage = function (msg) {
               console.log(msg);
@@ -401,88 +331,29 @@ Tool Tip
             xterm.destroy()
           }
         }).catch(error => console.log(error))
-
-        //
-        /*
-        this.lxc_query('/1.0/containers/' + this.container + '/exec', 'POST', JSON.stringify({
-          'command': [command],
-          'environment': {
-            'HOME': '/root',
-            'TERM': 'xterm',
-            'USER': 'root'
-          },
-          'wait-for-websocket': true,
-          'interactive': true,
-          'width': width,
-          'height': 80
-        }), function (response) {
-          //
-          Terminal.applyAddon(fit)
-          var xterm = new Terminal({
-            useStyle: false,
-            screenKeys: false,
-            cursorBlink: true
-          })
-          //
-          var operationId = response.id
-          var secret = response.metadata.fds[0]
-          var wssurl = 'wss://127.0.0.1:8443/1.0/operations/' +
-              operationId +
-              '/websocket?secret=' +
-              secret
-          //
-          var sock = new WebSocket(wssurl, {rejectUnauthorized: false, binaryType: 'Blob'})
-          sock.onopen = function (e) {
-            //
-            var previousResponse = null
-            //
-            xterm.open(document.getElementById('terminal'))
-            xterm.resize(0, height)
-            xterm.fit()
-            xterm.focus()
-            //
-           
-            window.addEventListener('resize', _.debounce(function (e) {
-              var height = Math.max(Math.round(window.innerHeight / 19.50), 15)
-              xterm.resize(0, height)
-              xterm.fit()
-            }, 300))
-            
-            //
-            xterm.on('data', function (data) {
-              sock.send(data, { binary: true })
-            })
-            //
-            sock.onmessage = function (msg) {
-              msg = Buffer.from(msg.data).toString()
-              console.log(previousResponse)
-              if (previousResponse !== null && previousResponse.trim() === 'exit' && msg.trim() === '') {
-                xterm.destroy()
-                //window.close()
-              }
-              previousResponse = msg
-              xterm.write(msg)
-              xterm.fit()
-            }
-            //
-            sock.onclose = function (msg) {
-              xterm.destroy()
-              //window.close()
-            }
-          }
-          sock.onerror = function (e) {
-            xterm.writeln('An error occured, press enter to close window.')
-            //window.close()
-            xterm.destroy()
-          }
-        })
-        */
       },
+      
+      async viewContainer (container) {
+        //
+        try {
+          if (!this.loggedUser) {
+            throw Error();
+          }
 
-      viewContainer (container) {
-        this.container = container
+          //
+          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + container.name)
+          this.container = {
+            state: container,
+            info: response.data.data,
+          }
+        } catch (error) {
+          console.error(error);
+        }
+        
         this.containerDialog = true
-        this.console()
+        //this.console()
       },
 
       async actionContainer (action, item) {

@@ -288,8 +288,8 @@
             this.error = 'Could not save endpoint to server.';
           }
   
-          this.close()
-          this.$refs.form.reset()
+          //this.close()
+          //this.$refs.form.reset()
         }
       },
       

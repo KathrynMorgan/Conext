@@ -96,7 +96,7 @@ class Controller extends \Base\Controller
             
             // unset module variable
             unset($module);
-            
+
             try {
                 return eval('?>'.@$source);
             } catch (\ParseError $e) {
