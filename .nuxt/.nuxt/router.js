@@ -5,13 +5,9 @@ Vue.use(Router)
 
 const _980f151c = () => import('../pages/tasks.vue' /* webpackChunkName: "pages/tasks" */).then(m => m.default || m)
 const _1cc8d8e2 = () => import('../pages/server.vue' /* webpackChunkName: "pages/server" */).then(m => m.default || m)
-const _7ffae856 = () => import('../pages/server/top.vue' /* webpackChunkName: "pages/server/top" */).then(m => m.default || m)
-const _4038d394 = () => import('../pages/server/network-connections.vue' /* webpackChunkName: "pages/server/network-connections" */).then(m => m.default || m)
+const _f2b73846 = () => import('../pages/server/processes.vue' /* webpackChunkName: "pages/server/processes" */).then(m => m.default || m)
 const _424dc85a = () => import('../pages/server/logins.vue' /* webpackChunkName: "pages/server/logins" */).then(m => m.default || m)
-const _7e175bf2 = () => import('../pages/server/cpu-information.vue' /* webpackChunkName: "pages/server/cpu-information" */).then(m => m.default || m)
-const _1c80fe76 = () => import('../pages/server/disks.vue' /* webpackChunkName: "pages/server/disks" */).then(m => m.default || m)
-const _1fbf43b1 = () => import('../pages/server/memory.vue' /* webpackChunkName: "pages/server/memory" */).then(m => m.default || m)
-const _5c56c36c = () => import('../pages/server/process-tree.vue' /* webpackChunkName: "pages/server/process-tree" */).then(m => m.default || m)
+const _4038d394 = () => import('../pages/server/network-connections.vue' /* webpackChunkName: "pages/server/network-connections" */).then(m => m.default || m)
 const _3b316788 = () => import('../pages/lxd.vue' /* webpackChunkName: "pages/lxd" */).then(m => m.default || m)
 const _5896d775 = () => import('../pages/lxd/containers.vue' /* webpackChunkName: "pages/lxd/containers" */).then(m => m.default || m)
 const _584b05f1 = () => import('../pages/about.vue' /* webpackChunkName: "pages/about" */).then(m => m.default || m)
@@ -95,14 +91,9 @@ export function createRouter () {
 			name: "server",
 			children: [
 				{
-					path: "top",
-					component: _7ffae856,
-					name: "server-top"
-				},
-				{
-					path: "network-connections",
-					component: _4038d394,
-					name: "server-network-connections"
+					path: "processes",
+					component: _f2b73846,
+					name: "server-processes"
 				},
 				{
 					path: "logins",
@@ -110,24 +101,9 @@ export function createRouter () {
 					name: "server-logins"
 				},
 				{
-					path: "cpu-information",
-					component: _7e175bf2,
-					name: "server-cpu-information"
-				},
-				{
-					path: "disks",
-					component: _1c80fe76,
-					name: "server-disks"
-				},
-				{
-					path: "memory",
-					component: _1fbf43b1,
-					name: "server-memory"
-				},
-				{
-					path: "process-tree",
-					component: _5c56c36c,
-					name: "server-process-tree"
+					path: "network-connections",
+					component: _4038d394,
+					name: "server-network-connections"
 				}
 			]
 		},

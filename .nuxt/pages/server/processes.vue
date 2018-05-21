@@ -5,7 +5,7 @@
         <v-flex d-flex xs12 order-xs5>
           <v-layout column>
             <v-flex tag="h1" class="display-1 mb-3">
-              Server - Top
+              Server - Processes
             </v-flex>
             <v-flex>
               <v-alert type="error" :value="error">

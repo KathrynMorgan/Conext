@@ -1,21 +1,9 @@
 <template>
   <div>
-    <v-navigation-drawer dark
-                         fixed
-                         :clipped="$vuetify.breakpoint.lgAndUp"
-                         app
-                         v-model="drawer"
-                         >
+    <v-navigation-drawer dark fixed :clipped="$vuetify.breakpoint.lgAndUp" app v-model="drawer">
       <v-list dense>
         <template v-for="item in items">
-
-          <v-list-group
-                        v-if="item.children"
-                        v-model="item.model"
-                        :key="item.text"
-                        :prepend-icon="item.model ? item.icon : item['icon-alt']"
-                        append-icon=""
-                        >
+          <v-list-group v-if="item.children" v-model="item.model" :key="item.text" :prepend-icon="item.model ? item.icon : item['icon-alt']" append-icon="">
             <v-list-tile slot="activator">
               <v-list-tile-content>
                 <v-list-tile-title>
@@ -23,11 +11,7 @@
                 </v-list-tile-title>
               </v-list-tile-content>
             </v-list-tile>
-            <v-list-tile
-                         v-for="(child, i) in item.children"
-                         :key="i"
-                         @click="navigate(child.route)"
-                         >
+            <v-list-tile v-for="(child, i) in item.children" :key="i" @click="navigate(child.route)">
               <v-list-tile-action v-if="child.icon">
                 <v-icon>{{ child.icon }}</v-icon>
               </v-list-tile-action>
@@ -51,58 +35,25 @@
         </template>
       </v-list>
     </v-navigation-drawer>
-    <v-toolbar
-               color="deep-orange accent-4"
-               dark
-               app
-               :clipped-left="$vuetify.breakpoint.lgAndUp"
-               fixed
-               >
+    <v-toolbar color="deep-orange accent-4" dark app :clipped-left="$vuetify.breakpoint.lgAndUp" fixed>
       <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
         <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
         <span class="hidden-sm-and-down">{{ loggedUser && loggedUser.lab ? loggedUser.lab : 'Control Panel' }}</span>
       </v-toolbar-title>
-      <!--
-<v-text-field
-flat
-solo-inverted
-prepend-icon="search"
-label="Search"
-class="hidden-sm-and-down"
-></v-text-field>
--->
+      
+      <!--<v-text-field flat solo-inverted prepend-icon="search" label="Search" class="hidden-sm-and-down"></v-text-field>-->
+
       <v-spacer></v-spacer>
       <span class="mr-3">{{ loggedUser && loggedUser.sub }}</span>
-
-      <!--
-<v-btn icon>
-<v-icon>apps</v-icon>
-</v-btn>
-<v-btn icon>
-<v-icon>notifications</v-icon>
-</v-btn>
-<v-btn icon large>
-<v-avatar size="32px" tile>
-<img
-src="https://vuetifyjs.com/static/doc-images/logo.svg"
-alt="Vuetify"
->
-</v-avatar>
-</v-btn>
--->
     </v-toolbar>
   </div>
 </template>
 
 <script>
-  //
-  //const store = require('../../store/store')
   import { mapGetters, mapMutations } from 'vuex'
 
   export default {
-    middleware: [
-      //'authenticated'
-    ],
+    middleware: [],
     computed: {
       ...mapGetters({
         isAuthenticated: 'auth/isAuthenticated',
@@ -121,8 +72,6 @@ alt="Vuetify"
           return items
         }
 
-        // logged in
-
         // server
         if (this.loggedUser.mod.server) {
           items.push({
@@ -131,13 +80,10 @@ alt="Vuetify"
             text: 'Server',
             model: false,
             children: [
-              { icon: 'chevron_right', text: 'Memory', route: '/server/memory' },
-              { icon: 'chevron_right', text: 'Disks', route: '/server/disks' },
+              { icon: 'chevron_right', text: 'Overview', route: '/' },
               { icon: 'chevron_right', text: 'Network Connections', route: '/server/network-connections' },
-              { icon: 'chevron_right', text: 'Process Tree', route: '/server/process-tree' },
-              { icon: 'chevron_right', text: 'Top', route: '/server/top' },
-              { icon: 'chevron_right', text: 'Logins', route: '/server/logins' },
-              { icon: 'chevron_right', text: 'CPU Information', route: '/server/cpu-information' },
+              { icon: 'chevron_right', text: 'Processes', route: '/server/processes' },
+              { icon: 'chevron_right', text: 'Logins', route: '/server/logins' }
             ]
           });
         }
@@ -201,7 +147,6 @@ alt="Vuetify"
       }
     },
     components: { },
-    //props: [],
     data: () => ({
       dialog: false,
       drawer: null
@@ -209,7 +154,6 @@ alt="Vuetify"
     props: {
       source: String
     },
-    // mounted: function () {}
     methods: {
       navigate(route) {
         this.$router.push(route)
