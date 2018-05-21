@@ -76,7 +76,7 @@ server {
     listen [::]:88 default_server;
     root /var/www/html/public;
     #
-    index index.php;
+    index index.php index.html;
     #
     server_name _;
     #
