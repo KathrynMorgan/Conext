@@ -27,7 +27,7 @@ class Information extends \Base\Controller
                 $f3->response->json([
                     'error' => null,
                     'code'  => 200,
-                    'data'  => array_values((array) $client->system->system->netstat('-pant'))
+                    'data'  => array_values((array) $client->system->netstat('-pant'))
                 ]);
             });
         } catch (\Exception $e) {
@@ -54,7 +54,7 @@ class Information extends \Base\Controller
                 $f3->response->json([
                     'error' => null,
                     'code'  => 200,
-                    'data'  => $client->system->system->enumerate(['cpu_usage', 'cpu_info', 'load'])
+                    'data'  => $client->system->enumerate(['cpu_usage', 'cpu_info', 'load'])
                 ]);
             });
         } catch (\Exception $e) {
@@ -78,7 +78,7 @@ class Information extends \Base\Controller
                     'database' => $f3->get('db')
                 ]);
 
-                $data = $client->system->system->enumerate(['disk_space', 'total_disk_space', 'disks']);
+                $data = $client->system->enumerate(['disk_space', 'total_disk_space', 'disks']);
                 $data['disks'] = array_values($data['disks']);
 
                 $f3->response->json([
@@ -108,7 +108,7 @@ class Information extends \Base\Controller
                     'database' => $f3->get('db')
                 ]);
 
-                $data = $client->system->system->enumerate(['logins']);
+                $data = $client->system->enumerate(['logins']);
 
                 $f3->response->json([
                     'error' => null,
@@ -137,7 +137,7 @@ class Information extends \Base\Controller
                     'database' => $f3->get('db')
                 ]);
 
-                $data = $client->system->system->enumerate(['memory_stats', 'memory_total']);
+                $data = $client->system->enumerate(['memory_stats', 'memory_total']);
 
                 $f3->response->json([
                     'error' => null,
@@ -166,7 +166,7 @@ class Information extends \Base\Controller
                     'database' => $f3->get('db')
                 ]);
 
-                $data = $client->system->system->enumerate(['pstree']);
+                $data = $client->system->enumerate(['pstree']);
 
                 $f3->response->json([
                     'error' => null,
@@ -195,7 +195,7 @@ class Information extends \Base\Controller
                     'database' => $f3->get('db')
                 ]);
 
-                $data['top'] = array_values($client->system->system->top());
+                $data['top'] = array_values($client->system->top());
 
                 $f3->response->json([
                     'error' => null,
