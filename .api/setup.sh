@@ -8,17 +8,6 @@ fi
 # Set envioroment
 set -e
 export DEBIAN_FRONTEND=noninteractive
-export PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin'
-export HOME='/root'
-
-# upon launch wait for internet connection
-echo "Waiting for network connection."
-while [ 1 ]; do
-  if ping -q -c 1 -W 1 8.8.8.8 > /dev/null 2>&1; then
-    break;
-  fi
-  sleep 1
-done
 
 # Set working vars, change these to suit
 #
@@ -56,12 +45,6 @@ install_php() {
     sudo apt-get -yq install php-sqlite3
     sudo apt-get -yq install php-zip
 }
-
-# Setup LXD
-#perge_lxd() {
-    ## check lxd version is good should be v3.0
-    
-#}
 
 # Genaral webroot setup - initial nginx part, specific configuration to be added
 install_web() {
@@ -162,8 +145,6 @@ main() {
     install_nodejs
     #
     install_project
-    #
-    echo "Project installed."
 }
 
 main
