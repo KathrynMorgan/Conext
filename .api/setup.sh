@@ -57,15 +57,6 @@ install_php() {
     sudo apt-get -yq install php-zip
 }
 
-# Install composer (globally)
-install_composer() {
-    #
-    # Install composer
-    sudo curl -sS https://getcomposer.org/installer | sudo php
-    sudo mv composer.phar /usr/local/bin/composer
-    sudo ln -s /usr/local/bin/composer /usr/bin/composer
-}
-
 # Setup LXD
 #perge_lxd() {
     ## check lxd version is good should be v3.0
@@ -165,8 +156,6 @@ main() {
     setup_system
     #
     install_php
-    #
-    install_composer
     #
     install_web
     #
