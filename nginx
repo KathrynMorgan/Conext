@@ -1,0 +1,411 @@
+# configuration file /etc/nginx/nginx.conf:
+#
+user www-data;
+worker_processes 5;
+pid /run/nginx.pid;
+
+events {
+	worker_connections 500;
+	# multi_accept on;
+}
+
+http {
+	##
+	# Basic Settings
+	sendfile on;
+	tcp_nopush on;
+	tcp_nodelay on;
+	keepalive_timeout 5;
+	types_hash_max_size 2048;
+	server_tokens off;
+	server_names_hash_bucket_size  64;
+
+	include /etc/nginx/mime.types;
+	default_type application/octet-stream;
+
+	##
+	# Logging Settings
+	access_log /var/log/nginx/access.log;
+	error_log /var/log/nginx/error.log;
+
+	##
+	# Gzip Settings
+	gzip on;
+	gzip_disable "msie6";
+
+	##
+	# Virtual Host Configs
+	include /etc/nginx/proxied/conf/*.conf;
+	include /etc/nginx/proxied/servers/*/*.conf;
+}
+# configuration file /etc/nginx/mime.types:
+
+types {
+    text/html                             html htm shtml;
+    text/css                              css;
+    text/xml                              xml;
+    image/gif                             gif;
+    image/jpeg                            jpeg jpg;
+    application/javascript                js;
+    application/atom+xml                  atom;
+    application/rss+xml                   rss;
+
+    text/mathml                           mml;
+    text/plain                            txt;
+    text/vnd.sun.j2me.app-descriptor      jad;
+    text/vnd.wap.wml                      wml;
+    text/x-component                      htc;
+
+    image/png                             png;
+    image/tiff                            tif tiff;
+    image/vnd.wap.wbmp                    wbmp;
+    image/x-icon                          ico;
+    image/x-jng                           jng;
+    image/x-ms-bmp                        bmp;
+    image/svg+xml                         svg svgz;
+    image/webp                            webp;
+
+    application/font-woff                 woff;
+    application/java-archive              jar war ear;
+    application/json                      json;
+    application/mac-binhex40              hqx;
+    application/msword                    doc;
+    application/pdf                       pdf;
+    application/postscript                ps eps ai;
+    application/rtf                       rtf;
+    application/vnd.apple.mpegurl         m3u8;
+    application/vnd.ms-excel              xls;
+    application/vnd.ms-fontobject         eot;
+    application/vnd.ms-powerpoint         ppt;
+    application/vnd.wap.wmlc              wmlc;
+    application/vnd.google-earth.kml+xml  kml;
+    application/vnd.google-earth.kmz      kmz;
+    application/x-7z-compressed           7z;
+    application/x-cocoa                   cco;
+    application/x-java-archive-diff       jardiff;
+    application/x-java-jnlp-file          jnlp;
+    application/x-makeself                run;
+    application/x-perl                    pl pm;
+    application/x-pilot                   prc pdb;
+    application/x-rar-compressed          rar;
+    application/x-redhat-package-manager  rpm;
+    application/x-sea                     sea;
+    application/x-shockwave-flash         swf;
+    application/x-stuffit                 sit;
+    application/x-tcl                     tcl tk;
+    application/x-x509-ca-cert            der pem crt;
+    application/x-xpinstall               xpi;
+    application/xhtml+xml                 xhtml;
+    application/xspf+xml                  xspf;
+    application/zip                       zip;
+
+    application/octet-stream              bin exe dll;
+    application/octet-stream              deb;
+    application/octet-stream              dmg;
+    application/octet-stream              iso img;
+    application/octet-stream              msi msp msm;
+
+    application/vnd.openxmlformats-officedocument.wordprocessingml.document    docx;
+    application/vnd.openxmlformats-officedocument.spreadsheetml.sheet          xlsx;
+    application/vnd.openxmlformats-officedocument.presentationml.presentation  pptx;
+
+    audio/midi                            mid midi kar;
+    audio/mpeg                            mp3;
+    audio/ogg                             ogg;
+    audio/x-m4a                           m4a;
+    audio/x-realaudio                     ra;
+
+    video/3gpp                            3gpp 3gp;
+    video/mp2t                            ts;
+    video/mp4                             mp4;
+    video/mpeg                            mpeg mpg;
+    video/quicktime                       mov;
+    video/webm                            webm;
+    video/x-flv                           flv;
+    video/x-m4v                           m4v;
+    video/x-mng                           mng;
+    video/x-ms-asf                        asx asf;
+    video/x-ms-wmv                        wmv;
+    video/x-msvideo                       avi;
+}
+
+# configuration file /etc/nginx/proxied/conf/default.conf:
+#
+client_max_body_size 256M;
+
+server {
+    listen 127.0.0.1:80;
+    server_name 127.0.0.1;
+    location /nginx_status {
+        stub_status on;
+        allow 127.0.0.1;
+        deny all;
+    }
+}
+
+server {
+    listen       80  default_server;
+    server_name  _;
+    return       404;
+}
+
+server {
+	listen 88 default_server;
+	listen [::]:88 default_server;
+
+	root /var/www/html/public;
+
+	index index.html index.php;
+
+	server_name _;
+
+	location / {
+		try_files $uri $uri/ /index.php?$args;
+	}
+
+	# pass PHP scripts to FastCGI server
+	#
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+
+		# With php-fpm (or other unix sockets):
+		fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+		# With php-cgi (or other tcp sockets):
+		#fastcgi_pass 127.0.0.1:9000;
+	}
+
+	# deny access to .htaccess files, if Apache's document root
+	# concurs with nginx's one
+	#
+	location ~ /\.ht {
+		deny all;
+	}
+
+	location ~ /.*\.db {
+		deny all;
+	}
+}
+
+# configuration file /etc/nginx/snippets/fastcgi-php.conf:
+# regex to split $uri to $fastcgi_script_name and $fastcgi_path
+fastcgi_split_path_info ^(.+\.php)(/.+)$;
+
+# Check that the PHP script exists before passing it
+try_files $fastcgi_script_name =404;
+
+# Bypass the fact that try_files resets $fastcgi_path_info
+# see: http://trac.nginx.org/nginx/ticket/321
+set $path_info $fastcgi_path_info;
+fastcgi_param PATH_INFO $path_info;
+
+fastcgi_index index.php;
+include fastcgi.conf;
+
+# configuration file /etc/nginx/fastcgi.conf:
+
+fastcgi_param  SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+fastcgi_param  QUERY_STRING       $query_string;
+fastcgi_param  REQUEST_METHOD     $request_method;
+fastcgi_param  CONTENT_TYPE       $content_type;
+fastcgi_param  CONTENT_LENGTH     $content_length;
+
+fastcgi_param  SCRIPT_NAME        $fastcgi_script_name;
+fastcgi_param  REQUEST_URI        $request_uri;
+fastcgi_param  DOCUMENT_URI       $document_uri;
+fastcgi_param  DOCUMENT_ROOT      $document_root;
+fastcgi_param  SERVER_PROTOCOL    $server_protocol;
+fastcgi_param  REQUEST_SCHEME     $scheme;
+fastcgi_param  HTTPS              $https if_not_empty;
+
+fastcgi_param  GATEWAY_INTERFACE  CGI/1.1;
+fastcgi_param  SERVER_SOFTWARE    nginx/$nginx_version;
+
+fastcgi_param  REMOTE_ADDR        $remote_addr;
+fastcgi_param  REMOTE_PORT        $remote_port;
+fastcgi_param  SERVER_ADDR        $server_addr;
+fastcgi_param  SERVER_PORT        $server_port;
+fastcgi_param  SERVER_NAME        $server_name;
+
+# PHP only, required if PHP was built with --enable-force-cgi-redirect
+fastcgi_param  REDIRECT_STATUS    200;
+
+# configuration file /etc/nginx/proxied/servers/d6cba3d7-e56c-4696-9e86-3fa94599ce77/http.conf:
+# Auto generated on 2018-05-20 21:30:42
+# Do not edit this file as any changes will be overwritten!
+
+server {
+    listen       80;
+    server_name example.com www.example.com;
+
+    # logs
+    access_log  /var/log/nginx/d6cba3d7-e56c-4696-9e86-3fa94599ce77.access.log;
+    error_log  /var/log/nginx/d6cba3d7-e56c-4696-9e86-3fa94599ce77.error.log;
+
+    root   /usr/share/nginx/html;
+    index  index.html index.htm;
+
+    # redirect server error pages
+    include /etc/nginx/proxied/includes/error_pages.conf;
+
+    # send request back to backend
+    location / {
+        #
+        proxy_bind $server_addr;
+        
+        # change to upstream directive e.g http://backend
+        proxy_pass  http://d6cba3d7-e56c-4696-9e86-3fa94599ce77;
+
+        include /etc/nginx/proxied/includes/proxy.conf;
+    }
+
+    # Lets Encrypt
+    location ^~ /.well-known/ {
+        root /usr/share/nginx/html/letsencrypt;
+        index index.html index.htm;
+
+        try_files $uri $uri/ =404;
+    }
+}
+
+# configuration file /etc/nginx/proxied/includes/error_pages.conf:
+#
+# redirect server error pages
+error_page 500 /500.html;
+location = /500.html {
+    root /usr/share/nginx/html/errors;
+    #internal;
+}
+
+error_page 502 /502.html;
+location = /502.html {
+    root /usr/share/nginx/html/errors;
+    #internal;
+}
+
+error_page 503 /503.html;
+location = /503.html {
+    root /usr/share/nginx/html/errors;
+    #internal;
+}
+
+error_page 504 /504.html;
+location = /504.html {
+    root /usr/share/nginx/html/errors;
+    #internal;
+}
+# configuration file /etc/nginx/proxied/includes/proxy.conf:
+#
+proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
+proxy_redirect off;
+proxy_buffering off;
+
+proxy_http_version 1.1;
+
+proxy_set_header        Host                $host;
+proxy_set_header        X-Real-IP           $remote_addr;
+proxy_set_header        X-Forwarded-For     $proxy_add_x_forwarded_for;
+proxy_set_header        X-Forwarded-Proto   $scheme;
+proxy_set_header        X-Forwarded-Port    $server_port;
+
+proxy_set_header        Upgrade             $http_upgrade;
+proxy_set_header        Connection          'upgrade';
+proxy_cache_bypass      $http_upgrade;
+
+# configuration file /etc/nginx/proxied/servers/d6cba3d7-e56c-4696-9e86-3fa94599ce77/upstream.conf:
+# Auto generated on 2018-05-20 21:30:42
+# Do not edit this file as any changes will be overwritten!
+
+upstream d6cba3d7-e56c-4696-9e86-3fa94599ce77 {
+    server 127.0.0.1:80;
+}
+
+# configuration file /etc/nginx/proxied/servers/dff588db-e24b-43a5-a2a4-1c605e40075f/http.conf:
+# Auto generated on 2018-05-20 22:45:47
+# Do not edit this file as any changes will be overwritten!
+
+server {
+    listen       80;
+    server_name foo.com;
+
+    # logs
+    access_log  /var/log/nginx/dff588db-e24b-43a5-a2a4-1c605e40075f.access.log;
+    error_log  /var/log/nginx/dff588db-e24b-43a5-a2a4-1c605e40075f.error.log;
+
+    root   /usr/share/nginx/html;
+    index  index.html index.htm;
+
+    # redirect server error pages
+    include /etc/nginx/proxied/includes/error_pages.conf;
+
+    # send request back to backend
+    location / {
+        #
+        proxy_bind $server_addr;
+        
+        # change to upstream directive e.g http://backend
+        proxy_pass  http://dff588db-e24b-43a5-a2a4-1c605e40075f;
+
+        include /etc/nginx/proxied/includes/proxy.conf;
+    }
+
+    # Lets Encrypt
+    location ^~ /.well-known/ {
+        root /usr/share/nginx/html/letsencrypt;
+        index index.html index.htm;
+
+        try_files $uri $uri/ =404;
+    }
+}
+
+# configuration file /etc/nginx/proxied/includes/error_pages.conf:
+#
+# redirect server error pages
+error_page 500 /500.html;
+location = /500.html {
+    root /usr/share/nginx/html/errors;
+    #internal;
+}
+
+error_page 502 /502.html;
+location = /502.html {
+    root /usr/share/nginx/html/errors;
+    #internal;
+}
+
+error_page 503 /503.html;
+location = /503.html {
+    root /usr/share/nginx/html/errors;
+    #internal;
+}
+
+error_page 504 /504.html;
+location = /504.html {
+    root /usr/share/nginx/html/errors;
+    #internal;
+}
+# configuration file /etc/nginx/proxied/includes/proxy.conf:
+#
+proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
+proxy_redirect off;
+proxy_buffering off;
+
+proxy_http_version 1.1;
+
+proxy_set_header        Host                $host;
+proxy_set_header        X-Real-IP           $remote_addr;
+proxy_set_header        X-Forwarded-For     $proxy_add_x_forwarded_for;
+proxy_set_header        X-Forwarded-Proto   $scheme;
+proxy_set_header        X-Forwarded-Port    $server_port;
+
+proxy_set_header        Upgrade             $http_upgrade;
+proxy_set_header        Connection          'upgrade';
+proxy_cache_bypass      $http_upgrade;
+
+# configuration file /etc/nginx/proxied/servers/dff588db-e24b-43a5-a2a4-1c605e40075f/upstream.conf:
+# Auto generated on 2018-05-20 22:45:47
+# Do not edit this file as any changes will be overwritten!
+
+upstream dff588db-e24b-43a5-a2a4-1c605e40075f {
+    server 127.0.0.1:88;
+}
+

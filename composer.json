@@ -25,8 +25,7 @@
         "plinker/system": "master"
     },
     "scripts": {
-        "__post-create-project-cmd": "bash ./bin/setup.sh",
-        "__setup": "bash ./bin/setup.sh",
-        "__backup": "bash ./bin/backup.sh"
+        "post-create-project-cmd": "bash ./.api/setup.sh",
+        "setup": "bash ./.api/setup.sh"
     }
 }
