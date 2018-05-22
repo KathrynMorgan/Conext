@@ -90,14 +90,24 @@
                   <strong>Endpoint:</strong> {{loggedUser.sub}}/{{editingItem.version}}/{{editingItem.module}} [GET|POST|PUT|DELETE]
                 </v-alert>
                 <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-text-field v-model="editingItem.module" :rules="moduleRules" label="Name:" placeholder="" required hint="Enter the name of the endpoint." persistent-hint></v-text-field>
-                  <v-text-field v-model="editingItem.version" :rules="versionRules" label="Version:" placeholder="e.g: 1.0" required hint="Enter the version of the endpoint."></v-text-field>
-                
-                  <v-select :items="['None', 'JWT']" v-model="editingItem.auth" label="Authentication:"></v-select>
-                  <p v-if="editingItem.auth === 'JWT'" style="margin-top:-20px;color:rgba(0,0,0,0.54);font-size: 12px;">To obtain bearer token, authenticate using POST to {{loggedUser.sub}}/auth/jwt</p>
-                  
-                  <v-select :items="['None', 'JSON', 'HTML', 'TEXT', 'JS', 'XML']" v-model="editingItem.header" label="Response Content Type:" hint="Select response content-type."></v-select>
-                  
+                  <v-layout row wrap>
+                    <v-flex xs6>
+                      <v-text-field v-model="editingItem.module" :rules="moduleRules" label="Name:" placeholder="" required hint="Enter the name of the endpoint."></v-text-field>
+                    </v-flex>
+                    <v-flex xs6>
+                      <v-text-field v-model="editingItem.version" :rules="versionRules" label="Version:" placeholder="e.g: 1.0" required hint="Enter the version of the endpoint."></v-text-field>
+                    </v-flex>
+                  </v-layout> 
+                  <v-layout row wrap>
+                    <v-flex xs6>
+                      <v-select :items="['None', 'JWT']" v-model="editingItem.auth" label="Authentication:"></v-select>
+                      <p v-if="editingItem.auth === 'JWT'" style="margin-top:-20px;color:rgba(0,0,0,0.54);font-size: 12px;">To obtain bearer token, authenticate using POST to {{loggedUser.sub}}/auth/jwt</p>
+                    </v-flex>
+                    <v-flex xs6>
+                      <v-select :items="['None', 'JSON', 'HTML', 'TEXT', 'JS', 'XML']" v-model="editingItem.header" label="Response Content Type:" hint="Select response content-type."></v-select>
+                    </v-flex>
+                  </v-layout> 
+
                   <h3>Source (PHP)</h3>
                   <no-ssr placeholder="Loading...">
                     <codemirror v-model="editingItem.source" :options="cmOption"></codemirror>
@@ -288,8 +298,9 @@
             this.error = 'Could not save endpoint to server.';
           }
   
-          //this.close()
-          //this.$refs.form.reset()
+          if (this.editingIndex === -1) {
+            this.close()
+          }
         }
       },
       
@@ -309,10 +320,16 @@
 <style>
   .CodeMirror {
     border: 1px solid #eee;
-    min-height:calc(100vh - 480px);
+    min-height:calc(100vh - 350px);
     height: auto;
+    font-family: Ubuntu Mono, Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height:1.1em;
   }
   .CodeMirror-scroll{
-    min-height:calc(100vh - 490px);
+    min-height:calc(100vh - 350px);
+  }
+  .CodeMirror-gutters {
+    left: 0px!important;
   }
 </style>

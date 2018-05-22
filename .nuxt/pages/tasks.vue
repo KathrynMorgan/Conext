@@ -7,7 +7,6 @@
     </v-snackbar>
 
     <v-content>
-      
       <!-- Main Content -->
       <v-container fluid tag="section" id="grid">
         <v-layout row wrap>
@@ -25,31 +24,15 @@
                 <v-data-table :headers="tableHeaders" :items="items" hide-actions class="elevation-1" :loading="tableLoading">
                   <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                   <template slot="items" slot-scope="props">
-                    <tr @click="tableExpand(props)">
+                    <tr @click.stop="tableExpand(props)">
                     <td><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.name }}</a></td>
                     <td>{{ props.item.description }}</td>
                     <td>{{ props.item.type.toUpperCase() }}</td>
                     <td>
-                      <!--
-                      <v-menu offset-y>
-                        <v-btn icon class="mx-0" slot="activator">
-                          <v-icon color="blue-grey lighten-3">view_headline</v-icon>
-                        </v-btn>
-                        <v-list>
-                          <v-list-tile v-for="item in containerActions" :key="item.title" @click="actionContainer(item.title.toLowerCase(), props.item.name)">
-                            <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                          </v-list-tile>
-                        </v-list>
-                      </v-menu>
-
-                      <v-btn icon class="mx-0" @click="editItem(props.item)">
-                        <v-icon color="teal">edit</v-icon>
-                      </v-btn>
-                      -->
-                      <v-btn icon class="mx-0" style="float:right" @click="deleteItem(props.item)" :disabled="is_system_task(props.item)">
+                      <v-btn icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)" :disabled="is_system_task(props.item)">
                         <v-icon color="pink">delete</v-icon>
                       </v-btn>
-                      <v-btn icon class="mx-0" style="float:right" @click="runTask(props.item)">
+                      <v-btn icon class="mx-0" style="float:right" @click.stop="runTask(props.item)">
                         <v-icon color="green">play_arrow</v-icon>
                       </v-btn>
                     </td>
@@ -62,8 +45,8 @@
                     <v-data-table :headers="expandedTableHeaders" :items="item" hide-actions :loading="tableLoading">
                       <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                       <template slot="items" slot-scope="props">
-                        <tr @click="props.expanded = !props.expanded">
-                          <td>{{ props.item.id }}</td>
+                        <tr @click.stop="props.expanded = !props.expanded">
+                          <!--<td>{{ props.item.id }}</td>-->
                           <td>{{ props.item.name }}</td>
                           <td>{{ props.item.repeats == 1 ? 'Yes' : 'No'}}</td>
                           <td>
@@ -87,37 +70,21 @@
                           <td>{{ props.item.completed }}</td>
                           <td>{{ props.item.run_count }}</td>
                           <td>
-                            <!--
-                            <v-menu offset-y>
-                              <v-btn icon class="mx-0" slot="activator">
-                                <v-icon color="blue-grey lighten-3">view_headline</v-icon>
-                              </v-btn>
-                              <v-list>
-                                <v-list-tile v-for="item in containerActions" :key="item.title" @click="actionContainer(item.title.toLowerCase(), props.item.name)">
-                                  <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                                </v-list-tile>
-                              </v-list>
-                            </v-menu>
-      
-                            <v-btn icon class="mx-0" @click="editItem(props.item)">
-                              <v-icon color="teal">edit</v-icon>
-                            </v-btn>
-                            -->
-                            <v-btn icon class="mx-0" style="float:right" @click="deleteInstance(props.item)">
+                            <v-btn icon class="mx-0" style="float:right" @click.stop="deleteInstance(props.item)">
                               <v-icon color="pink">delete</v-icon>
                             </v-btn>
-                            <v-btn v-if="props.item.completed != 0" icon class="mx-0" style="float:right" @click="reloadInstance(props.item)">
+                            <v-btn v-if="props.item.completed != 0" icon class="mx-0" style="float:right" @click.stop="reloadInstance(props.item)">
                               <v-icon color="blue">replay</v-icon>
                             </v-btn>
                           </td>
                         </tr>
                       </template>
                       <template slot="no-data">
-                        {{ tableLoading ? 'Fetching data, please wait...' : 'Task has no task instances.' }}
+                        {{ tableLoading ? 'Fetching data, please wait...' : 'Task ('+props.item.name+') has no instances.' }}
                       </template>
                       <template slot="expand" slot-scope="props">
                         <v-card flat>
-                          <v-card-text v-html="props.item.result ? '<pre>' + props.item.result + '</pre>' : 'Task has no result value.'"></v-card-text>
+                          <v-card-text v-html="props.item.result ? '<pre>' + props.item.result + '</pre>' : 'Task ('+props.item.name+') has no result value.'"></v-card-text>
                         </v-card>
                       </template>
                     </v-data-table>
@@ -145,13 +112,6 @@
               <v-btn slot="activator" dark icon>
                 <v-icon>more_vert</v-icon>
               </v-btn>
-              <!--
-              <v-list>
-              <v-list-tile v-for="(item, i) in items" :key="i">
-              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-              </v-list-tile>
-              </v-list>
-              -->
             </v-menu>
           </v-toolbar>
           <v-card-text style="padding: 0px;">
@@ -164,11 +124,15 @@
                  <strong>Error:</strong> Name is reserved for the system task!
                 </v-alert>
                 <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" :disabled="editingItem.id !== -1 && is_system_task(editingItem)" required hint="Enter name of the task."></v-text-field>
-                  <v-text-field v-model="editingItem.description" label="Description:" placeholder="" required hint="Enter the task description."></v-text-field>
-
+                  <v-layout row wrap>
+                    <v-flex xs6>
+                      <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" :disabled="editingItem.id !== -1 && is_system_task(editingItem)" required hint="Enter the name of the task."></v-text-field>
+                    </v-flex>
+                    <v-flex xs6>
+                      <v-text-field v-model="editingItem.description" label="Description:" placeholder="" required hint="Enter the tasks description."></v-text-field>
+                    </v-flex>
+                  </v-layout>
                   <v-select :items="['PHP', 'BASH']" v-model="editingItem.type" label="Task Source Type:" hint="Select the type of code the task is written in."></v-select>
-                  
                   <h3>Source ({{editingItem.type}})</h3>
                   <no-ssr placeholder="Loading...">
                     <codemirror v-model="editingItem.source" :options="cmOption"></codemirror>
@@ -202,7 +166,7 @@
       })
     },
     data: () => ({
-      system_tasks: ['nginx.build', 'nginx.auto_update', 'nginx.reconcile', 'nginx.reload', 'nginx.setup', 'tasks.auto_update'],
+      system_tasks: ['nginx.build', 'nginx.auto_update', 'nginx.reconcile', 'nginx.reload', 'nginx.setup', 'tasks.auto_update', 'VACUUM;'],
       // global error
       error: '',
 
@@ -240,7 +204,7 @@
         { text: 'Actions', value: 'name', sortable: false, align: 'right' }
       ],
       expandedTableHeaders: [
-        { text: 'ID', value: 'id' },
+        // { text: 'ID', value: 'id' },
         { text: 'Name', value: 'name' },
         { text: 'Repeats', value: 'repeats' },
         { text: 'Sleep', value: 'sleep' },
@@ -566,10 +530,16 @@
 <style>
   .CodeMirror {
     border: 1px solid #eee;
-    min-height:calc(100vh - 350px);
+    min-height:calc(100vh - 270px);
     height: auto;
+    font-family: Ubuntu Mono, Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height:1.1em;
   }
   .CodeMirror-scroll{
-    min-height:calc(100vh - 360px);
+    min-height:calc(100vh - 270px);
+  }
+  .CodeMirror-gutters {
+    left: 0px!important;
   }
 </style>
