@@ -35,7 +35,7 @@
         </template>
       </v-list>
     </v-navigation-drawer>
-    <v-toolbar color="deep-orange accent-4" dark app :clipped-left="$vuetify.breakpoint.lgAndUp" fixed>
+    <v-toolbar color="light-blue darken-4" dark app :clipped-left="$vuetify.breakpoint.lgAndUp" fixed>
       <v-toolbar-title style="width: 300px" class="ml-0 pl-3">
         <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
         <span class="hidden-sm-and-down">{{ loggedUser && loggedUser.lab ? loggedUser.lab : 'Control Panel' }}</span>

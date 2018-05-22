@@ -10,7 +10,7 @@
         <v-layout row wrap>
           <v-flex d-flex xs12 order-xs5>
             <v-layout column>
-              <v-flex tag="h1" class="display-1 mb-3">
+              <v-flex tag="h1" class="display mb-2">
                 LXD - Containers
                 <v-btn color="success" @click="dialog = true" style="float:right">New Container</v-btn>
               </v-flex>
@@ -19,39 +19,37 @@
                   {{ error }}
                 </v-alert>
 
-                <v-data-table :headers="headers" :items="items" hide-actions class="elevation-1">
+                <v-data-table :headers="tableHeaders" :items="items" hide-actions class="elevation-1" :loading="tableLoading">
+                  <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                   <template slot="items" slot-scope="props">
                     <tr>
                       <td><a href="javascript:void(0)" @click.stop="viewContainer(props.item)">{{ props.item.name }}</a></td>
-                      <td>{{ props.item.network.eth0.addresses[0].address }}</td>
-                      <td>{{ props.item.cpu.usage }}</td>
-                      <td>{{ props.item.memory.usage }}</td>
+                      <td>
+                        <span v-if="check_started_with_ip(props.item)">{{ props.item.network.eth0.addresses[0].address }}</span>
+                        <span v-if="props.item.status === 'Running' && (props.item.network.eth0.addresses.length === 0 || isIP4(props.item.network.eth0.addresses[0].address) === false)">
+                          <v-icon size="15" @click="initialize()" color="orange darken-2">fa fa-refresh</v-icon>
+                        </span>
+                        <span v-if="props.item.status === 'Stopped'">-</span>
+                      </td>
+                      <td>{{ props.item.cpu.usage ? Number(props.item.cpu.usage/1000000000).toFixed(2) + ' seconds' : '-' }}</td>
+                      <td>{{ props.item.memory.usage ? props.item.memory.usage : '-' }}</td>
                       <td>{{ props.item.status }}</td>
-                      <td class="justify-center layout px-0">
-                        <v-menu offset-y>
+                      <td class="px-0">
+                        <v-menu offset-y left style="float:right" class="mr-3">
                           <v-btn icon class="mx-0" slot="activator">
                             <v-icon color="blue-grey lighten-3">view_headline</v-icon>
                           </v-btn>
                           <v-list>
-                            <v-list-tile v-for="item in containerActions" :key="item.title" @click="actionContainer(item.title.toLowerCase(), props.item.name)">
+                            <v-list-tile v-for="item in containerActions" :key="item.title" @click="stateContainer(item, props.item)" v-if="!item.state || item.state === props.item.status">
                               <v-list-tile-title>{{ item.title }}</v-list-tile-title>
                             </v-list-tile>
                           </v-list>
                         </v-menu>
-
-                        <v-btn icon class="mx-0" @click="editItem(props.item)">
-                          <v-icon color="teal">edit</v-icon>
-                        </v-btn>
-                        <!--
-                        <v-btn icon class="mx-0" @click="deleteItem(props.item)">
-                        <v-icon color="pink">delete</v-icon>
-                        </v-btn>
-                        -->
                       </td>
                     </tr>
                   </template>
                   <template slot="no-data">
-                    You have not added any servers, add a new server to continue.
+                    {{ tableLoading ? 'Fetching data, please wait...' : tableNoData }}
                   </template>
                 </v-data-table>
               </v-flex>
@@ -60,39 +58,27 @@
         </v-layout>
       </v-container>
 
-      <v-dialog v-model="dialog" max-width="500px">
-        <v-card>
-          <v-card-title>
-            <span class="headline">{{ formTitle }}</span>
-          </v-card-title>
-          <v-card-text>
-            <v-alert outline color="info" icon="info" :value="true"></v-alert>
-            <v-container grid-list-md>
-              <v-layout wrap>
-                <v-flex xs12 sm6 md6>
-                  <v-text-field label="Host" v-model="editedItem.name"></v-text-field>
-                </v-flex>
-                <v-flex xs12 sm6 md6>
-                  <v-text-field label="Secret" v-model="editedItem.status"></v-text-field>
-                </v-flex>
-              </v-layout>
-            </v-container>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" flat @click.native="close">Cancel</v-btn>
-            <v-btn color="blue darken-1" flat @click.native="save">Save</v-btn>
-          </v-card-actions>
-        </v-card>
+      <v-dialog v-model="consoleDialog" fullscreen hide-overlay color="black">
+        <v-toolbar card dark color="black">
+          <v-btn icon @click.native="consoleDialog = false" dark>
+            <v-icon>close</v-icon>
+          </v-btn>
+          <v-toolbar-title>Console: {{ container.info && container.info.name }}</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-toolbar-items>
+            <v-btn dark flat @click.native="consoleDialog = false">Close</v-btn>
+          </v-toolbar-items>
+        </v-toolbar>
+        <div id="terminal"></div>
       </v-dialog>
 
-      <v-dialog v-model="containerDialog" fullscreen hide-overlay transition="dialog-bottom-transition" scrollable>
+      <v-dialog v-model="containerDialog" max-width="900px" scrollable>
         <v-card tile>
-          <v-toolbar card dark color="deep-orange accent-4">
+          <v-toolbar card dark color="light-blue darken-3">
             <v-btn icon @click.native="containerDialog = false" dark>
               <v-icon>close</v-icon>
             </v-btn>
-            <v-toolbar-title>Container: {{ container.name }}</v-toolbar-title>
+            <v-toolbar-title>Container: {{ container.info && container.info.name }}</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-btn dark flat @click.native="containerDialog = false">Save</v-btn>
@@ -114,20 +100,116 @@
             <v-tabs v-model="activeTab">
               <v-tab ripple :href="`#tab-information`" >Information</v-tab>
               <v-tab ripple :href="`#tab-configuration`">Configuration</v-tab>
-              <v-tab ripple :href="`#tab-console`">Console</v-tab>
+              <v-tab ripple :href="`#tab-snapshots`">Snapshots</v-tab>
               <v-tab-item :id="`tab-information`">
                 <v-card flat>
                   <v-card-text><pre>{{ container }}</pre></v-card-text>
                 </v-card>
               </v-tab-item>
-              <v-tab-item :id="`tab-configuration`">
+              <v-tab-item :id="`tab-configuration`" v-if="container.info">
                 <v-card flat>
-                  <v-card-text>configuration</v-card-text>
+                  <v-card-text>
+                    <v-form v-model="valid" lazy v-if="container.info.config">
+                      <h2>General</h2>
+                      <v-layout row wrap style="margin-top:-20px">
+                        <v-flex xs6>
+                          <v-card-text class="px-1">
+                            <v-text-field v-model="container.info.name" label="Name" :rules="nameRule" @input="safe_name()" required></v-text-field>
+                            <v-select :items="['default']" :rules="profilesRule" v-model="container.info.profiles" label="Profiles" multiple chips required></v-select>
+                          </v-card-text>
+                        </v-flex>
+                        <v-flex xs6>
+                          <v-card-text class="px-4">
+                            <v-layout row wrap>
+                              <v-flex xs6>
+                                <h4>Auto Start</h4>
+                                <v-switch :label="`${container.info.config['boot.autostart'] ? 'Yes' : 'No'}`" color="success" v-model="container.info.config['boot.autostart']"></v-switch>
+                              </v-flex>
+                              <v-flex xs6>
+                                <h4>Ephemeral</h4>
+                                <v-switch :label="`${container.info.ephemeral ? 'Yes' : 'No'}`" color="success" v-model="container.info.ephemeral"></v-switch>
+                              </v-flex>
+                           </v-layout>
+                           <v-layout row wrap>
+                              <v-flex xs6>
+                                <h4>Privileged</h4>
+                                <v-switch :label="`${container.info.config['security.privileged'] ? 'Yes' : 'No'}`" color="success" v-model="container.info.config['security.privileged']"></v-switch>
+                              </v-flex>
+                              <v-flex xs6>
+                                <h4>Nesting</h4>
+                                <v-switch :label="`${container.info.config['security.nesting'] ? 'Yes' : 'No'}`" color="success" v-model="container.info.config['security.nesting']"></v-switch>
+                              </v-flex>
+                           </v-layout>
+                         </v-card-text>
+                        </v-flex>
+                      </v-layout>
+                      <h2 style="margin-top:-15px">CPU</h2>
+                      <v-layout row wrap>
+                        <v-flex xs6>
+                          <v-card-text class="px-1">
+                            <h4 style="margin-bottom:-20px">CPU Cores ({{ container.info.config['limits.cpu'] }})</h4>
+                            <v-slider v-model="container.info.config['limits.cpu']" thumb-label max="2" ticks></v-slider>
+                            <h4 style="margin-bottom:-20px">Max Processes ({{ container.info.config['limits.processes'] }})</h4>
+                            <v-slider v-model="container.info.config['limits.processes']" thumb-label max="20000" step="100" ticks></v-slider>
+                          </v-card-text>
+                        </v-flex>
+                        <v-flex xs6>
+                          <v-card-text class="px-1">
+                            <h4 style="margin-bottom:-20px">CPU Allowance ({{ container.info.config['limits.cpu.allowance'] }}%)</h4>
+                            <v-slider v-model="container.info.config['limits.cpu.allowance']" thumb-label max="100" step="1" ticks></v-slider>
+                            <h4 style="margin-bottom:-20px">CPU Priority ({{ container.info.config['limits.cpu.priority'] }})</h4>
+                            <v-slider v-model="container.info.config['limits.cpu.priority']" thumb-label max="10" step="1" ticks></v-slider>
+                          </v-card-text>
+                        </v-flex>
+                      </v-layout>
+                      <h2 style="margin-top:-15px">Memory</h2>
+                      <v-layout row wrap>
+                        <v-flex xs6>
+                          <v-card-text class="px-1">
+                            <h4 style="margin-bottom:-20px">Memory ({{ container.info.config['limits.memory'] }})</h4>
+                            <v-slider v-model="container.info.config['limits.memory']" max="16000" thumb-label step="64" ticks></v-slider>
+                            <h4 style="margin-bottom:-20px">Swap Priority ({{ container.info.config['limits.memory.swap.priority'] }})</h4>
+                            <v-slider v-model="container.info.config['limits.memory.swap.priority']" thumb-label max="10" step="1" ticks></v-slider>
+                          </v-card-text>
+                        </v-flex>
+                        <v-flex xs6>
+                          <v-card-text class="px-1">
+                            <h4>Enforce</h4>
+                            <v-switch :label="`${container.info.config['limits.memory.enforce'] ? 'Hard' : 'Soft'}`" color="success" v-model="container.info.config['limits.memory.enforce']"></v-switch>
+                            <h4>Swap</h4>
+                            <v-switch :label="`${container.info.config['limits.memory.swap'] ? 'Yes' : 'No'}`" color="success" v-model="container.info.config['limits.memory.swap']"></v-switch>
+                          </v-card-text>
+                        </v-flex>
+                      </v-layout>
+                      <v-layout row wrap>
+                        <v-flex xs6>
+                          <h2>Disk</h2>
+                        </v-flex>
+                        <v-flex xs6>
+                          <h2>Network</h2>
+                        </v-flex> 
+                      </v-layout>
+                      <v-layout row wrap>
+                        <v-flex xs6>
+                          <v-card-text class="px-1">
+                            <h4 style="margin-bottom:-20px">Priority ({{ container.info.config['limits.disk.priority'] }})</h4>
+                            <v-slider v-model="container.info.config['limits.disk.priority']" thumb-label max="10" step="1" ticks></v-slider>
+                          </v-card-text>
+                        </v-flex>
+                        <v-flex xs6>
+                          <v-card-text class="px-1">
+                            <h4 style="margin-bottom:-20px">Priority ({{ container.info.config['limits.network.priority'] }})</h4>
+                            <v-slider v-model="container.info.config['limits.network.priority']" thumb-label max="10" step="1" ticks></v-slider>
+                          </v-card-text>
+                        </v-flex>
+                      </v-layout>
+                    </v-form>
+                  </v-card-text>
                 </v-card>
               </v-tab-item>
-              <v-tab-item :id="`tab-console`">
+              <v-tab-item :id="`tab-snapshots`">
                 <v-card flat>
-                  <v-card-text><div id="terminal"></div></v-card-text>
+                  Snapshots will go here.
                 </v-card>
               </v-tab-item>
             </v-tabs>
@@ -145,8 +227,14 @@
   import axios from 'axios'
   import { Terminal } from 'xterm'
   import * as fit from 'xterm/lib/addons/fit/fit'
+  import helpers from '~/utils/helpers'
+  
+  const container = require('~/components/lxd/container')
+  
+  var xterm;
 
   export default {
+    mixins: [helpers],
     middleware: [
       'authenticated'
     ],
@@ -159,35 +247,40 @@
       }),
       formTitle () {
         return this.editedIndex === -1 ? 'New Container' : 'Edit Container'
-      }
+      },
+      /*
+      max_memory: function () {
+        return (container.max_memory() / 1024) / 1024
+      },
+      max_cpu: function () {
+        return container.max_cpu()
+      }*/
     },
     data: () => ({
-      // snackbar
+      valid: true,
+      
+      // global error
+      error: '',
+
+      // snackbar (notification)
       snackbar: false,
       snackbarColor: 'green',
       snackbarText: '',
       snackbarTimeout: 5000,
 
-      // tab
-      activeTab: 'tab-information',
-
-      error: '',
-      dialog: false,
-      containerDialog: false,
-      containerActions: [
-        { title: 'Start' },
-        { title: 'Stop' },
-        { title: 'Delete' }
-      ],
-      headers: [
+      // table & items
+      items: [],
+      
+      tableLoading: true,
+      tableNoData: 'You have not added any port forwards.',
+      tableHeaders: [
         { text: 'Name', value: 'name' },
         { text: 'IP', value: 'network.eth0.addresses[0].address' },
-        { text: 'CPU', value: 'cpu' },
-        { text: 'Memory', value: 'memory' },
+        { text: 'CPU', value: 'cpu.usage' },
+        { text: 'Memory', value: 'memory.usage' },
         { text: 'Status', value: 'status' },
-        { text: 'Actions', value: 'host', sortable: false }
+        { text: 'Actions', value: 'name', sortable: false, align: 'right' }
       ],
-      items: [],
       editedIndex: -1,
       editedItem: {
         host: '',
@@ -197,7 +290,34 @@
         host: '',
         secret: ''
       },
-      container: {}
+
+      // tab
+      activeTab: 'tab-information',
+
+      dialog: false,
+      consoleDialog: false,
+      containerDialog: false,
+      containerActions: [
+        { title: 'Console',  action: 'console', msg: '', state: 'Running' },
+        { title: 'Start',  action: 'start', msg: 'Starting', state: 'Stopped' },
+        { title: 'Stop',   action: 'stop', msg: 'Stopping', state: 'Running' },
+        { title: 'Delete', action: 'delete', msg: 'Deleting', state: 'Stopped' },
+        { title: 'Freeze', action: 'freeze', msg: 'Freezing', state: 'Running' },
+        { title: 'Thaw', action: 'unfreeze', msg: 'Thawing', state: 'Frozen' },
+        { title: 'Restart', action: 'restart', msg: 'Restarting', state: 'Running' },
+        { title: 'Snapshot', action: 'snapshot', msg: 'Snapshotting' },
+        { title: 'Image', action: 'image', msg: 'Imaging', state: 'Stopped' }
+      ],
+      
+      container: container.empty(),
+      nameRule: [
+        v => !!v || 'Name is required.',
+        v => (v && /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/.test(v)) || 'Only letters, digits or hyphens. No leading hyphen or digit. Dots are converted to hyphens.',
+        v => (v && isNaN(v.charAt(0))) || 'Only letters, digits or hyphens. No leading hyphen or digit. Dots are converted to hyphens.'
+      ],
+      profilesRule: [
+        v => v.length >= 1 || 'At least one profile is required.'
+      ]
     }),
     mounted: function () {
       this.initialize()
@@ -220,16 +340,78 @@
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers')
           this.items = response.data.data
         } catch (error) {
+          this.tableNoData = 'No data.';
+          this.error = 'Could not fetch data from server.';
+        }
+        this.tableLoading = false
+      },
+      
+      async stateContainer (action, item) {
+        // intercept console
+        if (action.action === 'console') {
+          this.container = {
+            state: item,
+            info: {name: item.name}
+          }
+          this.viewContainer(item, false)
+          this.console()
+          this.consoleDialog = true;
+          return
+        }
+        //
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+
+          //
+          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+          //
+          const response = await axios.put(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/state', {
+              "action": action.action,
+              "timeout": 30,
+              "force": true,
+              "stateful": false
+          })
+          
+          //
+          this.snackbar = true;
+          this.snackbarTimeout = 2500
+          this.snackbarText = action.msg + ' container.';
+          
+          setTimeout(() => this.initialize(), 1500)
+        } catch (error) {
           console.error(error);
         }
+      },
+
+      check_started_with_ip (container) {
+        return (
+          container.network &&
+          container.network.eth0.addresses.length > 0 &&
+          container.status === 'Running' &&
+          this.isIP4(container.network.eth0.addresses[0].address)
+        )
+      },
+
+      updateConfigItem(key, value) {
+        console.log(key)
+        console.log(value)
+      },
+      
+      safe_name() {
+        this.container.info.name = this.container.info.name.replace(".", "-");
       },
 
       console () {
         //const WebSocket = require('ws')
 
         //
+        if (xterm) {
+          xterm.destroy()
+        }
         var width = 100
-        var height = Math.max(Math.round(window.innerHeight / 19.50), 15)
+        var height = 80
         // container.config['image.os'] is passed through using router.
         // we do this to set the type of command, bash in everything except Alpine which uses Ash
         let command
@@ -238,11 +420,15 @@
         } else {
           command = 'bash'
         }
+        
+        var tmp = document.createElement ('a');
+        tmp.href = this.loggedUser.sub;
+        
 
         // init request for websocket connection
         axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
         //
-        const response = axios.post(this.loggedUser.sub + '/api/lxd/containers/' + this.container.name + '/console', {
+        const response = axios.post(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name + '/exec', {
           'command': [command],
           'environment': {
             'HOME': '/root',
@@ -252,22 +438,23 @@
           'wait-for-websocket': true,
           'interactive': true,
           'width': width,
-          'height': 80
+          'height': height
         }).then(function (response) {
-          console.log(response);
 
           response = response.data.data
           //
           Terminal.applyAddon(fit)
-          var xterm = new Terminal({
-            useStyle: false,
+          xterm = new Terminal({
+            useStyle: true,
             screenKeys: false,
             cursorBlink: true
           })
+          
           //
           var operationId = response.id
           var secret = response.metadata.fds[0]
-          var wssurl = 'wss://127.0.0.1:8443/1.0/operations/' +
+
+          var wssurl = 'wss://'+tmp.hostname+':8443/1.0/operations/' +
               operationId +
               '/websocket?secret=' +
               secret
@@ -281,16 +468,16 @@
             var previousResponse = null
             //
             xterm.open(document.getElementById('terminal'))
-            xterm.resize(0, height)
-            xterm.fit()
-            xterm.focus()
-            //
 
             window.addEventListener('resize', function (e) {
               var height = Math.max(Math.round(window.innerHeight / 19.50), 15)
               xterm.resize(0, height)
               xterm.fit()
             })
+            
+            height = Math.max(Math.round(window.innerHeight / 19.50), 15)
+            xterm.resize(0, height)
+            xterm.fit()
 
             //
             xterm.on('data', (data) => {
@@ -306,34 +493,28 @@
               var reader = new FileReader();
               reader.addEventListener("loadend", () => {
                 msg = reader.result
-                console.log(msg)
-                console.log(previousResponse)
                 if (previousResponse !== null && previousResponse.trim() === 'exit' && msg.trim() === '') {
                   xterm.destroy()
-                  //window.close()
                 }
                 previousResponse = msg
                 xterm.write(msg)
-                xterm.fit()
               });
               reader.readAsText(msg.data);
-
+              xterm.fit()
             }
             //
             sock.onclose = function (msg) {
               xterm.destroy()
-              //window.close()
             }
           }
           sock.onerror = function (e) {
-            xterm.writeln('An error occured, press enter to close window.')
-            //window.close()
+            xterm.writeln('An error occured.')
             xterm.destroy()
           }
         }).catch(error => console.log(error))
       },
       
-      async viewContainer (container) {
+      async viewContainer (item, openDialog = true) {
         //
         try {
           if (!this.loggedUser) {
@@ -343,35 +524,21 @@
           //
           axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
-          const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + container.name)
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
+          
           this.container = {
-            state: container,
-            info: response.data.data,
+            state: item,
+            info: container.infix(response.data.data),
           }
         } catch (error) {
           console.error(error);
         }
         
-        this.containerDialog = true
+        this.containerDialog = openDialog
         //this.console()
       },
 
-      async actionContainer (action, item) {
-        //
-        try {
-          if (!this.loggedUser) {
-            throw Error();
-          }
 
-          //
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-          //
-          const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + item + '/' + action)
-          setTimeout(this.initialize(), 1000)
-        } catch (error) {
-          console.error(error);
-        }
-      },
 
       /*
       authItem (item) {
@@ -414,6 +581,9 @@
 
       close () {
         this.dialog = false
+        if (xterm) {
+          xterm.destroy()
+        }
         setTimeout(() => {
           this.editedItem = Object.assign({}, this.defaultItem)
           this.editedIndex = -1
@@ -452,5 +622,21 @@
 </script>
 
 <style>
-
+  .dialog--fullscreen {
+    background-color: #000!important;
+  }
+  .terminal {
+      background-color: #000!important;
+      color: #fff;
+      font-family: courier-new, courier, monospace !important;
+      font-feature-settings: "liga" 0;
+      font-size: 15px !important;
+  }
+  #terminal {
+    background-color: #000!important;
+    overflow: hidden;
+    width: 100%;
+    height: calc(100vh -30px);
+    padding-left:5px;
+  }
 </style>

@@ -1,8 +1,8 @@
 <template>
   <div>
     <v-card height="315px">
-      <v-card-title class="blue-grey lighten-2">
-        <span class="headline white--text">Disk</span>
+      <v-card-title class="grey lighten-1">
+        <span class="headline blue-grey--text text--darken-3">Disk</span>
         <span class="ml-2 grey--text text--darken-4"></span>
         <v-spacer></v-spacer>
         <v-menu bottom left>
@@ -27,7 +27,7 @@
         </div>
         <v-divider></v-divider>
         <v-card-text>
-          <v-progress-circular :size="150" :width="25" :rotate="-90" :value="disk_percent" color="pink">
+          <v-progress-circular :size="150" :width="25" :rotate="-90" :value="disk_percent" color="light-blue darken-2">
             <span>{{ disk_percent }}%</span><br>
             Used
           </v-progress-circular>

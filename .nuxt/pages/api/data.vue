@@ -13,7 +13,7 @@
         <v-layout row wrap>
           <v-flex d-flex xs12 order-xs5>
             <v-layout column>
-              <v-flex tag="h1" class="display-1 mb-3">
+              <v-flex tag="h1" class="display mb-2">
                 API - Data
                 <v-btn color="success" @click="dialog = true" style="float:right">New Endpoint</v-btn>
               </v-flex>
@@ -61,7 +61,7 @@
       <!-- Fullscreen Dialog -->
       <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition" scrollable>
         <v-card tile>
-          <v-toolbar card dark color="deep-orange accent-4">
+          <v-toolbar card dark color="light-blue darken-3">
             <v-btn icon @click.native="dialog = false" dark>
               <v-icon>close</v-icon>
             </v-btn>

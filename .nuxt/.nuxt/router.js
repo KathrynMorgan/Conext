@@ -18,7 +18,6 @@ const _26613530 = () => import('../pages/routes/web-forwards.vue' /* webpackChun
 const _451bc461 = () => import('../pages/routes/port-forwards.vue' /* webpackChunkName: "pages/routes/port-forwards" */).then(m => m.default || m)
 const _45827f74 = () => import('../pages/servers.vue' /* webpackChunkName: "pages/servers" */).then(m => m.default || m)
 const _40f2c212 = () => import('../pages/servers/index.vue' /* webpackChunkName: "pages/servers/index" */).then(m => m.default || m)
-const _a6dba2f4 = () => import('../pages/servers/add.vue' /* webpackChunkName: "pages/servers/add" */).then(m => m.default || m)
 const _38c793ae = () => import('../pages/auth/sign-out.vue' /* webpackChunkName: "pages/auth/sign-out" */).then(m => m.default || m)
 const _7802e0b6 = () => import('../pages/index.vue' /* webpackChunkName: "pages/index" */).then(m => m.default || m)
 
@@ -161,11 +160,6 @@ export function createRouter () {
 					path: "",
 					component: _40f2c212,
 					name: "servers"
-				},
-				{
-					path: "add",
-					component: _a6dba2f4,
-					name: "servers-add"
 				}
 			]
 		},

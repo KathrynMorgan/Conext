@@ -5,7 +5,7 @@
         <v-layout row wrap>
           <v-flex d-flex xs12 order-xs5>
             <v-layout column>
-              <v-flex tag="h1" class="display-1 mb-3">
+              <v-flex tag="h1" class="display mb-2">
                 My Servers
                 <v-btn color="success" @click="dialog = true" style="float:right">Add Server</v-btn>
               </v-flex>

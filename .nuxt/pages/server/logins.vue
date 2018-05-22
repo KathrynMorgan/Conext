@@ -4,7 +4,7 @@
       <v-layout row wrap>
         <v-flex d-flex xs12 order-xs5>
           <v-layout column>
-            <v-flex tag="h1" class="display-1 mb-3">
+            <v-flex tag="h1" class="display mb-2">
               Server - Logins
             </v-flex>
             <v-flex>

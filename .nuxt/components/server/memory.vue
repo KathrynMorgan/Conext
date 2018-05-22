@@ -1,8 +1,8 @@
 <template>
   <div>
     <v-card height="315px">
-      <v-card-title class="blue-grey lighten-2">
-        <span class="headline white--text">Memory</span>
+      <v-card-title class="grey lighten-1">
+        <span class="headline blue-grey--text text--darken-3">Memory</span>
         <span class="ml-2 grey--text text--darken-4"></span>
         <v-spacer></v-spacer>
         <v-menu bottom left>
@@ -29,7 +29,7 @@
         </div>
         <v-divider></v-divider>
         <v-card-text>
-          <v-progress-circular :size="150" :width="25" :rotate="-90" :value="memory_percent" color="pink">
+          <v-progress-circular :size="150" :width="25" :rotate="-90" :value="memory_percent" color="light-blue darken-2">
             <span>{{ memory_percent }}%</span><br>
             {{ memory_used }}
           </v-progress-circular>
