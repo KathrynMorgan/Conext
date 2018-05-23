@@ -1,0 +1,64 @@
+# Generated on Wed May 23 01:30:15 2018
+*mangle
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-A POSTROUTING -o lxcbr0 -p udp -m udp --dport 68 -j CHECKSUM --checksum-fill
+COMMIT
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+:DOCKER - [0:0]
+-A PREROUTING -m addrtype --dst-type LOCAL -j DOCKER
+-A OUTPUT ! -d 127.0.0.0/8 -m addrtype --dst-type LOCAL -j DOCKER
+-A POSTROUTING -s 172.17.0.0/16 ! -o docker0 -j MASQUERADE
+-A PREROUTING -p tcp -m tcp --dport 8000 -j DNAT --to-destination 10.171.90.15:80
+-A PREROUTING -p udp -m udp --dport 8000 -j DNAT --to-destination 10.171.90.15:80
+-A POSTROUTING -s 10.171.90.0/8 ! -d 10.171.90.0/8 -j MASQUERADE
+-A DOCKER -i lxcbr0 -j RETURN
+COMMIT
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:fail2ban-ssh - [0:0]
+:DOCKER - [0:0]
+:DOCKER-ISOLATION - [0:0]
+:DOCKER-USER - [0:0]
+-A INPUT -p tcp -m multiport --dports 2020 -j fail2ban-ssh
+-A INPUT -p tcp -m multiport --dports 22 -j fail2ban-ssh
+-A INPUT -p tcp -m multiport --dports 2200:2299 -j fail2ban-ssh
+-A INPUT -i lxcbr0 -p tcp -m tcp --dport 53 -j ACCEPT
+-A INPUT -i lxcbr0 -p udp -m udp --dport 53 -j ACCEPT
+-A INPUT -i lxcbr0 -p tcp -m tcp --dport 67 -j ACCEPT
+-A INPUT -i lxcbr0 -p udp -m udp --dport 67 -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+-A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -m conntrack --ctstate INVALID -j DROP
+-A INPUT -p tcp -m tcp --dport 80 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 8443 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+-A FORWARD -j DOCKER-USER
+-A FORWARD -j DOCKER-ISOLATION
+-A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -o docker0 -j DOCKER
+-A FORWARD -i docker0 ! -o docker0 -j ACCEPT
+-A FORWARD -i docker0 -o docker0 -j ACCEPT
+-A FORWARD -o lxcbr0 -j ACCEPT
+-A FORWARD -i lxcbr0 -j ACCEPT
+-A OUTPUT -o lo -j ACCEPT
+-A OUTPUT -p tcp -m tcp --sport 80 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp -m tcp --sport 443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A OUTPUT -p tcp -m tcp --sport 8443 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+-A OUTPUT -o lxcbr0 -p tcp -m tcp --sport 53 -j ACCEPT
+-A OUTPUT -o lxcbr0 -p udp -m udp --sport 53 -j ACCEPT
+-A OUTPUT -o lxcbr0 -p udp -m udp --sport 67 -j ACCEPT
+-A DOCKER-ISOLATION -j RETURN
+-A DOCKER-USER -j RETURN
+-A fail2ban-ssh -j RETURN
+COMMIT
+# Completed on Wed May 23 01:30:15 2018
