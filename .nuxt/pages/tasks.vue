@@ -166,7 +166,7 @@
       })
     },
     data: () => ({
-      system_tasks: ['nginx.build', 'nginx.auto_update', 'nginx.reconcile', 'nginx.reload', 'nginx.setup', 'tasks.auto_update', 'VACUUM;'],
+      system_tasks: ['iptables.setup', 'iptables.build', 'iptables.auto_update', 'nginx.build', 'nginx.auto_update', 'nginx.reconcile', 'nginx.reload', 'nginx.setup', 'tasks.auto_update', 'VACUUM;'],
       // global error
       error: '',
 
