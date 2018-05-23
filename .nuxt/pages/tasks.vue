@@ -530,14 +530,14 @@
 <style>
   .CodeMirror {
     border: 1px solid #eee;
-    min-height:calc(100vh - 270px);
+    min-height:calc(100vh - 350px);
     height: auto;
     font-family: Ubuntu Mono, Menlo, Consolas, monospace;
     font-size: 13px;
     line-height:1.1em;
   }
-  .CodeMirror-scroll{
-    min-height:calc(100vh - 270px);
+  .CodeMirror-scroll {
+    min-height:calc(100vh - 350px);
   }
   .CodeMirror-gutters {
     left: 0px!important;
