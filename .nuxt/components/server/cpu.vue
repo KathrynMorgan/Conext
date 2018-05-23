@@ -111,10 +111,19 @@
         load : {},
         cpu_info: '',
         cpu_usage: 0
-      }
+      },
+      pollItem: 0
     }),
+    beforeDestroy: function() {
+      clearInterval(this.pollId);
+    },
     mounted: function () {
       this.initialize()
+      
+      clearInterval(this.pollId);
+      this.pollId = setInterval(function () {
+        this.initialize()
+      }.bind(this), 5000);
     },
     methods: {
       initialize () {

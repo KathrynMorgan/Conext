@@ -31,8 +31,8 @@
                         </span>
                         <span v-if="props.item.status === 'Stopped'">-</span>
                       </td>
-                      <td>{{ props.item.cpu.usage ? Number(props.item.cpu.usage/1000000000).toFixed(2) + ' seconds' : '-' }}</td>
-                      <td>{{ props.item.memory.usage ? props.item.memory.usage : '-' }}</td>
+                      <td>{{ props.item.cpu && props.item.cpu.usage ? Number(props.item.cpu.usage/1000000000).toFixed(2) + ' seconds' : '-' }}</td>
+                      <td>{{ props.item.memory && props.item.memory.usage ? formatBytes(props.item.memory.usage) : '-' }}</td>
                       <td>{{ props.item.status }}</td>
                       <td class="px-0">
                         <v-menu offset-y left style="float:right" class="mr-3">
@@ -87,13 +87,6 @@
               <v-btn slot="activator" dark icon>
                 <v-icon>more_vert</v-icon>
               </v-btn>
-              <!--
-              <v-list>
-              <v-list-tile v-for="(item, i) in items" :key="i">
-              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-              </v-list-tile>
-              </v-list>
-              -->
             </v-menu>
           </v-toolbar>
           <v-card-text style="padding: 0px;">
@@ -317,10 +310,19 @@
       ],
       profilesRule: [
         v => v.length >= 1 || 'At least one profile is required.'
-      ]
+      ],
+      pollItem: 0
     }),
+    beforeDestroy: function() {
+      clearInterval(this.pollId);
+    },
     mounted: function () {
       this.initialize()
+      
+      clearInterval(this.pollId);
+      this.pollId = setInterval(function () {
+        this.initialize()
+      }.bind(this), 10000);
     },
     watch: {
       dialog (val) {
@@ -340,6 +342,7 @@
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers')
           this.items = response.data.data
         } catch (error) {
+          this.items = [];
           this.tableNoData = 'No data.';
           this.error = 'Could not fetch data from server.';
         }
@@ -404,26 +407,22 @@
       },
 
       console () {
-        //const WebSocket = require('ws')
-
         //
         if (xterm) {
           xterm.destroy()
         }
         var width = 100
         var height = 80
-        // container.config['image.os'] is passed through using router.
-        // we do this to set the type of command, bash in everything except Alpine which uses Ash
+        // bash in everything except Alpine which uses Ash
         let command
         if (this.os === 'Alpine') {
           command = 'ash'
         } else {
           command = 'bash'
         }
-        
+
         var tmp = document.createElement ('a');
         tmp.href = this.loggedUser.sub;
-        
 
         // init request for websocket connection
         axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
@@ -535,37 +534,8 @@
         }
         
         this.containerDialog = openDialog
-        //this.console()
       },
 
-
-
-      /*
-      authItem (item) {
-        this.editedIndex = this.items.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-
-        axios.post(item.host + '/auth', {
-          server: item.host,
-          secret: item.secret
-        }).then(response => {
-          setToken(response.data['token'])
-          this.$router.replace('/')
-        }).catch(error => {
-          if (error.response) {
-            if (error.response.status === 401) {
-              this.error = 'Incorrect secret!'
-            } else {
-              this.error = 'Failed to connect to host, check details.'
-            }
-          } else if (error.request) {
-            this.error = 'Failed to connect to host, check details.'
-          } else {
-            this.error = error.message
-          }
-        })
-      },
-*/
       editItem (item) {
         this.editedIndex = this.items.indexOf(item)
         this.editedItem = Object.assign({}, item)
@@ -600,23 +570,17 @@
         window.localStorage.setItem('servers', JSON.stringify(this.items))
 
         this.close()
+      },
+      
+      formatBytes (bytes, decimals) {
+        if(bytes == 0) return '0 Bytes';
+        var k = 1024,
+            dm = decimals || 2,
+            sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+            i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
       }
 
-      /*
-      async getServers () {
-        // set jwt into request header
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-        // get (servers)
-        const response = await axios.get('https://fatfree-base-rest-cloned-lcherone.c9users.io/servers')
-        this.servers = response.data.data
-      },
-      async remove (id) {
-        // set jwt into request header
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-        // delete (server)
-        const response = await axios.delete('https://fatfree-base-rest-cloned-lcherone.c9users.io/servers/' + id)
-        this.getServers()
-      }*/
     }
   }
 </script>

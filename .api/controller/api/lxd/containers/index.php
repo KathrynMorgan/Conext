@@ -46,7 +46,7 @@ class Index extends \Base\Controller
             $containers = $client->lxd->containers->list('local', function ($result) {
                 return str_replace('/1.0/containers/', '', $result);
             });
-            
+
             // get state
             $result = [];
             foreach ($containers as $i => $container) {

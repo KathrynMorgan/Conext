@@ -25,8 +25,8 @@
                   <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                   <template slot="items" slot-scope="props">
                     <tr @click.stop="tableExpand(props)">
-                    <td><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.name }}</a></td>
-                    <td>{{ props.item.description }}</td>
+                    <td><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.name.trim() }}</a></td>
+                    <td>{{ props.item.description.trim() }}</td>
                     <td>{{ props.item.type.toUpperCase() }}</td>
                     <td>
                       <v-btn icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)" :disabled="is_system_task(props.item)">
@@ -47,7 +47,7 @@
                       <template slot="items" slot-scope="props">
                         <tr @click.stop="props.expanded = !props.expanded">
                           <!--<td>{{ props.item.id }}</td>-->
-                          <td>{{ props.item.name }}</td>
+                          <!--<td>{{ props.item.name }}</td>-->
                           <td>{{ props.item.repeats == 1 ? 'Yes' : 'No'}}</td>
                           <td>
                             <v-edit-dialog
@@ -65,9 +65,9 @@
                               ></v-text-field>
                             </v-edit-dialog>
                           </td>
-                          <td>{{ props.item.run_last }}</td>
-                          <td>{{ props.item.run_next }}</td>
-                          <td>{{ props.item.completed }}</td>
+                          <td>{{ new Date(props.item.run_last).toLocaleString() }}</td>
+                          <td>{{ new Date(props.item.run_next).toLocaleString() }}</td>
+                          <td>{{ props.item.completed != 0 ? new Date(props.item.completed).toLocaleString() : '-' }}</td>
                           <td>{{ props.item.run_count }}</td>
                           <td>
                             <v-btn icon class="mx-0" style="float:right" @click.stop="deleteInstance(props.item)">
@@ -205,7 +205,7 @@
       ],
       expandedTableHeaders: [
         // { text: 'ID', value: 'id' },
-        { text: 'Name', value: 'name' },
+        // { text: 'Name', value: 'name' },
         { text: 'Repeats', value: 'repeats' },
         { text: 'Sleep', value: 'sleep' },
         { text: 'Last Run', value: 'run_last' },
@@ -316,7 +316,7 @@
           this.taskItem(prop.item)
           this.pollId = setInterval(function () {
             this.taskItem(prop.item)
-          }.bind(this), 2000);
+          }.bind(this), 2500);
         }
         prop.expanded = !prop.expanded
       },

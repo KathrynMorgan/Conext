@@ -11,8 +11,7 @@
               <v-alert type="error" :value="error">
                 {{ error }}
               </v-alert>
-
-              <v-data-table :headers="headers" :items="items.top" hide-actions class="elevation-1">
+              <v-data-table :headers="headers" :items="items" hide-actions class="elevation-1">
                 <template slot="items" slot-scope="props">
                   <td>{{ props.item['PID'] }}</td>
                   <td>{{ props.item['USER'] }}</td>
@@ -29,7 +28,6 @@
                 </template>
                 <template slot="no-data"></template>
               </v-data-table>
-
             </v-flex>
           </v-layout>
         </v-flex>
@@ -70,12 +68,19 @@
         { text: 'TIME+', value: 'TIME+' },
         { text: 'COMMAND', value: 'COMMAND' }
       ],
-      items: {
-        top: []
-      }
+      items: [],
+      pollItem: 0
     }),
+    beforeDestroy: function() {
+      clearInterval(this.pollId);
+    },
     mounted: function () {
       this.initialize()
+      
+      clearInterval(this.pollId);
+      this.pollId = setInterval(function () {
+        this.initialize()
+      }.bind(this), 5000);
     },
     methods: {
       async initialize () {

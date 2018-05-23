@@ -112,10 +112,19 @@
         { title: 'Refresh', action: 'refresh' },
         //{ title: 'Details', action: 'details' }
       ],
-      items: []
+      items: [],
+      pollItem: 0
     }),
+    beforeDestroy: function() {
+      clearInterval(this.pollId);
+    },
     mounted: function () {
       this.initialize()
+      
+      clearInterval(this.pollId);
+      this.pollId = setInterval(function () {
+        this.initialize()
+      }.bind(this), 10000);
     },
     methods: {
       initialize () {
@@ -124,8 +133,7 @@
         //
         axios.get(this.loggedUser.sub + '/api/server/information/memory').then(response => {
           this.items = response.data.data
-        })
-          .catch(error => {
+        }).catch(error => {
           this.items = []
         })
       },

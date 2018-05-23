@@ -103,10 +103,19 @@
         { title: 'Refresh', action: 'refresh' },
         { title: 'Details', action: 'details' }
       ],
-      items: []
+      items: [],
+      pollItem: 0
     }),
+    beforeDestroy: function() {
+      clearInterval(this.pollId);
+    },
     mounted: function () {
       this.initialize()
+      
+      clearInterval(this.pollId);
+      this.pollId = setInterval(function () {
+        this.initialize()
+      }.bind(this), 30000);
     },
     methods: {
       initialize () {

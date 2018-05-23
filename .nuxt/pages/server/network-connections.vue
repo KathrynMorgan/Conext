@@ -74,10 +74,19 @@
       defaultItem: {
         host: '',
         secret: ''
-      }
+      },
+      pollItem: 0
     }),
+    beforeDestroy: function() {
+      clearInterval(this.pollId);
+    },
     mounted: function () {
       this.initialize()
+      
+      clearInterval(this.pollId);
+      this.pollId = setInterval(function () {
+        this.initialize()
+      }.bind(this), 10000);
     },
     methods: {
       async initialize () {
