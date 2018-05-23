@@ -9,6 +9,7 @@ const _f2b73846 = () => import('../pages/server/processes.vue' /* webpackChunkNa
 const _424dc85a = () => import('../pages/server/logins.vue' /* webpackChunkName: "pages/server/logins" */).then(m => m.default || m)
 const _4038d394 = () => import('../pages/server/network-connections.vue' /* webpackChunkName: "pages/server/network-connections" */).then(m => m.default || m)
 const _3b316788 = () => import('../pages/lxd.vue' /* webpackChunkName: "pages/lxd" */).then(m => m.default || m)
+const _5fa62362 = () => import('../pages/lxd/operations.vue' /* webpackChunkName: "pages/lxd/operations" */).then(m => m.default || m)
 const _5896d775 = () => import('../pages/lxd/containers.vue' /* webpackChunkName: "pages/lxd/containers" */).then(m => m.default || m)
 const _584b05f1 = () => import('../pages/about.vue' /* webpackChunkName: "pages/about" */).then(m => m.default || m)
 const _e1bb1e04 = () => import('../pages/api.vue' /* webpackChunkName: "pages/api" */).then(m => m.default || m)
@@ -74,7 +75,7 @@ const scrollBehavior = function (to, from, savedPosition) {
 export function createRouter () {
   return new Router({
     mode: 'history',
-    base: '/ui/',
+    base: '/',
     linkActiveClass: 'nuxt-link-active',
     linkExactActiveClass: 'nuxt-link-exact-active',
     scrollBehavior,
@@ -111,6 +112,11 @@ export function createRouter () {
 			component: _3b316788,
 			name: "lxd",
 			children: [
+				{
+					path: "operations",
+					component: _5fa62362,
+					name: "lxd-operations"
+				},
 				{
 					path: "containers",
 					component: _5896d775,

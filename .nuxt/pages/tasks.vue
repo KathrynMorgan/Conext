@@ -80,7 +80,7 @@
                         </tr>
                       </template>
                       <template slot="no-data">
-                        {{ tableLoading ? 'Fetching data, please wait...' : 'Task ('+props.item.name+') has no instances.' }}
+                        {{ tableLoading ? 'Fetching data, please wait...' : 'Task has no instances.' }}
                       </template>
                       <template slot="expand" slot-scope="props">
                         <v-card flat>

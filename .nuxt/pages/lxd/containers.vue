@@ -58,7 +58,7 @@
         </v-layout>
       </v-container>
 
-      <v-dialog v-model="consoleDialog" fullscreen hide-overlay color="black">
+      <v-dialog v-model="consoleDialog" fullscreen hide-overlay color="black" style="overflow-y:hidden;">
         <v-toolbar card dark color="black">
           <v-btn icon @click.native="consoleDialog = false" dark>
             <v-icon>close</v-icon>
@@ -95,12 +95,12 @@
               <v-tab ripple :href="`#tab-configuration`">Configuration</v-tab>
               <v-tab ripple :href="`#tab-snapshots`">Snapshots</v-tab>
               <v-tab-item :id="`tab-information`">
-                <v-card flat>
+                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <v-card-text><pre>{{ container }}</pre></v-card-text>
                 </v-card>
               </v-tab-item>
               <v-tab-item :id="`tab-configuration`" v-if="container.info">
-                <v-card flat>
+                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <v-card-text>
                     <v-form v-model="valid" lazy v-if="container.info.config">
                       <h2>General</h2>
@@ -201,7 +201,7 @@
                 </v-card>
               </v-tab-item>
               <v-tab-item :id="`tab-snapshots`">
-                <v-card flat>
+                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   Snapshots will go here.
                 </v-card>
               </v-tab-item>
@@ -265,7 +265,7 @@
       items: [],
       
       tableLoading: true,
-      tableNoData: 'You have not added any port forwards.',
+      tableNoData: 'You have not added any containers.',
       tableHeaders: [
         { text: 'Name', value: 'name' },
         { text: 'IP', value: 'network.eth0.addresses[0].address' },
@@ -480,15 +480,11 @@
 
             //
             xterm.on('data', (data) => {
-              console.log(sock, data)
               sock.send(new Blob([data]))
             })
 
             //
             sock.onmessage = function (msg) {
-              console.log(msg);
-              // msg = Buffer.from(msg.data).toString()
-
               var reader = new FileReader();
               reader.addEventListener("loadend", () => {
                 msg = reader.result
@@ -588,6 +584,7 @@
 <style>
   .dialog--fullscreen {
     background-color: #000!important;
+    overflow:hidden;
   }
   .terminal {
       background-color: #000!important;
@@ -597,10 +594,10 @@
       font-size: 15px !important;
   }
   #terminal {
-    background-color: #000!important;
+    background-color: #000 !important;
     overflow: hidden;
     width: 100%;
-    height: calc(100vh -30px);
-    padding-left:5px;
+    height: calc(100vh - 65px);
+    padding-left: 5px;
   }
 </style>
