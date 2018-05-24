@@ -83,11 +83,6 @@
             <v-toolbar-items>
               <v-btn dark flat @click.native="containerDialog = false">Save</v-btn>
             </v-toolbar-items>
-            <v-menu bottom right offset-y>
-              <v-btn slot="activator" dark icon>
-                <v-icon>more_vert</v-icon>
-              </v-btn>
-            </v-menu>
           </v-toolbar>
           <v-card-text style="padding: 0px;">
             <v-tabs v-model="activeTab">
@@ -222,11 +217,6 @@
             <v-toolbar-items>
               <v-btn dark flat @click.native="newContainerDialog = false">Save</v-btn>
             </v-toolbar-items>
-            <v-menu bottom right offset-y>
-              <v-btn slot="activator" dark icon>
-                <v-icon>more_vert</v-icon>
-              </v-btn>
-            </v-menu>
           </v-toolbar>
           <v-card-text>
             <v-form ref="form" v-model="valid" lazy-validation>

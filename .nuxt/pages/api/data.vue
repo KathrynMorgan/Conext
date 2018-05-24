@@ -70,18 +70,6 @@
             <v-toolbar-items>
               <v-btn dark flat @click.native="save()">Save</v-btn>
             </v-toolbar-items>
-            <v-menu bottom right offset-y>
-              <v-btn slot="activator" dark icon>
-                <v-icon>more_vert</v-icon>
-              </v-btn>
-              <!--
-              <v-list>
-              <v-list-tile v-for="(item, i) in items" :key="i">
-              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-              </v-list-tile>
-              </v-list>
-              -->
-            </v-menu>
           </v-toolbar>
           <v-card-text style="padding: 0px;">
             <v-card flat>

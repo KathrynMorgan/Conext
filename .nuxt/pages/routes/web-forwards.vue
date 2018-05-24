@@ -74,18 +74,6 @@
             <v-toolbar-items>
               <v-btn dark flat @click.native="save()">Save</v-btn>
             </v-toolbar-items>
-            <v-menu bottom right offset-y>
-              <v-btn slot="activator" dark icon>
-                <v-icon>more_vert</v-icon>
-              </v-btn>
-              <!--
-              <v-list>
-              <v-list-tile v-for="(item, i) in items" :key="i">
-              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-              </v-list-tile>
-              </v-list>
-              -->
-            </v-menu>
           </v-toolbar>
           <v-card-text style="padding: 0px;">
             <v-card flat>
@@ -96,7 +84,7 @@
                 </v-alert>
                 -->
                 <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-text-field v-model="editingItem.label" :rules="labelRule" label="Label:" placeholder="" required hint="Enter a label for the web forward." persistent-hint></v-text-field>
+                  <v-text-field v-model="editingItem.label" :rules="labelRule" label="Label:" placeholder="" required hint="Enter a label for the web forward."></v-text-field>
 
                   <h3 style="margin-top:15px">Domains</h3>
                   <v-layout row wrap>

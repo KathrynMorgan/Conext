@@ -73,18 +73,6 @@
             <v-toolbar-items>
               <v-btn dark flat @click.native="save()">Save</v-btn>
             </v-toolbar-items>
-            <v-menu bottom right offset-y>
-              <v-btn slot="activator" dark icon>
-                <v-icon>more_vert</v-icon>
-              </v-btn>
-              <!--
-              <v-list>
-              <v-list-tile v-for="(item, i) in items" :key="i">
-              <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-              </v-list-tile>
-              </v-list>
-              -->
-            </v-menu>
           </v-toolbar>
           <v-card-text style="padding: 0px;">
             <v-card flat>
@@ -95,10 +83,10 @@
                 </v-alert>
                 -->
                 <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-text-field v-model="editingItem.label" :rules="labelRule" label="Label:" placeholder="" required hint="Enter a label for the port forward." persistent-hint></v-text-field>
-                  <v-text-field v-model="editingItem.ip" label="IP:" placeholder="" required hint="Enter the IP address for the port forward." persistent-hint></v-text-field>
-                  <v-text-field v-model="editingItem.port" label="External Port:" placeholder="" required hint="Enter the external port to forward." persistent-hint></v-text-field>
-                  <v-text-field v-model="editingItem.srv_port" label="Internal Port:" placeholder="" required hint="Enter the internal port to forward" persistent-hint></v-text-field>
+                  <v-text-field v-model="editingItem.label" :rules="labelRule" label="Label:" placeholder="" required hint="Enter a label for the port forward."></v-text-field>
+                  <v-text-field v-model="editingItem.ip" label="IP:" placeholder="" required hint="Enter the IP address for the port forward."></v-text-field>
+                  <v-text-field v-model="editingItem.port" label="External Port:" placeholder="" required hint="Enter the external port to forward."></v-text-field>
+                  <v-text-field v-model="editingItem.srv_port" label="Internal Port:" placeholder="" required hint="Enter the internal port to forward"></v-text-field>
                    <!--
                   <v-text-field v-model="editingItem.srv_type" label="Service Type:" placeholder="" required hint="Enter the service type." persistent-hint></v-text-field>
                   <v-text-field v-model="editingItem.srv_port" label="Service Port:" placeholder="" required hint="Enter the service port." persistent-hint></v-text-field>
