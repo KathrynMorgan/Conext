@@ -72,7 +72,7 @@
         <div id="terminal"></div>
       </v-dialog>
 
-      <v-dialog v-model="containerDialog" max-width="900px" scrollable>
+      <v-dialog v-model="containerDialog" max-width="900px" scrollable v-if="container.info">
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
             <v-btn icon @click.native="containerDialog = false" dark>
@@ -202,7 +202,7 @@
               </v-tab-item>
               <v-tab-item :id="`tab-snapshots`">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  Snapshots will go here.
+                  <snapshots :item="container" @snackbar="setSnackbar"></snapshots>
                 </v-card>
               </v-tab-item>
             </v-tabs>
@@ -218,6 +218,9 @@
   import { mapGetters, mapMutations } from 'vuex'
   import { setToken } from '~/utils/auth'
   import axios from 'axios'
+  // components
+  import snapshots from '~/components/lxd/snapshots.vue'
+  
   import { Terminal } from 'xterm'
   import * as fit from 'xterm/lib/addons/fit/fit'
   import helpers from '~/utils/helpers'
@@ -231,7 +234,9 @@
     middleware: [
       'authenticated'
     ],
-    components: {},
+    components: {
+      snapshots
+    },
     computed: {
       ...mapGetters({
         isAuthenticated: 'auth/isAuthenticated',
@@ -361,6 +366,15 @@
           this.consoleDialog = true;
           return
         }
+        // intercept snapshot
+        if (action.action === 'snapshot') {
+          this.container = {
+            state: item,
+            info: {name: item.name}
+          }
+          this.snapshotContainer(item, false)
+          return
+        }
         //
         try {
           if (!this.loggedUser) {
@@ -404,6 +418,13 @@
       
       safe_name() {
         this.container.info.name = this.container.info.name.replace(".", "-");
+      },
+      
+      setSnackbar (msg) {
+        //
+        this.snackbar = true;
+        this.snackbarTimeout = 2500
+        this.snackbarText = msg;
       },
 
       console () {
@@ -513,7 +534,7 @@
         //
         try {
           if (!this.loggedUser) {
-            throw Error();
+            this.$router.replace('/servers')
           }
 
           //
@@ -530,6 +551,28 @@
         }
         
         this.containerDialog = openDialog
+      },
+      
+      async snapshotContainer (item) {
+        //
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+
+          //
+          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+          //
+          const response = await axios.post(this.loggedUser.sub + '/api/lxd/containers/'+ item.name +'/snapshots', {
+              name: new Date().toISOString(),
+              stateful: false
+          })
+          
+          this.setSnackbar('Snapshotting container.')
+          
+        } catch (error) {
+          console.error(error);
+        }
       },
 
       editItem (item) {
