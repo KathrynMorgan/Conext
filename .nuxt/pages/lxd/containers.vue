@@ -410,6 +410,11 @@
           this.snapshotContainer(item, false)
           return
         }
+        // intercept delete
+        if (action.action === 'delete') {
+          this.deleteContainer(item)
+          return
+        }
         //
         try {
           if (!this.loggedUser) {
@@ -609,6 +614,26 @@
           
           this.setSnackbar('Snapshotting container.')
           
+        } catch (error) {
+          console.error(error);
+        }
+      },
+
+      async deleteContainer (item) {
+        const index = this.items.indexOf(item)
+        this.items.splice(index, 1)
+        
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+
+          //
+          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+          //
+          const response = await axios.delete(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
+          
+          this.setSnackbar('Container deleted.')
         } catch (error) {
           console.error(error);
         }

@@ -47,7 +47,7 @@ if ($f3->get('CORS.enabled')) {
   $f3->set('CORS.headers', 'authorization, origin, x-requested-with, x-request-token, content-type');
   $f3->set('CORS.credentials', true);
   $f3->set('CORS.expose', true);
-  $f3->set('CORS.ttl', 300);
+  $f3->set('CORS.ttl', 600);
 }
 
 // add hive

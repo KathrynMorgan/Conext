@@ -65,11 +65,50 @@ class Index extends \Base\Controller
          * POST /api/lxd/containers
          */
         if ($verb === 'POST') {
-            $f3->response->json([
-                'error' => '',
-                'code'  => 200,
-                'data'  => []
-            ]);
+            $body = json_decode($f3->get('BODY'), true);
+            
+            $errors = [];
+            if (empty($body['name'])) {
+                $errors['name'] = 'Container name cannot be empty'; 
+            }
+            
+            if (empty($body['image_fingerprint'])) {
+                $errors['image_fingerprint'] = 'Image fingerprint cannot be empty'; 
+            }
+            
+            if (empty($body['profile'])) {
+                $errors['profile'] = 'Container requires at least one profile'; 
+            }
+            
+            if (empty($body['remote'])) {
+                $errors['remote'] = 'Remote cannot be empty'; 
+            }
+            
+            if (!empty($errors)) {
+                $f3->response->json([
+                    'error' => $errors,
+                    'code'  => 400,
+                    'data'  => []
+                ]);
+            }
+            
+            $body['ephemeral'] = !empty($body['ephemeral']) ? ' -e ' : '';
+            
+            try {
+                $result = [
+                    'error' => '',
+                    'code'  => 200,
+                    'data'  => $client->lxd->local('lxc launch '.escapeshellarg($body['remote']).':'.escapeshellarg($body['image_fingerprint']).' '.escapeshellarg($body['name']).$body['ephemeral'].' -p '.implode(' -p ', $body['profile']))
+                ];
+            } catch (\Exception $e) {
+                $result = [
+                    'error' => 'Could not create container.',
+                    'code'  => 422,
+                    'data'  => []
+                ];
+            }
+            
+            $f3->response->json($result);
         }
         
         /**
@@ -97,21 +136,16 @@ class Index extends \Base\Controller
          * DELETE /api/lxd/containers
          */
         if ($verb === 'DELETE') {
-            $item = json_decode($f3->get('BODY'), true);
+            // //
+            // $result = $client->lxd->containers->list('local', function ($result) {
+            //     return str_replace('/1.0/containers/', '', $result);
+            // });
             
-            if (empty($item) || !is_numeric($item['id'])) {
-               $f3->response->json([
-                    'error' => 'Invalid DELETE body, expecting item',
-                    'code'  => 422,
-                    'data'  => []
-                ]); 
-            }
-            
-            $f3->response->json([
-                'error' => '',
-                'code'  => 200,
-                'data'  => []
-            ]);
+            // $f3->response->json([
+            //     'error' => '',
+            //     'code'  => 200,
+            //     'data'  => []
+            // ]);
         }
     }
     
@@ -219,21 +253,12 @@ class Index extends \Base\Controller
         }
         
         if ($verb === 'DELETE') {
-            $item = json_decode($f3->get('BODY'), true);
+            //
+            $result = $client->lxd->containers->delete('local', $params['name']);
             
-            if (!is_numeric($params['id'])) {
-              $f3->response->json([
-                    'error' => 'Invalid DELETE id, expecting integer',
-                    'code'  => 422,
-                    'data'  => []
-                ]); 
-            }
-            
-            $client->tasks->removeTasksLog($params['id']);
-
             $f3->response->json([
                 'error' => '',
-                'code'  => 204,
+                'code'  => 200,
                 'data'  => []
             ]);
         }

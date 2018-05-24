@@ -166,15 +166,15 @@
       pollItem: 0
     }),
     beforeDestroy: function() {
-      clearInterval(this.pollId);
+      //clearInterval(this.pollId);
     },
     mounted: function () {
       this.initialize()
 
-      clearInterval(this.pollId);
-      this.pollId = setInterval(function () {
-        this.initialize()
-      }.bind(this), 5000);
+      //clearInterval(this.pollId);
+      //this.pollId = setInterval(function () {
+      //  this.initialize()
+      //}.bind(this), 5000);
     },
     watch: {
       dialog (val) {

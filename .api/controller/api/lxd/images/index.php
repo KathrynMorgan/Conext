@@ -25,6 +25,9 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
         }
+        
+        $this->cache = \Cache::instance();
+        $this->cache_ttl = 5;
     }
 
     /**
@@ -51,8 +54,13 @@ class Index extends \Base\Controller
                 ]);
             }
             
-            // get images filter by architecture (may add as a parameter if ever needed)
-            $result = $client->lxd->images->list($f3->get('GET.remote'), 'architecture="'.implode('|', ['x86_64', 'i686', 'amd64']).'"');
+            // cache remote images if not local
+            if ($f3->get('GET.remote') === 'local' || !$this->cache->exists('images.'.$f3->get('GET.remote'), $result)) {
+                // get images filter by architecture (may add as a parameter if ever needed)
+                $result = $client->lxd->images->list($f3->get('GET.remote'), 'architecture="'.implode('|', ['x86_64', 'i686', 'amd64']).'"');
+                //
+                $this->cache->set('images.'.$f3->get('GET.remote'), $result, 3600);
+            }
 
             $f3->response->json([
                 'error' => null,

@@ -54,9 +54,19 @@
                         <v-icon color="teal">edit</v-icon>
                       </v-btn>
                       -->
-                      <v-btn icon class="mx-0" style="float:right" @click="deleteItem(props.item)">
-                        <v-icon color="pink">delete</v-icon>
-                      </v-btn>
+
+                      <v-tooltip left>
+                        <v-btn slot="activator" icon class="mx-0" style="float:right" @click="deleteItem(props.item)" v-if="show_delete">
+                          <v-icon color="pink">delete</v-icon>
+                        </v-btn>
+                        <span>Delete Image</span>
+                      </v-tooltip>
+                      <v-tooltip left>
+                        <v-btn slot="activator" icon class="mx-0" style="float:right" @click="createContainer(props.item, false)">
+                          <v-icon color="green">play_circle_outline</v-icon>
+                        </v-btn>
+                        <span>Launch Container</span>
+                      </v-tooltip>
                     </td>
                   </template>
                   <template slot="no-data">
@@ -70,13 +80,43 @@
       </v-container>
       
       <!-- Fullscreen Dialog -->
+      <v-dialog v-model="createDialog" max-width="900px" scrollable>
+        <v-card tile>
+          <v-toolbar card dark color="light-blue darken-3">
+            <v-btn icon @click.native="createDialog = false" dark>
+              <v-icon>close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Launch Container</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-btn dark flat @click.native="createContainer(newItem, true)">Launch</v-btn>
+            </v-toolbar-items>
+            <v-menu bottom right offset-y>
+              <v-btn slot="activator" dark icon>
+                <v-icon>more_vert</v-icon>
+              </v-btn>
+            </v-menu>
+          </v-toolbar>
+          <v-card-text>
+            <v-form ref="form" v-model="valid" lazy-validation>
+              <v-text-field v-model="newItem.name" label="Name" :rules="nameRule" @input="safe_name()" hint="Enter name for new container." required></v-text-field>
+              <v-select :items="[newItem.image]" v-model="newItem.image" label="Image" required disabled></v-select>
+              <v-select :items="['default']" :rules="profilesRule" v-model="newItem.profile" label="Profiles" multiple chips required></v-select>
+              <v-switch :label="`${newItem.ephemeral ? 'Ephemeral' : 'Ephemeral'}`" color="success" v-model="newItem.ephemeral"></v-switch>
+            </v-form>
+          </v-card-text>
+          <div style="flex: 1 1 auto;"></div>
+        </v-card>
+      </v-dialog>
+      
+      <!-- Fullscreen Dialog -->
       <v-dialog v-model="dialog" max-width="900px" scrollable>
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
             <v-btn icon @click.native="dialog = false" dark>
               <v-icon>close</v-icon>
             </v-btn>
-            <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} Port Forward</v-toolbar-title>
+            <v-toolbar-title>.</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-btn dark flat @click.native="save()">Save</v-btn>
@@ -102,17 +142,17 @@
                   <strong>Endpoint:</strong> {{loggedUser.sub}}/{{editingItem.version}}/{{editingItem.module}} [GET|POST|PUT|DELETE]
                 </v-alert>
                 -->
-                <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-text-field v-model="editingItem.label" :rules="labelRule" label="Label:" placeholder="" required hint="Enter a label for the port forward." persistent-hint></v-text-field>
-                  <v-text-field v-model="editingItem.ip" label="IP:" placeholder="" required hint="Enter the IP address for the port forward." persistent-hint></v-text-field>
-                  <v-text-field v-model="editingItem.port" label="External Port:" placeholder="" required hint="Enter the external port to forward." persistent-hint></v-text-field>
-                  <v-text-field v-model="editingItem.srv_port" label="Internal Port:" placeholder="" required hint="Enter the internal port to forward" persistent-hint></v-text-field>
+                <!--<v-form ref="form" v-model="valid" lazy-validation>-->
+                  <!--<v-text-field v-model="editingItem.label" :rules="labelRule" label="Label:" placeholder="" required hint="Enter a label for the port forward." persistent-hint></v-text-field>-->
+                  <!--<v-text-field v-model="editingItem.ip" label="IP:" placeholder="" required hint="Enter the IP address for the port forward." persistent-hint></v-text-field>-->
+                  <!--<v-text-field v-model="editingItem.port" label="External Port:" placeholder="" required hint="Enter the external port to forward." persistent-hint></v-text-field>-->
+                  <!--<v-text-field v-model="editingItem.srv_port" label="Internal Port:" placeholder="" required hint="Enter the internal port to forward" persistent-hint></v-text-field>-->
                    <!--
                   <v-text-field v-model="editingItem.srv_type" label="Service Type:" placeholder="" required hint="Enter the service type." persistent-hint></v-text-field>
                   <v-text-field v-model="editingItem.srv_port" label="Service Port:" placeholder="" required hint="Enter the service port." persistent-hint></v-text-field>
                   <pre>{{editingItem}}</pre>
                   -->
-                </v-form>
+                <!--</v-form>-->
               </v-card-text>
             </v-card>
           </v-card-text>
@@ -165,6 +205,8 @@
       items: [],
       remotes: [],
       distros: [],
+      publicServers: ['images', 'ubuntu', 'ubuntu-daily'],
+      showDelete: false,
       
       activeRemote: 'local',
       activeDistro: 'ubuntu',
@@ -187,31 +229,35 @@
 
       // dialog
       dialog: false,
+      createDialog: false,
       
       // item
-      editingIndex: -1,
-      editingItem: {
-        id: -1,
-        label: "",
-        ip: "",
-        port: "",
-        srv_type: "",
-        srv_port: ""
+      newItem: {
+        name: '',
+        image: '',
+        image_fingerprint: '',
+        profile: ['default'],
+        ephemeral: false,
+        remote: 'local'
       },
       defaultItem: {
-        id: -1,
-        label: "",
-        ip: "",
-        port: "",
-        srv_type: "",
-        srv_port: ""
+        name: '',
+        image: '',
+        image_fingerprint: '',
+        profile: ['default'],
+        ephemeral: false,
+        remote: 'local'
       },
       
       // item form & validation
       valid: true,
-      labelRule: [
-        v => !!v || 'Label is required',
-        v => (v && v.length <= 100) || 'Label must be less than 100 characters'
+      nameRule: [
+        v => !!v || 'Name is required.',
+        v => (v && /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/.test(v)) || 'Only letters, digits or hyphens. No leading hyphen or digit. Dots are converted to hyphens.',
+        v => (v && isNaN(v.charAt(0))) || 'Only letters, digits or hyphens. No leading hyphen or digit. Dots are converted to hyphens.'
+      ],
+      profilesRule: [
+        v => v.length >= 1 || 'At least one profile is required.'
       ]
     }),
     mounted: function () {
@@ -248,8 +294,6 @@
       
       async loadRemoteImages(remote = 'local') {
         //
-        this.activeDistro = 'ubuntu';
-        //
         try {
           if (!this.loggedUser) {
             this.$router.replace('/servers')
@@ -258,16 +302,73 @@
           //
           var response = await axios.get(this.loggedUser.sub + '/api/lxd/images?remote='+remote)
           this.items = response.data.data
-          this.distros = [];
-          for (var key in this.items) {
-            this.distros.push(this.items[key].properties.os.toLowerCase())
-          }
+          
+          // assign distro list in background
+          setTimeout(() => {
+            this.distros = [];
+            for (var key in this.items) {
+              this.distros.push(this.items[key].properties.os.toLowerCase())
+            }
+          }, 0)
+          
+          // show delete button
+          this.show_delete = this.items.length > 0 && !this.publicServers.includes(this.activeRemote)
+          
+          //
+          this.activeDistro = 'ubuntu';
 
           //
         } catch (error) {
           this.tableNoData = 'No data.';
           this.error = 'Could not fetch data from server.';
         }
+      },
+      
+     createContainer (item, launch = false) {
+        if (!launch) {
+          this.createDialog = true
+          this.newItem = {
+            name: '',
+            image: item.properties.description,
+            image_fingerprint: item.fingerprint,
+            profile: ['default'],
+            ephemeral: false,
+            remote: this.activeRemote
+          };
+        } else {
+          if (this.$refs.form.validate() && this.valid) {
+
+            if (!this.loggedUser) {
+              this.$router.replace('/servers')
+            }
+            
+            //
+            this.snackbar = true;
+            this.snackbarColor = 'green';
+            this.snackbarText = 'Container queued for creation.';
+              
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+            axios.post(this.loggedUser.sub + '/api/lxd/containers', this.newItem).then(response => {
+              if (response.data.code === 200) {
+                //
+                this.snackbar = true;
+                this.snackbarText = 'Container created.';
+              } else {
+                //
+                this.snackbar = true;
+                this.snackbarColor = 'red';
+                this.snackbarText = response.data.error;
+              }
+            }).catch(error => {
+              this.error = 'Could not create container.'
+            })
+            this.createDialog = false
+          }
+        }
+      },
+      
+      safe_name() {
+        this.newItem.name = this.newItem.name.replace(".", "-");
       },
 
       // create or edit item
