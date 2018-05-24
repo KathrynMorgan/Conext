@@ -39,13 +39,20 @@ class Index extends \Base\Controller
         $client = $f3->get('plinker');
         
         /**
-         * GET /api/lxd
+         * GET /api/lxd/images?remote=local
          */
         if ($verb === 'GET') {
-            // get containers
-            $result = $client->lxd->containers->list('local', function ($result) {
-                return str_replace('/1.0/containers/', '', $result);
-            });
+            // expect ?remote=local
+            if ($f3->devoid('GET.remote')) {
+                $f3->response->json([
+                    'error' => 'Missing remote parameter',
+                    'code'  => 400,
+                    'data'  => []
+                ]);
+            }
+            
+            // get images filter by architecture (may add as a parameter if ever needed)
+            $result = $client->lxd->images->list($f3->get('GET.remote'), 'architecture="'.implode('|', ['x86_64', 'i686', 'amd64']).'"');
 
             $f3->response->json([
                 'error' => null,
@@ -55,7 +62,7 @@ class Index extends \Base\Controller
         }
         
         /**
-         * POST /api/lxd/containers
+         * POST /api/lxd/images
          */
         if ($verb === 'POST') {
             $f3->response->json([
@@ -66,7 +73,7 @@ class Index extends \Base\Controller
         }
         
         /**
-         * PUT /api/lxd/containers
+         * PUT /api/lxd/images
          */
         if ($verb === 'PUT') {
             $item = json_decode($f3->get('BODY'), true);
@@ -87,7 +94,7 @@ class Index extends \Base\Controller
         }
         
         /**
-         * DELETE /api/lxd/containers
+         * DELETE /api/lxd/images
          */
         if ($verb === 'DELETE') {
             $item = json_decode($f3->get('BODY'), true);

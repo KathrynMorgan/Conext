@@ -12,7 +12,7 @@
             <v-layout column>
               <v-flex tag="h1" class="display mb-2">
                 LXD - Containers
-                <v-btn color="success" @click="dialog = true" style="float:right">New Container</v-btn>
+                <v-btn color="success" @click="newContainer()" style="float:right">New Container</v-btn>
               </v-flex>
               <v-flex>
                 <v-alert type="error" :value="error">
@@ -210,6 +210,35 @@
           <div style="flex: 1 1 auto;"></div>
         </v-card>
       </v-dialog>
+      
+      <v-dialog v-model="newContainerDialog" max-width="900px" scrollable>
+        <v-card tile>
+          <v-toolbar card dark color="light-blue darken-3">
+            <v-btn icon @click.native="containerDialog = false" dark>
+              <v-icon>close</v-icon>
+            </v-btn>
+            <v-toolbar-title>New Container</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-btn dark flat @click.native="newContainerDialog = false">Save</v-btn>
+            </v-toolbar-items>
+            <v-menu bottom right offset-y>
+              <v-btn slot="activator" dark icon>
+                <v-icon>more_vert</v-icon>
+              </v-btn>
+            </v-menu>
+          </v-toolbar>
+          <v-card-text>
+            <v-form ref="form" v-model="valid" lazy-validation>
+              <v-text-field v-model="newItem.name" label="Name" :rules="nameRule" @input="safe_name()" hint="Enter name for new container." required></v-text-field>
+              <v-select :items="['default']" :rules="profilesRule" v-model="newItem.image" label="Image" required></v-select>
+              <v-select :items="['default']" :rules="profilesRule" v-model="newItem.profile" label="Profiles" multiple chips required></v-select>
+              <v-switch :label="`${newItem.ephemeral ? 'Ephemeral' : 'Ephemeral'}`" color="success" v-model="newItem.ephemeral"></v-switch>
+            </v-form>
+          </v-card-text>
+          <div style="flex: 1 1 auto;"></div>
+        </v-card>
+      </v-dialog>
     </v-content>
   </v-app>
 </template>
@@ -279,14 +308,19 @@
         { text: 'Status', value: 'status' },
         { text: 'Actions', value: 'name', sortable: false, align: 'right' }
       ],
-      editedIndex: -1,
-      editedItem: {
-        host: '',
-        secret: ''
+      
+      // new container item
+      newItem: {
+        name: '',
+        image: '',
+        profile: ['default'],
+        ephemeral: false
       },
       defaultItem: {
-        host: '',
-        secret: ''
+        name: '',
+        image: '',
+        profile: ['default'],
+        ephemeral: false
       },
 
       // tab
@@ -295,6 +329,7 @@
       dialog: false,
       consoleDialog: false,
       containerDialog: false,
+      newContainerDialog: false,
       containerActions: [
         { title: 'Console',  action: 'console', msg: '', state: 'Running' },
         { title: 'Start',  action: 'start', msg: 'Starting', state: 'Stopped' },
@@ -553,6 +588,10 @@
         this.containerDialog = openDialog
       },
       
+      newContainer() {
+        this.newContainerDialog = true
+      },
+
       async snapshotContainer (item) {
         //
         try {
@@ -575,42 +614,16 @@
         }
       },
 
-      editItem (item) {
-        this.editedIndex = this.items.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialog = true
-      },
-
-      deleteItem (item) {
-        const index = this.items.indexOf(item)
-        confirm('Are you sure you want to delete this item?') && this.items.splice(index, 1)
-
-        window.localStorage.setItem('servers', JSON.stringify(this.items))
-      },
-
       close () {
         this.dialog = false
         if (xterm) {
           xterm.destroy()
         }
         setTimeout(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
+          this.newItem = Object.assign({}, this.defaultItem)
         }, 300)
       },
 
-      save () {
-        if (this.editedIndex > -1) {
-          Object.assign(this.items[this.editedIndex], this.editedItem)
-        } else {
-          this.items.push(this.editedItem)
-        }
-
-        window.localStorage.setItem('servers', JSON.stringify(this.items))
-
-        this.close()
-      },
-      
       formatBytes (bytes, decimals) {
         if(bytes == 0) return '0 Bytes';
         var k = 1024,

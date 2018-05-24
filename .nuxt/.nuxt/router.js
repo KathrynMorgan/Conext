@@ -11,6 +11,7 @@ const _4038d394 = () => import('../pages/server/network-connections.vue' /* webp
 const _3b316788 = () => import('../pages/lxd.vue' /* webpackChunkName: "pages/lxd" */).then(m => m.default || m)
 const _5fa62362 = () => import('../pages/lxd/operations.vue' /* webpackChunkName: "pages/lxd/operations" */).then(m => m.default || m)
 const _5896d775 = () => import('../pages/lxd/containers.vue' /* webpackChunkName: "pages/lxd/containers" */).then(m => m.default || m)
+const _04ba105b = () => import('../pages/lxd/images.vue' /* webpackChunkName: "pages/lxd/images" */).then(m => m.default || m)
 const _584b05f1 = () => import('../pages/about.vue' /* webpackChunkName: "pages/about" */).then(m => m.default || m)
 const _e1bb1e04 = () => import('../pages/api.vue' /* webpackChunkName: "pages/api" */).then(m => m.default || m)
 const _ac69206a = () => import('../pages/api/data.vue' /* webpackChunkName: "pages/api/data" */).then(m => m.default || m)
@@ -121,6 +122,11 @@ export function createRouter () {
 					path: "containers",
 					component: _5896d775,
 					name: "lxd-containers"
+				},
+				{
+					path: "images",
+					component: _04ba105b,
+					name: "lxd-images"
 				}
 			]
 		},
