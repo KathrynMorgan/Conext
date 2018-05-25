@@ -7,7 +7,6 @@
     </v-snackbar>
 
     <v-content>
-      
       <!-- Main Content -->
       <v-container fluid tag="section" id="grid">
         <v-layout row wrap>
@@ -30,22 +29,6 @@
                     <td>{{ props.item.port }}</td>
                     <td>{{ props.item.srv_port }}</td>
                     <td>
-                      <!--
-                      <v-menu offset-y>
-                        <v-btn icon class="mx-0" slot="activator">
-                          <v-icon color="blue-grey lighten-3">view_headline</v-icon>
-                        </v-btn>
-                        <v-list>
-                          <v-list-tile v-for="item in containerActions" :key="item.title" @click="actionContainer(item.title.toLowerCase(), props.item.name)">
-                            <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                          </v-list-tile>
-                        </v-list>
-                      </v-menu>
-
-                      <v-btn icon class="mx-0" @click="editItem(props.item)">
-                        <v-icon color="teal">edit</v-icon>
-                      </v-btn>
-                      -->
                       <v-btn icon class="mx-0" style="float:right" @click="deleteItem(props.item)">
                         <v-icon color="pink">delete</v-icon>
                       </v-btn>
@@ -77,21 +60,11 @@
           <v-card-text style="padding: 0px;">
             <v-card flat>
               <v-card-text>
-                <!--
-                <v-alert :value="true" outline color="info" icon="info" style="margin-bottom: 10px;">
-                  <strong>Endpoint:</strong> {{loggedUser.sub}}/{{editingItem.version}}/{{editingItem.module}} [GET|POST|PUT|DELETE]
-                </v-alert>
-                -->
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-text-field v-model="editingItem.label" :rules="labelRule" label="Label:" placeholder="" required hint="Enter a label for the port forward."></v-text-field>
                   <v-text-field v-model="editingItem.ip" label="IP:" placeholder="" required hint="Enter the IP address for the port forward."></v-text-field>
                   <v-text-field v-model="editingItem.port" label="External Port:" placeholder="" required hint="Enter the external port to forward."></v-text-field>
                   <v-text-field v-model="editingItem.srv_port" label="Internal Port:" placeholder="" required hint="Enter the internal port to forward"></v-text-field>
-                   <!--
-                  <v-text-field v-model="editingItem.srv_type" label="Service Type:" placeholder="" required hint="Enter the service type." persistent-hint></v-text-field>
-                  <v-text-field v-model="editingItem.srv_port" label="Service Port:" placeholder="" required hint="Enter the service port." persistent-hint></v-text-field>
-                  <pre>{{editingItem}}</pre>
-                  -->
                 </v-form>
               </v-card-text>
             </v-card>

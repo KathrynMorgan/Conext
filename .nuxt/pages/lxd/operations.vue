@@ -31,7 +31,6 @@
                             <td>{{ ucfirst(props.item.class) }}</td>
                             <td>{{ ucfirst(props.item.may_cancel) }}</td>
                             <td>{{ new Date(props.item.created_at).toLocaleString() }}</td>
-                            <!--<td>{{ new Date(props.item.updated_at).toLocaleString() }}</td>-->
                             <td>{{ props.item.status }}</td>
                             <td>
                               <v-btn icon class="mx-0" style="float:right" @click.stop="cancelOperation(props.item)" :disabled="!props.item.may_cancel">
@@ -71,7 +70,6 @@
                             <td>{{ ucfirst(props.item.class) }}</td>
                             <td>{{ ucfirst(props.item.may_cancel) }}</td>
                             <td>{{ new Date(props.item.created_at).toLocaleString() }}</td>
-                            <!--<td>{{ new Date(props.item.updated_at).toLocaleString() }}</td>-->
                             <td>{{ props.item.status }}</td>
                             <td>
                               <v-btn icon class="mx-0" style="float:right" @click.stop="cancelOperation(props.item)" :disabled="!props.item.may_cancel">
@@ -165,16 +163,9 @@
       // poller id
       pollItem: 0
     }),
-    beforeDestroy: function() {
-      //clearInterval(this.pollId);
-    },
+    beforeDestroy: function() {},
     mounted: function () {
       this.initialize()
-
-      //clearInterval(this.pollId);
-      //this.pollId = setInterval(function () {
-      //  this.initialize()
-      //}.bind(this), 5000);
     },
     watch: {
       dialog (val) {

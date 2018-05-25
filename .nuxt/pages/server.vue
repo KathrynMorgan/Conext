@@ -18,9 +18,7 @@
       })
     },
     mounted: function () {},
-    data () {
-      return {}
-    },
+    data: () => ({}),
     methods: {}
   }
 </script>

@@ -8,8 +8,6 @@
   import { mapGetters } from 'vuex'
 
   export default {
-    // servers if like login so its not required
-    // middleware: 'authenticated',
     components: {},
     computed: {
       ...mapGetters({
@@ -18,16 +16,8 @@
         loggedToken: 'auth/loggedToken',
       })
     },
-    /*
-    async asyncData() {
-      const { data } = await axios.get('https://jsonplaceholder.typicode.com/users')
-      return { users: data }
-    },
-    */
     mounted: function () {},
-    data () {
-      return {}
-    },
+    data: () => ({}),
     methods: {}
   }
 </script>

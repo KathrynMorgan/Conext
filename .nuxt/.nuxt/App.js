@@ -7,6 +7,8 @@ import '../node_modules/xterm/dist/xterm.css'
 
 import '../node_modules/codemirror/lib/codemirror.css'
 
+import '../node_modules/vuetify/dist/vuetify.css'
+
 import '../node_modules/font-awesome/css/font-awesome.css'
 
 

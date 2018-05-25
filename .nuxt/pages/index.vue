@@ -11,7 +11,6 @@
               <v-alert type="error" :value="error">
                 {{ error }}
               </v-alert>
-              
               <v-container grid-list-md text-xs-center>
                 <v-layout row wrap>
                   <v-flex md4>
@@ -25,13 +24,6 @@
                   </v-flex>
                 </v-layout>
               </v-container>
-              <!--
-                  <pre>app rendered {{ rendered }} side</pre>
-              <pre>{{ loggedUser }}</pre>
-              <pre>{{ loggedToken }}</pre>
-              <pre>isAuthenticated = {{ isAuthenticated }}</pre>
-              <pre>{{ result }}</pre>
-              -->
             </v-flex>
           </v-layout>
         </v-flex>
@@ -60,36 +52,11 @@
     components: {
       serverCpu, serverMemory, serverDisk
     },
-    mounted: function() {
-      this.initialize()
-    },
-    asyncData() {
-      return {
-        rendered: process.static ? 'static' : (process.server ? 'server' : 'client')
-      }
-    },
+    mounted: function() {},
     data: () => ({
-      error: '',
-      result: []
+      error: ''
     }),
-    methods: {
-      //
-      async initialize() {
-        /*
-        // set
-        this.$storage.set("xxx", {foo:'bar'})
-        
-        // get
-        console.log(this.$storage.get("xxx"));
-        console.log(this.$storage.isset("xxx"));
-        
-        // remove
-        this.$storage.remove("xxx")
-        
-        this.$storage.clear()
-        */
-      }
-    }
+    methods: {}
   }
 </script>
 

@@ -17,16 +17,8 @@
         loggedToken: 'auth/loggedToken',
       })
     },
-    /*
-    async asyncData() {
-      const { data } = await axios.get('https://jsonplaceholder.typicode.com/users')
-      return { users: data }
-    },
-    */
     mounted: function () {},
-    data () {
-      return {}
-    },
+    data: () => ({}),
     methods: {}
   }
 </script>

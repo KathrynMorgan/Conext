@@ -14,7 +14,7 @@ const router = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
 }
 
 // change _nuxt assets path, same for both on this project
-const publicPath = process.env.DEPLOY_ENV === 'GH_PAGES' ? '/assets/' : '/assets/'
+const publicPath = process.env.DEPLOY_ENV === 'GH_PAGES' ? '/dist/' : '/dist/'
 
 /**
  * @see: node_modules/lib/common/options.js
@@ -43,22 +43,18 @@ module.exports = {
     '@nuxtjs/font-awesome',
     '@nuxtjs/vuetify'
   ],
-  vuetify: {
+  //vuetify: {
     // Vuetify options
     // theme: { }
-  },
+  //},
   css: [
-    //'vuetify/dist/vuetify.css',
     'xterm/dist/xterm.css',
-    // lib css
-    'codemirror/lib/codemirror.css'//,
-    // merge css
-    // 'codemirror/addon/merge/merge.css',
-    // theme css
-    // 'codemirror/theme/default.css'
+    'codemirror/lib/codemirror.css',
+    'vuetify/dist/vuetify.css'
   ],
   generate: {
     extractCSS: true,
+    cssSourceMap: false,
     minify: {
       collapseBooleanAttributes: true,
       collapseWhitespace: false,
@@ -89,9 +85,10 @@ module.exports = {
     postcss: {
       plugins: {
         // prevent compile CSS warnings
-        'postcss-custom-properties': false
+        //'postcss-custom-properties': false
       }
     },
+    cssSourceMap: false,
     /*
     ** Run ESLint on save
     */

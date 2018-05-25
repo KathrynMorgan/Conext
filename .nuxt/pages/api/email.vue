@@ -143,7 +143,6 @@
                       <v-text-field v-model="editingItem.provider.password" label="Password:" placeholder="" required hint="Enter the SMTP connection password."></v-text-field>
                     </v-flex>
                   </v-layout>
-
                   <v-select :items="['None', 'TLS', 'SSL']" v-model="editingItem.provider.encryption" label="Encryption:" hint="Choose the SMTP connection encryption type."></v-select>
                   <v-text-field v-model="editingItem.provider.limit" label="Message Limit:" placeholder="" required hint="Enter the SMTP message limit."></v-text-field>
                   <v-select :items="['Yes', 'No']" v-model="editingItem.provider.debug" label="Debug:"></v-select>
@@ -157,7 +156,7 @@
       </v-dialog>
       
       <!-- Fullscreen Dialog -->
-      <v-dialog v-model="dialog.template" fullscreen hide-overlay scrollable>
+      <v-dialog v-model="dialog.template" fullscreen hide-overlay transition="dialog-bottom-transition" scrollable>
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
             <v-btn icon @click.native="close('template')" dark>
@@ -173,7 +172,6 @@
             <v-card flat>
               <v-card-text>
                 <v-form ref="formtemplate" v-model="valid.template" lazy-validation>
-                  
                   <v-layout row wrap>
                     <v-flex xs6>
                       <v-text-field v-model="editingItem.template.name" label="Name:" placeholder="" required hint="Enter the name of the email template."></v-text-field>
@@ -186,7 +184,6 @@
                       <v-text-field v-model="editingItem.template.key" label="Send Key:" placeholder="" hint="Enter a key which is required before sending email."></v-text-field>
                     </v-flex>
                   </v-layout>
-
                   <h3>Template Source</h3>
                   <no-ssr placeholder="Loading...">
                     <codemirror v-model="editingItem.template.source" :options="cmOption"></codemirror>

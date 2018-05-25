@@ -27,22 +27,6 @@
                     <td><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.module }}</a></td>
                     <td>{{ props.item.version }}</td>
                     <td>
-                      <!--
-                      <v-menu offset-y>
-                        <v-btn icon class="mx-0" slot="activator">
-                          <v-icon color="blue-grey lighten-3">view_headline</v-icon>
-                        </v-btn>
-                        <v-list>
-                          <v-list-tile v-for="item in containerActions" :key="item.title" @click="actionContainer(item.title.toLowerCase(), props.item.name)">
-                            <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                          </v-list-tile>
-                        </v-list>
-                      </v-menu>
-
-                      <v-btn icon class="mx-0" @click="editItem(props.item)">
-                        <v-icon color="teal">edit</v-icon>
-                      </v-btn>
-                      -->
                       <v-btn icon class="mx-0" style="float:right" @click="deleteItem(props.item)">
                         <v-icon color="pink">delete</v-icon>
                       </v-btn>
@@ -95,7 +79,6 @@
                       <v-select :items="['None', 'JSON', 'HTML', 'TEXT', 'JS', 'XML']" v-model="editingItem.header" label="Response Content Type:" hint="Select response content-type."></v-select>
                     </v-flex>
                   </v-layout> 
-
                   <h3>Source (PHP)</h3>
                   <no-ssr placeholder="Loading...">
                     <codemirror v-model="editingItem.source" :options="cmOption"></codemirror>

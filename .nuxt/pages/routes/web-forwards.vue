@@ -7,7 +7,6 @@
     </v-snackbar>
 
     <v-content>
-      
       <!-- Main Content -->
       <v-container fluid tag="section" id="grid">
         <v-layout row wrap>
@@ -31,22 +30,6 @@
                     <td><ul><li style="list-style-type: none;" v-for="domain in props.item.ownDomain" :key="domain.name">{{ domain.name }}</li></ul></td>
                     <td><v-icon color="amber darken-3" v-if="props.item.ssl_type === 'letsencrypt'">https</v-icon> Expires: {{ new Date(props.item.certificate_expiry*1000).toLocaleDateString() }}</td>
                     <td>
-                      <!--
-                      <v-menu offset-y>
-                        <v-btn icon class="mx-0" slot="activator">
-                          <v-icon color="blue-grey lighten-3">view_headline</v-icon>
-                        </v-btn>
-                        <v-list>
-                          <v-list-tile v-for="item in containerActions" :key="item.title" @click="actionContainer(item.title.toLowerCase(), props.item.name)">
-                            <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                          </v-list-tile>
-                        </v-list>
-                      </v-menu>
-
-                      <v-btn icon class="mx-0" @click="editItem(props.item)">
-                        <v-icon color="teal">edit</v-icon>
-                      </v-btn>
-                      -->
                       <v-btn icon class="mx-0" style="float:right" @click="deleteItem(props.item)">
                         <v-icon color="pink">delete</v-icon>
                       </v-btn>
@@ -78,14 +61,8 @@
           <v-card-text style="padding: 0px;">
             <v-card flat>
               <v-card-text>
-                <!--
-                <v-alert :value="true" outline color="info" icon="info" style="margin-bottom: 10px;">
-                  <strong>Endpoint:</strong> {{loggedUser.sub}}/{{editingItem.version}}/{{editingItem.module}} [GET|POST|PUT|DELETE]
-                </v-alert>
-                -->
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-text-field v-model="editingItem.label" :rules="labelRule" label="Label:" placeholder="" required hint="Enter a label for the web forward."></v-text-field>
-
                   <h3 style="margin-top:15px">Domains</h3>
                   <v-layout row wrap>
                     <v-flex xs11>
@@ -107,7 +84,6 @@
                       </v-btn>
                     </v-flex>
                   </v-layout>
-
                   <h3 style="margin-top:15px">Upstream/s</h3>
                   <v-layout row wrap>
                     <v-flex xs6>
@@ -135,7 +111,6 @@
                       </v-btn>
                     </v-flex>
                   </v-layout>
-            
                   <h3 style="margin-top:15px">SSL</h3>
                   <v-checkbox v-model="editingItem.letsencrypt" label="Let's Encrypt"></v-checkbox>
                 </v-form>

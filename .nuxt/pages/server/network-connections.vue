@@ -52,11 +52,7 @@
       error: '',
       dialog: false,
       headers: [
-        {
-          text: 'Proto',
-          align: 'left',
-          value: 'Proto'
-        },
+        { text: 'Proto', align: 'left', value: 'Proto' },
         { text: 'Recv-Q', value: 'Recv-Q' },
         { text: 'Send-Q', value: 'Send-Q' },
         { text: 'Local Address', value: 'Local Address' },

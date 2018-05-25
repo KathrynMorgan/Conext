@@ -10,6 +10,27 @@
                 <v-btn color="success" @click="dialog = true" style="float:right">Add Server</v-btn>
               </v-flex>
               <v-flex>
+                <v-alert type="error" :value="error">
+                  {{ error }}
+                </v-alert>
+                <v-data-table :headers="headers" :items="items" hide-actions class="elevation-1">
+                  <template slot="items" slot-scope="props">
+                    <td><a href="javascript:void(0)" @click="authItem(props.item)">{{ props.item.label }}</a></td>
+                    <td><a :href="props.item.host" target="_blank" rel="noopener">{{ props.item.host }}</a></td>
+                    <td>{{ props.item.secret }}</td>
+                    <td class="justify-center layout px-0">
+                      <v-btn icon class="mx-0" @click="editItem(props.item)">
+                        <v-icon color="teal">edit</v-icon>
+                      </v-btn>
+                      <v-btn icon class="mx-0" @click="deleteItem(props.item)">
+                        <v-icon color="pink">delete</v-icon>
+                      </v-btn>
+                    </td>
+                  </template>
+                  <template slot="no-data">
+                    You have not added any servers, add a new server to continue.
+                  </template>
+                </v-data-table>
                 <v-dialog v-model="dialog" max-width="500px">
                   <v-card>
                     <v-card-title>
@@ -38,29 +59,6 @@
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
-
-                <v-alert type="error" :value="error">
-                  {{ error }}
-                </v-alert>
-
-                <v-data-table :headers="headers" :items="items" hide-actions class="elevation-1">
-                  <template slot="items" slot-scope="props">
-                    <td><a href="javascript:void(0)" @click="authItem(props.item)">{{ props.item.label }}</a></td>
-                    <td><a :href="props.item.host" target="_blank" rel="noopener">{{ props.item.host }}</a></td>
-                    <td>{{ props.item.secret }}</td>
-                    <td class="justify-center layout px-0">
-                      <v-btn icon class="mx-0" @click="editItem(props.item)">
-                        <v-icon color="teal">edit</v-icon>
-                      </v-btn>
-                      <v-btn icon class="mx-0" @click="deleteItem(props.item)">
-                        <v-icon color="pink">delete</v-icon>
-                      </v-btn>
-                    </td>
-                  </template>
-                  <template slot="no-data">
-                    You have not added any servers, add a new server to continue.
-                  </template>
-                </v-data-table>
               </v-flex>
             </v-layout>
           </v-flex>

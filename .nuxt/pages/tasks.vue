@@ -46,8 +46,6 @@
                       <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                       <template slot="items" slot-scope="props">
                         <tr @click.stop="props.expanded = !props.expanded">
-                          <!--<td>{{ props.item.id }}</td>-->
-                          <!--<td>{{ props.item.name }}</td>-->
                           <td>{{ props.item.repeats == 1 ? 'Yes' : 'No'}}</td>
                           <td>
                             <v-edit-dialog
@@ -97,7 +95,7 @@
       </v-container>
       
       <!-- Fullscreen Dialog -->
-      <v-dialog v-model="dialog" fullscreen hide-overlay scrollable>
+      <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition" scrollable>
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
             <v-btn icon @click.native="dialog = false" dark>
@@ -109,32 +107,28 @@
               <v-btn dark flat @click.native="save()">Save</v-btn>
             </v-toolbar-items>
           </v-toolbar>
-          <v-card-text style="padding: 0px;">
-            <v-card flat>
-              <v-card-text>
-                <v-alert :value="true" outline color="error" icon="warning" v-if="editingItem.id !== -1 && is_system_task(editingItem)">
-                 Changes to system tasks should be done with caution!
-                </v-alert>
-                <v-alert :value="true" outline color="error" icon="warning" v-if="editingItem.id === -1 && is_system_task(editingItem)">
-                 <strong>Error:</strong> Name is reserved for the system task!
-                </v-alert>
-                <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-layout row wrap>
-                    <v-flex xs6>
-                      <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" :disabled="editingItem.id !== -1 && is_system_task(editingItem)" required hint="Enter the name of the task."></v-text-field>
-                    </v-flex>
-                    <v-flex xs6>
-                      <v-text-field v-model="editingItem.description" label="Description:" placeholder="" required hint="Enter the tasks description."></v-text-field>
-                    </v-flex>
-                  </v-layout>
-                  <v-select :items="['PHP', 'BASH']" v-model="editingItem.type" label="Task Source Type:" hint="Select the type of code the task is written in."></v-select>
-                  <h3>Source ({{editingItem.type}})</h3>
-                  <no-ssr placeholder="Loading...">
-                    <codemirror v-model="editingItem.source" :options="cmOption"></codemirror>
-                  </no-ssr>
-                </v-form>
-              </v-card-text>
-            </v-card>
+          <v-card-text>
+            <v-alert :value="true" outline color="error" icon="warning" v-if="editingItem.id !== -1 && is_system_task(editingItem)">
+             Changes to system tasks should be done with caution!
+            </v-alert>
+            <v-alert :value="true" outline color="error" icon="warning" v-if="editingItem.id === -1 && is_system_task(editingItem)">
+              <strong>Error:</strong> Name is reserved for the system task!
+            </v-alert>
+            <v-form ref="form" v-model="valid" lazy-validation>
+              <v-layout row wrap>
+                <v-flex xs6>
+                  <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" :disabled="editingItem.id !== -1 && is_system_task(editingItem)" required hint="Enter the name of the task."></v-text-field>
+                </v-flex>
+                <v-flex xs6>
+                  <v-text-field v-model="editingItem.description" label="Description:" placeholder="" required hint="Enter the tasks description."></v-text-field>
+                </v-flex>
+              </v-layout>
+              <v-select :items="['PHP', 'BASH']" v-model="editingItem.type" label="Task Source Type:" hint="Select the type of code the task is written in."></v-select>
+              <h3>Source ({{editingItem.type}})</h3>
+              <no-ssr placeholder="Loading...">
+                <codemirror v-model="editingItem.source" :options="cmOption" ref="cmInstance"></codemirror>
+              </no-ssr>
+            </v-form>
           </v-card-text>
           <div style="flex: 1 1 auto;"></div>
         </v-card>
@@ -158,7 +152,10 @@
         isAuthenticated: 'auth/isAuthenticated',
         loggedUser: 'auth/loggedUser',
         loggedToken: 'auth/loggedToken'
-      })
+      }),
+      codemirror() {
+        return this.$refs.cmInstance.codemirror
+      }
     },
     data: () => ({
       system_tasks: ['iptables.setup', 'iptables.build', 'iptables.auto_update', 'nginx.build', 'nginx.auto_update', 'nginx.reconcile', 'nginx.reload', 'nginx.setup', 'tasks.auto_update', 'VACUUM;'],
@@ -184,7 +181,7 @@
         keyMap: "sublime",
         mode: 'text/x-php'
       },
-
+      
       // table & items
       items: [],
       item: [],
@@ -199,8 +196,6 @@
         { text: 'Actions', value: 'name', sortable: false, align: 'right' }
       ],
       expandedTableHeaders: [
-        // { text: 'ID', value: 'id' },
-        // { text: 'Name', value: 'name' },
         { text: 'Repeats', value: 'repeats' },
         { text: 'Sleep', value: 'sleep' },
         { text: 'Last Run', value: 'run_last' },
@@ -443,6 +438,10 @@
         // mutate task source type
         this.editingItem.type = this.editingItem.type.toUpperCase()
         this.dialog = true
+        
+        setTimeout(() => {
+            this.codemirror.refresh();
+        }, 300);
       },
 
       // delete item
@@ -525,6 +524,7 @@
 </script>
 
 <style>
+
   .CodeMirror {
     border: 1px solid #eee;
     min-height:calc(100vh - 350px);
@@ -533,10 +533,12 @@
     font-size: 13px;
     line-height:1.1em;
   }
+  
   .CodeMirror-scroll {
     min-height:calc(100vh - 350px);
   }
+
   .CodeMirror-gutters {
-    left: 0px!important;
+    left: 0px !important;
   }
 </style>

@@ -11,7 +11,6 @@
               <v-alert type="error" :value="error">
                 {{ error }}
               </v-alert>
-
               <v-data-table :headers="headers" :items="items.logins" hide-actions class="elevation-1">
                 <template slot="items" slot-scope="props">
                   <td>{{ props.item['User'] }}</td>
@@ -22,7 +21,6 @@
                 </template>
                 <template slot="no-data"></template>
               </v-data-table>
-
             </v-flex>
           </v-layout>
         </v-flex>

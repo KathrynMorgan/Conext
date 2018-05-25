@@ -1,66 +1,66 @@
 {
-  "publicPath": "/ui/assets/",
+  "publicPath": "/ui/dist/",
   "all": [
-    "pages/server.1b383aca783d41532cff.js",
+    "pages/server.ddc012ebc675ab553f2f.js",
     "img/fontawesome-webfont.912ec66.svg",
     "fonts/fontawesome-webfont.674f50d.eot",
     "fonts/fontawesome-webfont.fee66e7.woff",
     "fonts/fontawesome-webfont.af7ae50.woff2",
     "pages/lxd/containers.f40ef5d1723b4f66bffe.js",
-    "pages/lxd/images.50d573f3909d61fe98dd.js",
-    "pages/index.ff37e759405077314ab1.js",
+    "pages/lxd/images.0754147133f79dd62e02.js",
+    "pages/index.97824de5119642593268.js",
     "layouts/default.f0036a2efc25d0b68b78.js",
-    "pages/lxd/operations.d74a9cdfeffcfaf40871.js",
-    "pages/tasks.d35a70f709d732738c68.js",
-    "pages/servers/index.0b1ff246218483af6131.js",
-    "pages/servers.8957a64600fdbd6c7f5b.js",
+    "pages/lxd/operations.464aac057727d743be9d.js",
+    "pages/tasks.0682e0e7a2d48c999a56.js",
+    "pages/servers/index.fc3a9fa8018dc3ee1fde.js",
+    "pages/servers.81f053f70ec954290c34.js",
     "pages/server/processes.64942eb5dc3d89295274.js",
-    "pages/server/network-connections.ed687be69d059d52aea3.js",
-    "pages/server/logins.7c968fbeb61fce86af8c.js",
+    "pages/server/network-connections.4c4ed9a5a3f34cd00e41.js",
+    "pages/server/logins.65838a6b47446deb02bd.js",
     "fonts/fontawesome-webfont.b06871f.ttf",
-    "pages/routes/web-forwards.94ff0c85fdfc0e08b235.js",
-    "pages/routes/port-forwards.ae54c40bdcfda36a5b96.js",
-    "pages/routes.09e586c80c4101ac1d50.js",
-    "pages/lxd.afeae6cd8379b62eebb3.js",
+    "pages/routes/web-forwards.b3f734c9dc5631bc99be.js",
+    "pages/routes/port-forwards.27aa51628fb08d3e0602.js",
+    "pages/routes.a6b77218adcf37d67e1d.js",
+    "pages/lxd.a900908a83602d3cf8ce.js",
     "pages/auth/sign-out.dd4ee3503385d681cf7e.js",
-    "pages/api/email.e391069bec3308f10d48.js",
-    "pages/api/data.bf755846ac04a96b6462.js",
-    "pages/api.b4432e8a931c19484a53.js",
+    "pages/api/email.bd828e4427ec909a661f.js",
+    "pages/api/data.2acd5ad5f4418afbc45d.js",
+    "pages/api.9c6e613240545d5a691c.js",
     "pages/about.eea66b89f1a5c17d1028.js",
-    "vendor.1244d524b776d834ce2b.js",
-    "app.e88624249ba77d955415.js",
-    "manifest.7caaa7cc510761e4df29.js",
-    "app.14a43a39cb1df9132b2250f3a3468617.css",
+    "vendor.6dcf0b2a8c39d8380a3d.js",
+    "app.5040875b024231d86842.js",
+    "manifest.b18469eca3542d897168.js",
+    "app.186a349087a29099b115ec04e2dfd7a0.css",
     "LICENSES",
     "index.spa.html",
     "index.ssr.html"
   ],
   "initial": [
-    "manifest.7caaa7cc510761e4df29.js",
-    "vendor.1244d524b776d834ce2b.js",
-    "app.e88624249ba77d955415.js"
+    "manifest.b18469eca3542d897168.js",
+    "vendor.6dcf0b2a8c39d8380a3d.js",
+    "app.5040875b024231d86842.js"
   ],
   "async": [
-    "pages/server.1b383aca783d41532cff.js",
+    "pages/server.ddc012ebc675ab553f2f.js",
     "pages/lxd/containers.f40ef5d1723b4f66bffe.js",
-    "pages/lxd/images.50d573f3909d61fe98dd.js",
-    "pages/index.ff37e759405077314ab1.js",
+    "pages/lxd/images.0754147133f79dd62e02.js",
+    "pages/index.97824de5119642593268.js",
     "layouts/default.f0036a2efc25d0b68b78.js",
-    "pages/lxd/operations.d74a9cdfeffcfaf40871.js",
-    "pages/tasks.d35a70f709d732738c68.js",
-    "pages/servers/index.0b1ff246218483af6131.js",
-    "pages/servers.8957a64600fdbd6c7f5b.js",
+    "pages/lxd/operations.464aac057727d743be9d.js",
+    "pages/tasks.0682e0e7a2d48c999a56.js",
+    "pages/servers/index.fc3a9fa8018dc3ee1fde.js",
+    "pages/servers.81f053f70ec954290c34.js",
     "pages/server/processes.64942eb5dc3d89295274.js",
-    "pages/server/network-connections.ed687be69d059d52aea3.js",
-    "pages/server/logins.7c968fbeb61fce86af8c.js",
-    "pages/routes/web-forwards.94ff0c85fdfc0e08b235.js",
-    "pages/routes/port-forwards.ae54c40bdcfda36a5b96.js",
-    "pages/routes.09e586c80c4101ac1d50.js",
-    "pages/lxd.afeae6cd8379b62eebb3.js",
+    "pages/server/network-connections.4c4ed9a5a3f34cd00e41.js",
+    "pages/server/logins.65838a6b47446deb02bd.js",
+    "pages/routes/web-forwards.b3f734c9dc5631bc99be.js",
+    "pages/routes/port-forwards.27aa51628fb08d3e0602.js",
+    "pages/routes.a6b77218adcf37d67e1d.js",
+    "pages/lxd.a900908a83602d3cf8ce.js",
     "pages/auth/sign-out.dd4ee3503385d681cf7e.js",
-    "pages/api/email.e391069bec3308f10d48.js",
-    "pages/api/data.bf755846ac04a96b6462.js",
-    "pages/api.b4432e8a931c19484a53.js",
+    "pages/api/email.bd828e4427ec909a661f.js",
+    "pages/api/data.2acd5ad5f4418afbc45d.js",
+    "pages/api.9c6e613240545d5a691c.js",
     "pages/about.eea66b89f1a5c17d1028.js"
   ],
   "modules": {
@@ -562,6 +562,15 @@
       3,
       4
     ],
+    "d5608464": [
+      26,
+      1,
+      16,
+      2,
+      2,
+      3,
+      4
+    ],
     "7c5b8a3b": [
       5
     ],
@@ -1034,15 +1043,6 @@
       3,
       4
     ],
-    "4de01643": [
-      26,
-      1,
-      16,
-      2,
-      2,
-      3,
-      4
-    ],
     "5d2915c2": [
       10
     ],
@@ -1081,10 +1081,6 @@
     ],
     "6fa72046": [
       5
-    ],
-    "2ff2187d": [
-      27,
-      29
     ],
     "8b6015a6": [
       26,
@@ -1463,28 +1459,10 @@
       27,
       29
     ],
-    "7fa2e5f1": [
-      26,
-      1,
-      16,
-      2,
-      2,
-      3,
-      4
-    ],
     "ce7ae2c2": [
       0
     ],
     "37dc3dd2": [
-      26,
-      1,
-      16,
-      2,
-      2,
-      3,
-      4
-    ],
-    "5ce6eac8": [
       26,
       1,
       16,
@@ -1518,15 +1496,6 @@
       4
     ],
     "2ff7f832": [
-      26,
-      1,
-      16,
-      2,
-      2,
-      3,
-      4
-    ],
-    "19d1c5e6": [
       26,
       1,
       16,
@@ -1678,15 +1647,6 @@
     "40305bf8": [
       27,
       29
-    ],
-    "9a8d16c4": [
-      26,
-      1,
-      16,
-      2,
-      2,
-      3,
-      4
     ],
     "6a1309bc": [
       21
@@ -1894,7 +1854,10 @@
       3,
       4
     ],
-    "e86e3f60": [
+    "5709e182": [
+      5
+    ],
+    "9a7805ea": [
       26,
       1,
       16,
@@ -2001,15 +1964,6 @@
       8
     ],
     "03dd0498": [
-      26,
-      1,
-      16,
-      2,
-      2,
-      3,
-      4
-    ],
-    "042b1ee4": [
       26,
       1,
       16,
@@ -2521,15 +2475,6 @@
     "c86c2682": [
       7
     ],
-    "0851ed10": [
-      26,
-      1,
-      16,
-      2,
-      2,
-      3,
-      4
-    ],
     "771d9668": [
       26,
       1,
@@ -2685,9 +2630,6 @@
       3,
       4
     ],
-    "5709e182": [
-      5
-    ],
     "877f435a": [
       26,
       1,
@@ -2790,15 +2732,6 @@
     ],
     "16a82e76": [
       5
-    ],
-    "9a7805ea": [
-      26,
-      1,
-      16,
-      2,
-      2,
-      3,
-      4
     ]
   }
 }
