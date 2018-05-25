@@ -66,6 +66,7 @@ class Email extends \Base\Controller
                     'subject' => $item['subject'],
                     'from' => $item['from'],
                     'replyto' => $item['replyto'],
+                    'key' => $item['key'],
                     'source' => $item['source']
                 ]);
             } 
@@ -79,6 +80,7 @@ class Email extends \Base\Controller
                     'subject' => $item['subject'],
                     'from' => $item['from'],
                     'replyto' => $item['replyto'],
+                    'key' => $item['key'],
                     'source' => $item['source']
                 ]);
             }
@@ -179,6 +181,10 @@ class Email extends \Base\Controller
                     $row->limit_sent = 0;
                     $row->limit_reset = (new \DateTime())->modify('first day of next month');
                     $row->last_error = '';
+                }
+                // remove all debug items if no on
+                if ($item['debug'] !== 'Yes') {
+                    $row->xownAmsemaildebugList = [];
                 }
                 $row->import([
                     'host' => $item['host'],

@@ -65,6 +65,22 @@ class Email extends \Base\Controller
             ]);
         }
         
+        if (!empty($template->key)) {
+            if (empty($vars['key'])) {
+                $f3->response->json([
+                    'error' => 'This template requires the [key] parameter',
+                    'code'  => 400,
+                    'data'  => []
+                ]);
+            } elseif ($vars['key'] != $template->key) {
+                $f3->response->json([
+                    'error' => 'Incorrect [key] parameter, unable to send email',
+                    'code'  => 401,
+                    'data'  => []
+                ]);
+            }
+        }
+        
         // replace source vars with posted values
         $subject = preg_replace_callback("/\{\{([\w\_]{1,})\}\}/", function ($match) use ($vars) {
             return array_key_exists($match[1], $vars) ? $vars[$match[1]] : '';
@@ -83,7 +99,7 @@ class Email extends \Base\Controller
         $mail = new PHPMailer(true);                            // Passing `true` enables exceptions
         try {
             // Server settings
-            $mail->SMTPDebug = !empty($provider->debug) ? 2 : 0;// Enable verbose debug output
+            $mail->SMTPDebug = !empty($provider->debug) ? 3 : 0;// Enable verbose debug output
             $mail->isSMTP();                                    // Set mailer to use SMTP
             $mail->Host = $provider->host;                      // Specify main and backup SMTP servers
             $mail->SMTPAuth = true;                             // Enable SMTP authentication
@@ -100,10 +116,12 @@ class Email extends \Base\Controller
 
             // to
             if (is_array($vars['to'])) {
+                $debug_to = $vars['to'][0];
                 foreach ($vars['to'] as $to) {
                     $mail->addAddress($to);
                 }
             } else {
+                $debug_to = $vars['to'];
                 $mail->addAddress($vars['to']);
             }
 
@@ -115,16 +133,36 @@ class Email extends \Base\Controller
             $mail->isHTML($template->type === 'HTML');           // Set email format to HTML
             $mail->Subject = $subject;
             $mail->Body    = $source;
-            $mail->AltBody = $source;
+            
+            // strip out template so only the content is left
+            $dom = new \DOMDocument();
+            $dom->loadHTML('<?xml encoding="utf-8" ?>'.mb_convert_encoding($source, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            // remove style tags
+            for ($list = $dom->getElementsByTagName('style'), $i = $list->length; --$i >=0;) {
+                $node = $list->item($i);
+                $node->parentNode->removeChild($node);
+            }
+            // tidy, leave br tags
+            $mail->AltBody = strip_tags($dom->saveHTML(), '<br>');
+            // tidy, switch br for new line, &nbsp; for space
+            $mail->AltBody = str_replace(['<br>', '&nbsp;'], ["\n", ' '], $mail->AltBody);
+            // tidy, remove multiple spaces
+            $mail->AltBody = preg_replace('/\s+/', ' ', $mail->AltBody);
+            $mail->AltBody = trim(str_replace(chr(194), ' ', $mail->AltBody));
 
+            // is debug, start output buffering
             if (!empty($provider->debug)) {
                 ob_start();
             }
 
             $mail->send();
             
+            // is debug, write buffer to log
             if (!empty($provider->debug)) {
                 $provider->xownAmsemaildebugList[] = $this->email_debug->create([
+                    'from' => $template->from,
+                    'to' => $debug_to,
+                    'subject' => $subject,
                     'date' => date_create(),
                     'log' => ob_get_clean(),
                 ]);
@@ -141,6 +179,15 @@ class Email extends \Base\Controller
                 'data'  => 'Message sent'
             ]);
         } catch (\Exception $e) {
+            if (!empty($provider->debug)) {
+                $provider->xownAmsemaildebugList[] = $this->email_debug->create([
+                    'from' => $template->from,
+                    'to' => $debug_to,
+                    'subject' => $subject,
+                    'date' => date_create(),
+                    'log' => 'Mailer Error: '.$mail->ErrorInfo.PHP_EOL.'Exception: '.$e->getMessage(),
+                ]);
+            }
             // update sent
             $provider->last_error = $mail->ErrorInfo;
             $this->email_provider->store($provider);

@@ -16,11 +16,14 @@
               <v-flex tag="h1" class="display mb-2">
                 API - Email
                 
-                <v-btn color="success" @click="state = 'templates';dialog.template = true" style="float:right" v-if="state == 'templates'">New Template</v-btn>
-                <v-btn color="success" @click="state = 'providers';dialog.provider = true" style="float:right" v-if="state == 'providers'">New Provider</v-btn>
-                
-                <v-btn color="orange" @click="state = 'providers';" style="float:right" v-if="state == 'templates'">Providers</v-btn>
-                <v-btn color="orange" @click="state = 'templates';" style="float:right" v-if="state == 'providers'">Templates</v-btn>
+                <span v-if="state == 'templates'">
+                  <v-btn color="success" @click="state = 'templates';dialog.template = true" style="float:right" v-if="state == 'templates'">New Template</v-btn>
+                  <v-btn color="orange" @click="state = 'providers';" style="float:right" v-if="state == 'templates'">Providers</v-btn>
+                </span>
+                <span v-if="state == 'providers'">
+                  <v-btn color="success" @click="state = 'providers';dialog.provider = true" style="float:right" v-if="state == 'providers'">New Provider</v-btn>
+                  <v-btn color="orange" @click="state = 'templates';" style="float:right" v-if="state == 'providers'">Templates</v-btn>
+                </span>
               </v-flex>
               <v-flex>
                 <v-alert type="error" :value="error">
@@ -29,17 +32,30 @@
                 <p>The email API allows you to create custom email templates with multiple providers, then simply use a POST request to send the email.</p>
                 
                 <div v-if="state == 'templates'">
-                  <v-data-table :headers="tableHeaders.template" :items="items.template" hide-actions class="elevation-1">
+                  <v-data-table :headers="tableHeaders.template" :items="items.template" hide-actions class="elevation-1" :loading="tableLoading">
+                    <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                     <template slot="items" slot-scope="props">
-                      <td><a href="javascript:void(0)" @click.stop="editItem('template', props.item)">{{ props.item.name }}</a></td>
-                      <td>{{ props.item.slug }}</td>
-                      <td>{{ props.item.subject }}</td>
-                      <td>{{ props.item.type }}</td>
-                      <td>
-                        <v-btn icon class="mx-0" style="float:right" @click="deleteItem('template', props.item)">
-                          <v-icon color="pink">delete</v-icon>
-                        </v-btn>
-                      </td>
+                      <tr @click.stop="tableExpand('template', props)">
+                        <td><a href="javascript:void(0)" @click.stop="editItem('template', props.item)">{{ props.item.name }}</a></td>
+                        <td>{{ props.item.slug }}</td>
+                        <td>{{ props.item.subject }}</td>
+                        <td>{{ props.item.type }}</td>
+                        <td>
+                          <v-tooltip left>
+                            <v-btn slot="activator" icon class="mx-0" style="float:right" @click="deleteItem('template', props.item)">
+                              <v-icon color="pink">delete</v-icon>
+                            </v-btn>
+                            <span>Delete</span>
+                          </v-tooltip>
+                          <v-tooltip left>
+                            <v-btn slot="activator" icon class="mx-0" style="float:right" @click="previewItem('preview', props.item)">
+                              <v-icon color="light-blue lighten-1">visibility</v-icon>
+                            </v-btn>
+                            <span>Preview</span>
+                          </v-tooltip>
+                          
+                        </td>
+                      </tr>
                     </template>
                     <template slot="no-data">
                       You have not added any email templates.
@@ -47,19 +63,50 @@
                   </v-data-table>
                 </div>
                 <div v-if="state == 'providers'">
-                  <v-data-table :headers="tableHeaders.provider" :items="items.provider" hide-actions class="elevation-1">
+                  <v-data-table :headers="tableHeaders.provider" :items="items.provider" hide-actions class="elevation-1" :loading="tableLoading">
+                    <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                     <template slot="items" slot-scope="props">
-                      <td><a href="javascript:void(0)" @click.stop="editItem('provider', props.item)">{{ props.item.host }}</a></td>
-                      <td>{{ props.item.limit }}</td>
-                      <td>{{ props.item.limit_sent }}</td>
-                      <td>
-                        <v-btn icon class="mx-0" style="float:right" @click="deleteItem('provider', props.item)">
-                          <v-icon color="pink">delete</v-icon>
-                        </v-btn>
-                      </td>
+                      <tr>
+                        <td><a href="javascript:void(0)" @click.stop="editItem('provider', props.item)">{{ props.item.host }}</a></td>
+                        <td>{{ props.item.limit }}</td>
+                        <td>{{ props.item.limit_sent }}</td>
+                        <td>
+                          <v-btn icon class="mx-0" style="float:right" @click="deleteItem('provider', props.item)">
+                            <v-icon color="pink">delete</v-icon>
+                          </v-btn>
+                          <v-btn icon class="mx-0" style="float:right" @click.stop="tableExpand('provider', props)" v-if="props.item.debug == 'Yes'">
+                            <v-icon color="blue-grey darken-2">bug_report</v-icon>
+                          </v-btn>
+                        </td>
+                      </tr>
                     </template>
                     <template slot="no-data">
                       You have not added any email providers.
+                    </template>
+                    <template slot="expand" slot-scope="props">
+                      <v-data-table :headers="expandedTableHeaders" :items="props.item.ownAmsemaildebug" hide-actions>
+                        <template slot="items" slot-scope="props">
+                          <tr @click.stop="props.expanded = !props.expanded">
+                            <td>{{ props.item.date }}</td>
+                            <td>{{ props.item.from }}</td>
+                            <td>{{ props.item.to }}</td>
+                            <td>{{ props.item.subject }}</td>
+                            <td>
+                              <v-btn icon class="mx-0" style="float:right" @click.stop="deleteLog(props.item)">
+                                <v-icon color="pink">delete</v-icon>
+                              </v-btn>
+                            </td>
+                          </tr>
+                        </template>
+                        <template slot="no-data">
+                          {{ tableLoading ? 'Fetching data, please wait...' : 'No debug logs have been recorded.' }}
+                        </template>
+                        <template slot="expand" slot-scope="props">
+                          <v-card flat>
+                            <v-card-text v-html="props.item.log ? '<pre>' + props.item.log.replace(/<br\s*[\/]?>/gi, '') + '</pre>' : ''"></v-card-text>
+                          </v-card>
+                        </template>
+                      </v-data-table>
                     </template>
                   </v-data-table>
                 </div>
@@ -70,10 +117,10 @@
       </v-container>
       
       <!-- Fullscreen Dialog -->
-      <v-dialog v-model="dialog.provider" fullscreen hide-overlay transition="dialog-bottom-transition" scrollable>
+      <v-dialog v-model="dialog.provider" max-width="600px" scrollable>
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
-            <v-btn icon @click.native="dialog.provider = false" dark>
+            <v-btn icon @click.native="close('provider')" dark>
               <v-icon>close</v-icon>
             </v-btn>
             <v-toolbar-title>{{ editingIndex.provider === -1 ? 'New' : 'Edit' }} Provider</v-toolbar-title>
@@ -86,17 +133,21 @@
             <v-card flat>
               <v-card-text>
                 <v-form ref="formprovider" v-model="valid.provider" lazy-validation>
-                  
-                  <v-text-field v-model="editingItem.provider.host" label="Host:" placeholder="" required hint="Enter the SMTP connection hostname."></v-text-field>
-                  <v-text-field v-model="editingItem.provider.username" label="Username:" placeholder="" required hint="Enter the SMTP connection username."></v-text-field>
-                  <v-text-field v-model="editingItem.provider.password" label="Password:" placeholder="" required hint="Enter the SMTP connection password."></v-text-field>
-                  <v-select :items="['None', 'TLS', 'SSL']" v-model="editingItem.provider.encryption" label="Encryption:" hint="Choose the SMTP connection encryption type."></v-select>
-                  <v-text-field v-model="editingItem.provider.port" label="Port:" placeholder="" required hint="Enter the SMTP connection port."></v-text-field>
-                  <v-text-field v-model="editingItem.provider.limit" label="Limit:" placeholder="" required hint="Enter the SMTP message limit."></v-text-field>
+                  <v-layout row wrap>
+                    <v-flex xs6>
+                      <v-text-field v-model="editingItem.provider.host" label="Host:" placeholder="" required hint="Enter the SMTP connection hostname."></v-text-field>
+                      <v-text-field v-model="editingItem.provider.username" label="Username:" placeholder="" required hint="Enter the SMTP connection username."></v-text-field>
+                    </v-flex>
+                    <v-flex xs6>
+                      <v-text-field v-model="editingItem.provider.port" label="Port:" placeholder="" required hint="Enter the SMTP connection port."></v-text-field>
+                      <v-text-field v-model="editingItem.provider.password" label="Password:" placeholder="" required hint="Enter the SMTP connection password."></v-text-field>
+                    </v-flex>
+                  </v-layout>
 
+                  <v-select :items="['None', 'TLS', 'SSL']" v-model="editingItem.provider.encryption" label="Encryption:" hint="Choose the SMTP connection encryption type."></v-select>
+                  <v-text-field v-model="editingItem.provider.limit" label="Message Limit:" placeholder="" required hint="Enter the SMTP message limit."></v-text-field>
                   <v-select :items="['Yes', 'No']" v-model="editingItem.provider.debug" label="Debug:"></v-select>
-                  <p v-if="editingItem.provider.debug === 'Yes'" style="margin-top:-20px;color:rgba(0,0,0,0.54);font-size: 12px;">Debug messages will be displayed.</p>
- 
+                  <p v-if="editingItem.provider.debug === 'Yes'" style="margin-top:-20px;color:rgba(0,0,0,0.54);font-size: 12px;">All emails will be logged and shown in table.</p>
                 </v-form>
               </v-card-text>
             </v-card>
@@ -106,13 +157,13 @@
       </v-dialog>
       
       <!-- Fullscreen Dialog -->
-      <v-dialog v-model="dialog.template" fullscreen hide-overlay transition="dialog-bottom-transition" scrollable>
+      <v-dialog v-model="dialog.template" fullscreen hide-overlay scrollable>
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
-            <v-btn icon @click.native="dialog.template = false" dark>
+            <v-btn icon @click.native="close('template')" dark>
               <v-icon>close</v-icon>
             </v-btn>
-            <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} Template</v-toolbar-title>
+            <v-toolbar-title>{{ editingIndex.template === -1 ? 'New' : 'Edit' }} Template</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-btn dark flat @click.native="save('template')">Save</v-btn>
@@ -122,12 +173,19 @@
             <v-card flat>
               <v-card-text>
                 <v-form ref="formtemplate" v-model="valid.template" lazy-validation>
-                
-                  <v-text-field v-model="editingItem.template.name" label="Name:" placeholder="" required hint="Enter the name of the email template."></v-text-field>
-                  <v-select :items="['HTML', 'Plain']" v-model="editingItem.template.type" label="Type:" hint="Choose the email template content type."></v-select>
-                  <v-text-field v-model="editingItem.template.subject" label="Subject:" placeholder="" required hint="Enter the email subject for this template."></v-text-field>
-                  <v-text-field v-model="editingItem.template.from" label="From:" placeholder="" required hint="Enter the from email address."></v-text-field>
-                  <v-text-field v-model="editingItem.template.replyto" label="Reply To:" placeholder="" required hint="Enter the reply to email address."></v-text-field>
+                  
+                  <v-layout row wrap>
+                    <v-flex xs6>
+                      <v-text-field v-model="editingItem.template.name" label="Name:" placeholder="" required hint="Enter the name of the email template."></v-text-field>
+                      <v-text-field v-model="editingItem.template.subject" label="Subject:" placeholder="" required hint="Enter the email subject for this template."></v-text-field>
+                      <v-select :items="['HTML', 'Plain']" v-model="editingItem.template.type" label="Type:" hint="Choose the email template content type."></v-select>
+                    </v-flex>
+                    <v-flex xs6>
+                      <v-text-field v-model="editingItem.template.from" label="From:" placeholder="" required hint="Enter the from email address."></v-text-field>
+                      <v-text-field v-model="editingItem.template.replyto" label="Reply To:" placeholder="" required hint="Enter the reply to email address."></v-text-field>
+                      <v-text-field v-model="editingItem.template.key" label="Send Key:" placeholder="" hint="Enter a key which is required before sending email."></v-text-field>
+                    </v-flex>
+                  </v-layout>
 
                   <h3>Template Source</h3>
                   <no-ssr placeholder="Loading...">
@@ -136,6 +194,23 @@
                 </v-form>
               </v-card-text>
             </v-card>
+          </v-card-text>
+          <div style="flex: 1 1 auto;"></div>
+        </v-card>
+      </v-dialog>
+      
+      <!-- Fullscreen Dialog -->
+      <v-dialog v-model="dialog.preview" max-width="900px" scrollable>
+        <v-card tile>
+          <v-toolbar card dark color="light-blue darken-3">
+            <v-btn icon @click.native="close('preview')" dark>
+              <v-icon>close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Preview Template</v-toolbar-title>
+            <v-spacer></v-spacer>
+          </v-toolbar>
+          <v-card-text style="padding: 0px;">
+            <iframe :srcdoc="editingItem.template.source" frameBorder="0" style="width:100%; height:calc(100vh - 200px)"></iframe>
           </v-card-text>
           <div style="flex: 1 1 auto;"></div>
         </v-card>
@@ -190,6 +265,7 @@
       // table & items
       items: {template: [], provider: []},
       
+      tableLoading: true,
       tableHeaders: {
         template: [
           { text: 'Name', value: 'name' },
@@ -205,9 +281,16 @@
           { text: 'Actions', value: 'host', sortable: false, align: 'right' }
         ]
       },
+      expandedTableHeaders: [
+        { text: 'Date', value: 'date' },
+        { text: 'From', value: 'from' },
+        { text: 'To', value: 'to' },
+        { text: 'Subject', value: 'subject' },
+        { text: 'Actions', value: 'name', sortable: false, align: 'right' }
+      ],
       
       // dialogs
-      dialog: {template: false, provider: false},
+      dialog: {template: false, provider: false, preview: false},
 
       // item
       editingIndex: {template: -1, provider: -1},
@@ -219,6 +302,7 @@
           subject: "",
           from: "",
           replyto: "",
+          key: "",
           source: ""
         }, 
         provider: {
@@ -240,6 +324,7 @@
           subject: "",
           from: "",
           replyto: "",
+          key: "",
           source: ""
         }, 
         provider: {
@@ -270,13 +355,18 @@
       this.initialize()
     },
     watch: {
-      dialog (val) {
-        val || this.close()
-      }
+      'dialog.template': function (val) {
+         val || this.close('template')
+      },
+      'dialog.provider': function (val) {
+         val || this.close('provider')
+      },
+      'dialog.preview': function (val) {
+         val || this.close('preview')
+      },
     },
     methods: {
       async initialize () {
-        // fetch remote
         try {
           if (!this.loggedUser) {
             this.$router.replace('/servers')
@@ -294,12 +384,20 @@
         } catch (error) {
           this.error = 'Could not fetch data from server.';
         }
+        this.tableLoading = false
       },
 
       // create or edit item
       editItem (type, item) {
         this.editingIndex[type] = this.items[type].indexOf(item)
         this.editingItem[type] = Object.assign({}, item)
+        this.dialog[type] = true
+      },
+
+      // create or edit item
+      previewItem (type, item) {
+        this.editingIndex.template = this.items.template.indexOf(item)
+        this.editingItem.template = Object.assign({}, item)
         this.dialog[type] = true
       },
 
@@ -360,15 +458,21 @@
           if (this.editingIndex[type] === -1) {
             this.close(type)
           }
+          
+          this.initialize()
         }
+      },
+      
+      tableExpand(type, prop) {
+        prop.expanded = !prop.expanded
       },
 
       // close item dialog, and reset to default item
       close (type) {
         this.dialog[type] = false
         setTimeout(() => {
-          this.editingItem[type] = Object.assign({}, this.defaultItem[type])
-          this.editingIndex[type] = -1
+          this.editingItem = Object.assign({}, this.defaultItem)
+          this.editingIndex = {template: -1, provider: -1}
         }, 300)
       }
 
