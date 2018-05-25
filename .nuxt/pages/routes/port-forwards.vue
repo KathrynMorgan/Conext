@@ -62,7 +62,7 @@
       </v-container>
       
       <!-- Fullscreen Dialog -->
-      <v-dialog v-model="dialog" max-width="900px" scrollable>
+      <v-dialog v-model="dialog" max-width="600px" scrollable>
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
             <v-btn icon @click.native="dialog = false" dark>

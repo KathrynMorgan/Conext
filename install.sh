@@ -157,7 +157,7 @@ install_project() {
     #composer create-project lcherone/deval .
     #
     cd .nuxt
-    npm install
+    npm install --unsafe-perm
     npm run generate
     #
     cd $webroot
