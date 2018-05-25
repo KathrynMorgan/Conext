@@ -12,7 +12,7 @@
             <v-layout column>
               <v-flex tag="h1" class="display mb-2">
                 LXD - Containers
-                <v-btn color="success" @click="newContainer()" style="float:right">New Container</v-btn>
+                <!--<v-btn color="success" @click="newContainer()" style="float:right">New Container</v-btn>-->
               </v-flex>
               <v-flex>
                 <v-alert type="error" :value="error">
@@ -553,11 +553,24 @@
               xterm.destroy()
             }
           }
+          
           sock.onerror = function (e) {
             xterm.writeln('An error occured.')
             xterm.destroy()
+            //
+            this.snackbar = true;
+            this.snackbarTimeout = 5000
+            this.snackbarColor = 'red'
+            this.snackbarText = 'Websocket connection failed, have you have visited https://'+tmp.hostname+':8443 to accept the SSL certificate?';
           }
-        }).catch(error => console.log(error))
+        }).catch(error => {
+          console.log(error)
+          //
+          this.snackbar = true;
+          this.snackbarTimeout = 5000
+          this.snackbarColor = 'red'
+          this.snackbarText = 'Websocket connection failed.';
+        })
       },
       
       async viewContainer (item, openDialog = true) {
