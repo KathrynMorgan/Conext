@@ -18,11 +18,12 @@
     "require": {
         "bcosca/fatfree-core": "^3.6",
         "gabordemooij/redbean": ">=4.2",
+        "phpmailer/phpmailer": "^6.0",
         "plinker/iptables": "master",
         "plinker/lxd": "master",
         "plinker/nginx": "master",
-        "plinker/tasks": "master",
-        "plinker/system": "master"
+        "plinker/system": "master",
+        "plinker/tasks": "master"
     },
     "scripts": {
         "__post-create-project-cmd": "bash ./.api/setup.sh",

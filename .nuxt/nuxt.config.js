@@ -48,6 +48,7 @@ module.exports = {
     // theme: { }
   },
   css: [
+    //'vuetify/dist/vuetify.css',
     'xterm/dist/xterm.css',
     // lib css
     'codemirror/lib/codemirror.css'//,

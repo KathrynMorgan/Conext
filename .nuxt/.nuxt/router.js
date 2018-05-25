@@ -14,6 +14,7 @@ const _5896d775 = () => import('../pages/lxd/containers.vue' /* webpackChunkName
 const _04ba105b = () => import('../pages/lxd/images.vue' /* webpackChunkName: "pages/lxd/images" */).then(m => m.default || m)
 const _584b05f1 = () => import('../pages/about.vue' /* webpackChunkName: "pages/about" */).then(m => m.default || m)
 const _e1bb1e04 = () => import('../pages/api.vue' /* webpackChunkName: "pages/api" */).then(m => m.default || m)
+const _264e6ecb = () => import('../pages/api/email.vue' /* webpackChunkName: "pages/api/email" */).then(m => m.default || m)
 const _ac69206a = () => import('../pages/api/data.vue' /* webpackChunkName: "pages/api/data" */).then(m => m.default || m)
 const _d438bfd4 = () => import('../pages/routes.vue' /* webpackChunkName: "pages/routes" */).then(m => m.default || m)
 const _26613530 = () => import('../pages/routes/web-forwards.vue' /* webpackChunkName: "pages/routes/web-forwards" */).then(m => m.default || m)
@@ -76,7 +77,7 @@ const scrollBehavior = function (to, from, savedPosition) {
 export function createRouter () {
   return new Router({
     mode: 'history',
-    base: '/ui/',
+    base: '/',
     linkActiveClass: 'nuxt-link-active',
     linkExactActiveClass: 'nuxt-link-exact-active',
     scrollBehavior,
@@ -140,6 +141,11 @@ export function createRouter () {
 			component: _e1bb1e04,
 			name: "api",
 			children: [
+				{
+					path: "email",
+					component: _264e6ecb,
+					name: "api-email"
+				},
 				{
 					path: "data",
 					component: _ac69206a,

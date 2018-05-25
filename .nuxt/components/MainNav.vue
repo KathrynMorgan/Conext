@@ -97,6 +97,7 @@
             model: false,
             children: [
               { icon: 'chevron_right', text: 'Data', route: '/api/data' },
+              { icon: 'chevron_right', text: 'Email', route: '/api/email' },
             ]
           })
         }

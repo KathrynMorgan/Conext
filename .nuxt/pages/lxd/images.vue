@@ -378,13 +378,13 @@
 
           axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
-          const response = await axios.delete(this.loggedUser.sub + '/api/routes/port-forwards', { data: item })
+          const response = await axios.delete(this.loggedUser.sub + '/api/lxd/images/'+item.fingerprint+'?remote='+this.activeRemote)
           //
           this.snackbar = true;
-          this.snackbarText = 'Port forward successfully deleted.';
+          this.snackbarText = 'Image successfully deleted.';
           
         } catch (error) {
-          this.error = 'Could not delete port forward from server.';
+          this.error = 'Could not delete image from server.';
         }
       },
 

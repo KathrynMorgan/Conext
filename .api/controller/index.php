@@ -3,7 +3,7 @@
 namespace Controller;
 
 /**
- * Index Controller.
+ * Index Controller
  */
 class Index extends \Base\Controller
 {
@@ -13,17 +13,7 @@ class Index extends \Base\Controller
         if (file_exists('public/ui/index.html')) {
             exit(\View::instance()->render('public/ui/index.html'));
         }
-
-        //$this->user = new \Model\User($f3);
-
-        //
-        $f3->mset([
-            'template' => $f3->get('AUTOLOAD').'view/template.php',
-            'page'     => [
-                'title' => 'Home',
-                'body'  => \View::instance()->render('.api/view/index/index.php'),
-            ],
-        ]);
+        exit(header("HTTP/1.1 204 No Content"));
     }
     
     public function favicon(\Base $f3, $params)

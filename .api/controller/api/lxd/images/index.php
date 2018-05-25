@@ -101,15 +101,69 @@ class Index extends \Base\Controller
             ]);
         }
         
+    }
+    
+    /**
+     *
+     */
+    public function item(\Base $f3, $params)
+    {
+        // GET | POST | PUT | DELETE
+        $verb = $f3->get('VERB');
+        
+        // plinker client
+        $client = $f3->get('plinker');
+        
         /**
-         * DELETE /api/lxd/images
+         * GET /api/lxd/images/@fingerprint
          */
-        if ($verb === 'DELETE') {
+        if ($verb === 'GET') {
+            /*
+            // expect ?remote=local
+            if ($f3->devoid('GET.remote')) {
+                $f3->response->json([
+                    'error' => 'Missing remote parameter',
+                    'code'  => 400,
+                    'data'  => []
+                ]);
+            }
+            
+            // cache remote images if not local
+            if ($f3->get('GET.remote') === 'local' || !$this->cache->exists('images.'.$f3->get('GET.remote'), $result)) {
+                // get images filter by architecture (may add as a parameter if ever needed)
+                $result = $client->lxd->images->list($f3->get('GET.remote'), 'architecture="'.implode('|', ['x86_64', 'i686', 'amd64']).'"');
+                //
+                $this->cache->set('images.'.$f3->get('GET.remote'), $result, 3600);
+            }
+
+            $f3->response->json([
+                'error' => null,
+                'code'  => 200,
+                'data'  => $result
+            ]);
+            */
+        }
+        
+        /**
+         * POST /api/lxd/images/@fingerprint
+         */
+        if ($verb === 'POST') {
+            $f3->response->json([
+                'error' => '',
+                'code'  => 200,
+                'data'  => []
+            ]);
+        }
+        
+        /**
+         * PUT /api/lxd/images/@fingerprint
+         */
+        if ($verb === 'PUT') {
             $item = json_decode($f3->get('BODY'), true);
             
             if (empty($item) || !is_numeric($item['id'])) {
                $f3->response->json([
-                    'error' => 'Invalid DELETE body, expecting item',
+                    'error' => 'Invalid PUT body, expecting item',
                     'code'  => 422,
                     'data'  => []
                 ]); 
@@ -120,6 +174,39 @@ class Index extends \Base\Controller
                 'code'  => 200,
                 'data'  => []
             ]);
+        }
+        
+        /**
+         * DELETE /api/lxd/images/@fingerprint?remote=local
+         */
+        if ($verb === 'DELETE') {
+            // expect ?remote=local
+            if ($f3->devoid('GET.remote')) {
+                $f3->response->json([
+                    'error' => 'Missing remote parameter',
+                    'code'  => 400,
+                    'data'  => []
+                ]);
+            }
+            
+            //
+            try {
+                $result = $client->lxd->images->delete($f3->get('GET.remote'), $params['fingerprint']);
+
+                $response = [
+                    'error' => null,
+                    'code'  => 200,
+                    'data'  => $result
+                ];
+            } catch (\Exception $e) {
+                $response = [
+                    'error' => $e->getMessage(),
+                    'code'  => $e->getCode(),
+                    'data'  => []
+                ];
+            }
+
+            $f3->response->json($response);
         }
     }
 

@@ -2,9 +2,9 @@
 namespace Controller\Ams;
 
 /**
- * AMS Controller.
+ * AMS Data Controller.
  */
-class Controller extends \Base\Controller
+class Data extends \Base\Controller
 {
     /**
      *
