@@ -111,13 +111,13 @@
             model: false,
             children: [
               { icon: 'chevron_right', text: 'Containers', route: '/lxd/containers' },
-              { icon: 'chevron_right', text: 'Certificates', route: '/lxd/certificates' },
+              // { icon: 'chevron_right', text: 'Certificates', route: '/lxd/certificates' },
               { icon: 'chevron_right', text: 'Images', route: '/lxd/images' },
-              { icon: 'chevron_right', text: 'Profiles', route: '/lxd/profiles' },
-              { icon: 'chevron_right', text: 'Networks', route: '/lxd/networks' },
-              { icon: 'chevron_right', text: 'Files', route: '/lxd/files' },
-              { icon: 'chevron_right', text: 'Logs', route: '/lxd/logs' },
-              { icon: 'chevron_right', text: 'Metadata', route: '/lxd/metadata' },
+              // { icon: 'chevron_right', text: 'Profiles', route: '/lxd/profiles' },
+              // { icon: 'chevron_right', text: 'Networks', route: '/lxd/networks' },
+              // { icon: 'chevron_right', text: 'Files', route: '/lxd/files' },
+              // { icon: 'chevron_right', text: 'Logs', route: '/lxd/logs' },
+              // { icon: 'chevron_right', text: 'Metadata', route: '/lxd/metadata' },
               { icon: 'chevron_right', text: 'Operations', route: '/lxd/operations' },
             ]
           })

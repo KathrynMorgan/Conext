@@ -37,7 +37,7 @@
                     <template slot="items" slot-scope="props">
                       <tr @click.stop="tableExpand('template', props)">
                         <td><a href="javascript:void(0)" @click.stop="editItem('template', props.item)">{{ props.item.name }}</a></td>
-                        <td>{{ props.item.slug }}</td>
+                        <td><a :href="`${loggedUser.sub}/api/email/${props.item.slug}`" target="_blank">{{ props.item.slug }}</a></td>
                         <td>{{ props.item.subject }}</td>
                         <td>{{ props.item.type }}</td>
                         <td>

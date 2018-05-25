@@ -126,7 +126,7 @@ install_project() {
     crontab -l | grep -q "do cd $webroot && /usr/bin/php task.php"  && echo 'cron task exists' || crontab -l | { cat; echo -e "@reboot while sleep 1; do cd $webroot && /usr/bin/php task.php ; done >/dev/null 2>&1"; } | crontab -
     #
     cd .nuxt
-    npm install
+    npm install --unsafe-perm
     npm run generate
 }
 
