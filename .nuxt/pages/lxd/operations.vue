@@ -17,11 +17,11 @@
                 <v-alert type="error" :value="error">
                   {{ error }}
                 </v-alert>
-                <v-tabs v-model="activeTab">
+                <v-tabs v-model="activeTab" class="elevation-1">
                   <v-tab ripple :href="`#tab-running`">Running</v-tab>
                   <v-tab ripple :href="`#tab-success`">Success</v-tab>
                   <v-tab-item :id="`tab-running`">
-                    <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
+                    <v-card>
                       <v-data-table :headers="tableHeaders" :items="items.running" hide-actions :loading="tableLoading">
                         <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                         <template slot="items" slot-scope="props">
@@ -60,7 +60,7 @@
                     </v-card>
                   </v-tab-item>
                   <v-tab-item :id="`tab-success`">
-                    <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
+                    <v-card>
                       <v-data-table :headers="tableHeaders" :items="items.success" hide-actions :loading="tableLoading">
                         <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                         <template slot="items" slot-scope="props">

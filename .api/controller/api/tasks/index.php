@@ -32,6 +32,21 @@ class Index extends \Base\Controller
         $this->tasksource = new \Base\Model('tasksource');
         // tasks are the child to tasksource's
         $this->tasks = new \Base\Model('tasks');
+        
+        // list of system tasks
+        $this->system_tasks = [
+            'iptables.setup',
+            'iptables.build',
+            'iptables.auto_update',
+            'nginx.build',
+            'nginx.auto_update',
+            'nginx.reconcile',
+            'nginx.reload',
+            'nginx.setup',
+            'tasks.auto_update',
+            'database.vacuum',
+            'database.backup'
+        ];
     }
 
     /**
@@ -46,10 +61,28 @@ class Index extends \Base\Controller
         $client = $f3->get('plinker');
         
         if ($verb === 'GET') {
+            $result = [];
+            foreach ($client->tasks->getTaskSources() as $row) {
+                // decode params
+                $row->params = !empty($row->params) ? json_decode($row->params, JSON_FORCE_OBJECT) : [];
+                
+                // grouping [user/system_tasks]
+                if (in_array($row->name, $this->system_tasks)) {
+                    $row->system = true;
+                    $result['system'][] = $row;
+                } else {
+                    $row->system = false;
+                    $result['user'][] = $row;
+                }
+            }
+
             $f3->response->json([
                 'error' => null,
                 'code'  => 200,
-                'data'  => array_values($client->tasks->getTaskSources())
+                'data'  => [
+                    'system_tasks' => $this->system_tasks,
+                    'tasks' => $result
+                ]
             ]);
         }
         
@@ -71,7 +104,7 @@ class Index extends \Base\Controller
                     $item['source'],
                     strtolower($item['type']),
                     $item['description'],
-                    (array) json_decode($item['params'])
+                    (array) $item['params']
                 );
             } 
             // update
@@ -82,7 +115,7 @@ class Index extends \Base\Controller
                     $item['source'],
                     strtolower($item['type']),
                     $item['description'],
-                    (array) json_decode($item['params'])
+                    (array) $item['params']
                 );
             }
 
@@ -121,6 +154,15 @@ class Index extends \Base\Controller
                $f3->response->json([
                     'error' => 'Invalid DELETE body, expecting item',
                     'code'  => 422,
+                    'data'  => []
+                ]); 
+            }
+            
+            // dont allow system task delete
+            if (!empty($item['system']) || in_array($item['name'], $this->system_tasks)) {
+               $f3->response->json([
+                    'error' => 'System tasks should not be removed.',
+                    'code'  => 400,
                     'data'  => []
                 ]); 
             }

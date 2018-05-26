@@ -21,73 +21,179 @@
                   {{ error }}
                 </v-alert>
                 <p>Tasks allow you to run custom or predefined system tasks on the server.</p>
-                <v-data-table :headers="tableHeaders" :items="items" hide-actions class="elevation-1" :loading="tableLoading">
-                  <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
-                  <template slot="items" slot-scope="props">
-                    <tr @click.stop="tableExpand(props)">
-                    <td><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.name.trim() }}</a></td>
-                    <td>{{ props.item.description.trim() }}</td>
-                    <td>{{ props.item.type.toUpperCase() }}</td>
-                    <td>
-                      <v-btn icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)" :disabled="is_system_task(props.item)">
-                        <v-icon color="pink">delete</v-icon>
-                      </v-btn>
-                      <v-btn icon class="mx-0" style="float:right" @click.stop="runTask(props.item)">
-                        <v-icon color="green">play_arrow</v-icon>
-                      </v-btn>
-                    </td>
-                    </tr>
-                  </template>
-                  <template slot="no-data">
-                    {{ tableLoading ? 'Fetching data, please wait...' : tableNoData }}
-                  </template>
-                  <template slot="expand" slot-scope="props">
-                    <v-data-table :headers="expandedTableHeaders" :items="item" hide-actions :loading="tableLoading">
+                
+                <v-tabs v-model="activeType" class="elevation-1">
+                  <v-tab ripple :href="`#user`">User</v-tab>
+                  <v-tab ripple :href="`#system`">System</v-tab>
+                  <v-tab-item :id="`user`">
+                    <v-data-table :headers="tableHeaders" :items="items.user" hide-actions class="elevation-1" :loading="tableLoading">
                       <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                       <template slot="items" slot-scope="props">
-                        <tr @click.stop="props.expanded = !props.expanded">
-                          <td>{{ props.item.repeats == 1 ? 'Yes' : 'No'}}</td>
-                          <td>
-                            <v-edit-dialog
-                              :return-value.sync="props.item.sleep"
-                              lazy
-                            >{{ props.item.sleep }}
-                              <v-text-field
-                                slot="input"
-                                v-model="sleep"
-                                :rules="sleepRule"
-                                label="Sleep time between iterations."
-                                single-line
-                                @focus="sleep = props.item.sleep"
-                                @change="saveInstance(props.item, sleep)"
-                              ></v-text-field>
-                            </v-edit-dialog>
-                          </td>
-                          <td>{{ new Date(props.item.run_last).toLocaleString() }}</td>
-                          <td>{{ new Date(props.item.run_next).toLocaleString() }}</td>
-                          <td>{{ props.item.completed != 0 ? new Date(props.item.completed).toLocaleString() : '-' }}</td>
-                          <td>{{ props.item.run_count }}</td>
-                          <td>
-                            <v-btn icon class="mx-0" style="float:right" @click.stop="deleteInstance(props.item)">
+                        <tr @click.stop="tableExpand(props)">
+                        <td><a href="javascript:void(0)" @click.stop="editItem('user', props.item)">{{ props.item.name.trim() }}</a></td>
+                        <td>{{ props.item.description.trim() }}</td>
+                        <td>{{ props.item.type.toUpperCase() }}</td>
+                        <td>
+                          <v-tooltip left>
+                            <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)" :disabled="is_system_task(props.item)">
                               <v-icon color="pink">delete</v-icon>
                             </v-btn>
-                            <v-btn v-if="props.item.completed != 0" icon class="mx-0" style="float:right" @click.stop="reloadInstance(props.item)">
-                              <v-icon color="blue">replay</v-icon>
+                            <span>Delete</span>
+                          </v-tooltip>
+                          <v-tooltip left>
+                            <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="runTask(props.item)">
+                              <v-icon color="green">play_arrow</v-icon>
                             </v-btn>
-                          </td>
+                            <span>Run</span>
+                          </v-tooltip>
+                        </td>
                         </tr>
                       </template>
                       <template slot="no-data">
-                        {{ tableLoading ? 'Fetching data, please wait...' : 'Task has no instances.' }}
+                        {{ tableLoading ? 'Fetching data, please wait...' : tableNoData }}
                       </template>
                       <template slot="expand" slot-scope="props">
-                        <v-card flat>
-                          <v-card-text v-html="props.item.result ? '<pre>' + props.item.result + '</pre>' : 'Task ('+props.item.name+') has no result value.'"></v-card-text>
-                        </v-card>
+                        <v-data-table :headers="expandedTableHeaders" :items="item" hide-actions :loading="tableLoading">
+                          <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
+                          <template slot="items" slot-scope="props">
+                            <tr @click.stop="props.expanded = !props.expanded">
+                              <td>{{ props.item.repeats == 1 ? 'Yes' : 'No'}}</td>
+                              <td>
+                                <v-edit-dialog
+                                  :return-value.sync="props.item.sleep"
+                                  lazy
+                                >{{ props.item.sleep }}
+                                  <v-text-field
+                                    slot="input"
+                                    v-model="sleep"
+                                    :rules="sleepRule"
+                                    label="Sleep time between iterations."
+                                    single-line
+                                    @focus="sleep = props.item.sleep"
+                                    @change="saveInstance(props.item, sleep)"
+                                  ></v-text-field>
+                                </v-edit-dialog>
+                              </td>
+                              <td>{{ props.item.run_last ? new Date(props.item.run_last).toLocaleString() : '-' }}</td>
+                              <td>{{ props.item.run_next ? new Date(props.item.run_next).toLocaleString() : '-' }}</td>
+                              <td>{{ props.item.completed != 0 ? new Date(props.item.completed).toLocaleString() : '-' }}</td>
+                              <td>{{ props.item.run_count }}</td>
+                              <td>
+                                <v-tooltip left>
+                                  <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="deleteInstance(props.item)">
+                                    <v-icon color="pink">delete</v-icon>
+                                  </v-btn>
+                                  <span>Delete</span>
+                                </v-tooltip>
+                                <v-tooltip left v-if="props.item.completed != 0">
+                                  <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="reloadInstance(props.item)">
+                                    <v-icon color="blue">replay</v-icon>
+                                  </v-btn>
+                                  <span>Restart</span>
+                                </v-tooltip>
+                                 <v-tooltip left v-if="props.item.completed == 0">
+                                  <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="stopInstance(props.item)">
+                                    <v-icon color="red">stop</v-icon>
+                                  </v-btn>
+                                  <span>Stop</span>
+                                </v-tooltip>
+                              </td>
+                            </tr>
+                          </template>
+                          <template slot="no-data">
+                            {{ tableLoading ? 'Fetching data, please wait...' : 'Task has no instances.' }}
+                          </template>
+                          <template slot="expand" slot-scope="props">
+                            <v-card flat>
+                              <v-card-text v-html="props.item.result ? '<pre>' + props.item.result + '</pre>' : 'Task ('+props.item.name+') has no result value.'"></v-card-text>
+                            </v-card>
+                          </template>
+                        </v-data-table>
                       </template>
                     </v-data-table>
-                  </template>
-                </v-data-table>
+                  </v-tab-item>
+                  <v-tab-item :id="`system`">
+                    <v-data-table :headers="tableHeaders" :items="items.system" hide-actions class="elevation-1" :loading="tableLoading">
+                      <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
+                      <template slot="items" slot-scope="props">
+                        <tr @click.stop="tableExpand(props)">
+                        <td><a href="javascript:void(0)" @click.stop="editItem('system', props.item)">{{ props.item.name.trim() }}</a></td>
+                        <td>{{ props.item.description.trim() }}</td>
+                        <td>{{ props.item.type.toUpperCase() }}</td>
+                        <td>
+                          <v-tooltip left>
+                            <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="runTask(props.item)">
+                              <v-icon color="green">play_arrow</v-icon>
+                            </v-btn>
+                            <span>Run</span>
+                          </v-tooltip>
+                        </td>
+                        </tr>
+                      </template>
+                      <template slot="no-data">
+                        {{ tableLoading ? 'Fetching data, please wait...' : tableNoData }}
+                      </template>
+                      <template slot="expand" slot-scope="props">
+                        <v-data-table :headers="expandedTableHeaders" :items="item" hide-actions :loading="tableLoading">
+                          <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
+                          <template slot="items" slot-scope="props">
+                            <tr @click.stop="props.expanded = !props.expanded">
+                              <td>{{ props.item.repeats == 1 ? 'Yes' : 'No'}}</td>
+                              <td>
+                                <v-edit-dialog
+                                  :return-value.sync="props.item.sleep"
+                                  lazy
+                                >{{ props.item.sleep }}
+                                  <v-text-field
+                                    slot="input"
+                                    v-model="sleep"
+                                    :rules="sleepRule"
+                                    label="Sleep time between iterations."
+                                    single-line
+                                    @focus="sleep = props.item.sleep"
+                                    @change="saveInstance(props.item, sleep)"
+                                  ></v-text-field>
+                                </v-edit-dialog>
+                              </td>
+                              <td>{{ props.item.run_last ? new Date(props.item.run_last).toLocaleString() : '-' }}</td>
+                              <td>{{ props.item.run_next ? new Date(props.item.run_next).toLocaleString() : '-' }}</td>
+                              <td>{{ props.item.completed != 0 ? new Date(props.item.completed).toLocaleString() : '-' }}</td>
+                              <td>{{ props.item.run_count }}</td>
+                              <td>
+                                <v-tooltip left>
+                                  <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="deleteInstance(props.item)">
+                                    <v-icon color="pink">delete</v-icon>
+                                  </v-btn>
+                                  <span>Delete</span>
+                                </v-tooltip>
+                                 <v-tooltip left  v-if="props.item.completed != 0">
+                                  <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="reloadInstance(props.item)">
+                                    <v-icon color="blue">replay</v-icon>
+                                  </v-btn>
+                                  <span>Restart</span>
+                                </v-tooltip>
+                                 <v-tooltip left v-if="props.item.completed == 0" >
+                                  <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="stopInstance(props.item)">
+                                    <v-icon color="red">stop</v-icon>
+                                  </v-btn>
+                                  <span>Stop</span>
+                                </v-tooltip>
+                              </td>
+                            </tr>
+                          </template>
+                          <template slot="no-data">
+                            {{ tableLoading ? 'Fetching data, please wait...' : 'Task has no instances.' }}
+                          </template>
+                          <template slot="expand" slot-scope="props">
+                            <v-card flat>
+                              <v-card-text v-html="props.item.result ? '<pre>' + props.item.result + '</pre>' : 'Task ('+props.item.name+') has no result value.'"></v-card-text>
+                            </v-card>
+                          </template>
+                        </v-data-table>
+                      </template>
+                    </v-data-table>
+                  </v-tab-item>
+                </v-tabs>
               </v-flex>
             </v-layout>
           </v-flex>
@@ -104,7 +210,7 @@
             <v-toolbar-title>{{ editingIndex === -1 ? 'New' : 'Edit' }} Task</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
-              <v-btn dark flat @click.native="save()">Save</v-btn>
+              <v-btn dark flat @click.native="save(editingItem.system === '1' ? 'system' : 'user')">Save</v-btn>
             </v-toolbar-items>
           </v-toolbar>
           <v-card-text>
@@ -158,7 +264,6 @@
       }
     },
     data: () => ({
-      system_tasks: ['iptables.setup', 'iptables.build', 'iptables.auto_update', 'nginx.build', 'nginx.auto_update', 'nginx.reconcile', 'nginx.reload', 'nginx.setup', 'tasks.auto_update', 'VACUUM;'],
       // global error
       error: '',
 
@@ -183,7 +288,9 @@
       },
       
       // table & items
-      items: [],
+      activeType: 'user',
+      system_tasks: [],
+      items: {system: [], user: []},
       item: [],
       sleep: 0,
       
@@ -203,11 +310,6 @@
         { text: 'Completed', value: 'completed' },
         { text: 'Run Count', value: 'run_count' },
         { text: 'Actions', value: 'name', sortable: false, align: 'right' }
-      ],
-      itemActions: [
-        { title: 'Start' },
-        { title: 'Stop' },
-        { title: 'Delete' }
       ],
 
       // dialog
@@ -273,8 +375,9 @@
           axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
           const response = await axios.get(this.loggedUser.sub + '/api/tasks')
-          this.items = Object.assign([], this.items, response.data.data)
-          this.$set(this.items, response.data.data)
+          //
+          this.items = Object.assign({system: [], user: []}, this.items, response.data.data.tasks)
+          this.system_tasks = Object.assign([], this.items, response.data.data.system_tasks)
         } catch (error) {
           this.tableNoData = 'No data.';
           this.error = 'Could not fetch data from server.';
@@ -306,7 +409,7 @@
           this.taskItem(prop.item)
           this.pollId = setInterval(function () {
             this.taskItem(prop.item)
-          }.bind(this), 2500);
+          }.bind(this), 5000);
         }
         prop.expanded = !prop.expanded
       },
@@ -402,6 +505,40 @@
           } catch (error) {
             this.error = 'Could not reloaded task instance.';
           }
+      },    
+      
+      async stopInstance(item) {
+        const index = this.item.indexOf(item)
+        try {
+            if (!this.loggedUser) {
+              this.$router.replace('/servers')
+            }
+            
+            //
+            // set sleep wheich will cause stop
+            item.sleep = 0
+
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+            //
+            const response = await axios.put(this.loggedUser.sub + '/api/tasks/' + item.id, item)
+            
+            this.item[index] = Object.assign(this.item[index], response.data.data)
+
+            // check for error, reset values with response
+            if (response.data.code === 422) {
+              //
+              this.snackbar = true;
+              this.snackbarColor = 'red';
+              this.snackbarText = response.data.error;
+            } else {
+              //
+              this.snackbar = true;
+              this.snackbarColor = 'green';
+              this.snackbarText = 'Task instance stopped.';
+            }
+          } catch (error) {
+            this.error = 'Could not stopped task instance.';
+          }
       },
       
       async runTask(item) {
@@ -428,20 +565,17 @@
         if (!item.name) {
           return false
         }
-        return this.system_tasks.includes(item.name)
+        return this.system_tasks.includes(item.name) || item.system === '1'
       },
 
       // create or edit item
-      editItem (item) {
-        this.editingIndex = this.items.indexOf(item)
+      editItem (type, item) {
+        this.editingIndex = this.items[type].indexOf(item)
         this.editingItem = Object.assign({}, item)
         // mutate task source type
         this.editingItem.type = this.editingItem.type.toUpperCase()
         this.dialog = true
-        
-        setTimeout(() => {
-            this.codemirror.refresh();
-        }, 300);
+
       },
 
       // delete item
@@ -472,17 +606,17 @@
       },
 
       // save item
-      async save () {
+      async save (type) {
         if (this.$refs.form.validate()) {
           // local
           if (this.editingIndex > -1) {
-            Object.assign(this.items[this.editingIndex], this.editingItem)
+            Object.assign(this.items[type][this.editingIndex], this.editingItem)
           } else {
             // forbid new tasks with the same name as system tasks
             if (this.is_system_task(this.editingItem)) {
               return false;
             }
-            this.items.push(Object.assign({}, this.editingItem))
+            this.items[type].push(Object.assign({}, this.editingItem))
           }
           
           // remote

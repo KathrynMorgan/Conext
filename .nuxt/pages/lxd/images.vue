@@ -20,15 +20,16 @@
                 <v-alert type="error" :value="error">
                   {{ error }}
                 </v-alert>
-                <v-tabs v-model="activeRemote" right @input="loadRemoteImages">
-                  <v-tab ripple :href="`#${item}`" v-for="item in remotes" :key="item">{{ item }}</v-tab>
-                  <v-tab-item :id="`${item}`" v-for="item in remotes" :key="item"></v-tab-item>
-                </v-tabs>
-                <v-tabs v-model="activeDistro" show-arrows>
-                  <v-tab ripple :href="`#${dist}`" v-for="dist in distros_list" :key="dist">{{ dist }}</v-tab>
-                  <v-tab-item :id="`${dist}`" v-for="dist in distros_list" :key="dist"></v-tab-item>
-                </v-tabs>
-
+                <div class="elevation-1">
+                  <v-tabs v-model="activeRemote" right @input="loadRemoteImages">
+                    <v-tab ripple :href="`#${item}`" v-for="item in remotes" :key="item">{{ item }}</v-tab>
+                    <v-tab-item :id="`${item}`" v-for="item in remotes" :key="item"></v-tab-item>
+                  </v-tabs>
+                  <v-tabs v-model="activeDistro" show-arrows>
+                    <v-tab ripple :href="`#${dist}`" v-for="dist in distros_list" :key="dist">{{ dist }}</v-tab>
+                    <v-tab-item :id="`${dist}`" v-for="dist in distros_list" :key="dist"></v-tab-item>
+                  </v-tabs>
+                </div>
                 <v-data-table :headers="tableHeaders" :items="image_list" hide-actions class="elevation-1" :loading="tableLoading">
                   <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                   <template slot="items" slot-scope="props">
