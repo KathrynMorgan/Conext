@@ -197,7 +197,7 @@
               </v-tab-item>
               <v-tab-item :id="`tab-snapshots`">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <snapshots :item="container" @snackbar="setSnackbar"></snapshots>
+                  <snapshots :item="container" :key="container.info.name" @snackbar="setSnackbar"></snapshots>
                 </v-card>
               </v-tab-item>
             </v-tabs>
@@ -398,6 +398,21 @@
             info: {name: item.name}
           }
           this.snapshotContainer(item, false)
+          return
+        }
+        // intercept image
+        if (action.action === 'image') {
+          //
+          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
+          
+          this.container = {
+            state: item,
+            info: container.infix(response.data.data),
+          }
+
+          this.imageContainer(this.container, false)
           return
         }
         // intercept delete
@@ -610,12 +625,48 @@
           //
           axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
-          const response = await axios.post(this.loggedUser.sub + '/api/lxd/containers/'+ item.name +'/snapshots', {
+          let response = await axios.post(this.loggedUser.sub + '/api/lxd/containers/'+ item.name +'/snapshots', {
               name: new Date().toISOString(),
               stateful: false
           })
           
           this.setSnackbar('Snapshotting container.')
+
+        } catch (error) {
+          console.error(error);
+        }
+      },
+      
+      async imageContainer (item) {
+        //
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+
+          //
+          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+          //
+          const response = await axios.post(this.loggedUser.sub + '/api/lxd/images', {
+            source: {
+              type: 'container',
+              name: item.info.name
+            },
+            public: false,
+            properties: {
+              description: item.info.name,
+              label: (item.info.config['image.label'] ? item.info.config['image.label'] : ''),
+              architecture: (item.info.config['image.architecture'] ? item.info.config['image.architecture'] : ''),
+              build: new Date(),
+              distribution: (item.info.config['image.distribution'] ? item.info.config['image.distribution'] : ''),
+              os: (item.info.config['image.os'] ? item.info.config['image.os'] : ''),
+              release: (item.info.config['image.release'] ? item.info.config['image.release'] : ''),
+              version: (item.info.config['image.version'] ? item.info.config['image.version'] : '')
+            },
+            auto_update: false
+          })
+          
+          this.setSnackbar('Imaging container.')
           
         } catch (error) {
           console.error(error);

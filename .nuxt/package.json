@@ -10,9 +10,7 @@
     "start": "nuxt start",
     "build:gh-pages": "DEPLOY_ENV=GH_PAGES nuxt build",
     "generate:gh-pages": "DEPLOY_ENV=GH_PAGES nuxt generate",
-    "generate": "nuxt generate && rm -Rf ../public/ui/* && mv -v ./dist/* ../public/ui/",
-    "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
-    "precommit": "npm run lint"
+    "generate": "nuxt generate && rm -Rf ../public/ui/* && mv -v ./dist/* ../public/ui/"
   },
   "dependencies": {
     "@nuxtjs/font-awesome": "^1.0.3",

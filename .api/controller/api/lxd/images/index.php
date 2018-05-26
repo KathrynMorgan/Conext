@@ -73,11 +73,23 @@ class Index extends \Base\Controller
          * POST /api/lxd/images
          */
         if ($verb === 'POST') {
-            $f3->response->json([
-                'error' => '',
-                'code'  => 200,
-                'data'  => []
-            ]);
+            $options = json_decode($f3->get('BODY'), true);
+            
+            try {
+                $response = [
+                    'error' => null,
+                    'code'  => 200,
+                    'data'  => $client->lxd->images->create('local', $options)
+                ];
+            } catch (\Exception $e) {
+                $response = [
+                    'error' => $e->getMessage(),
+                    'code'  => $e->getCode(),
+                    'data'  => []
+                ];
+            }
+
+            $f3->response->json($response);
         }
         
         /**

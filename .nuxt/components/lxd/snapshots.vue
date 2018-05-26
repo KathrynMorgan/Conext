@@ -22,6 +22,12 @@
               </v-btn>
               <span>Restore</span>
             </v-tooltip>
+            <v-tooltip left>
+              <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="imageSnapshot(props.item)">
+                <v-icon color="green">save</v-icon>
+              </v-btn>
+              <span>Image</span>
+            </v-tooltip>
           </td>
         </tr>
       </template>
@@ -115,6 +121,43 @@
           this.$emit('snackbar', 'Snapshot restored.')
         } catch (error) {
           this.$emit('snackbar', 'Failed to restore snapshot.')
+        }
+      },
+      
+      async imageSnapshot (item) {
+        //
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+
+          //
+          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+          //
+          const response = await axios.post(this.loggedUser.sub + '/api/lxd/images', {
+            source: {
+              type: 'snapshot',
+              name: item.name
+            },
+            public: false,
+            properties: {
+              // image name: `container-name (01/01/2018, 01:23:45)`
+              description: item.name.split('/')[0] + ' (' + new Date(item.name.substr(item.name.lastIndexOf('/') + 1)).toLocaleString()+')',
+              label: (item.config['image.label'] ? item.config['image.label'] : ''),
+              architecture: (item.config['image.architecture'] ? item.config['image.architecture'] : ''),
+              build: new Date(),
+              distribution: (item.config['image.distribution'] ? item.config['image.distribution'] : ''),
+              os: (item.config['image.os'] ? item.config['image.os'] : ''),
+              release: (item.config['image.release'] ? item.config['image.release'] : ''),
+              version: (item.config['image.version'] ? item.config['image.version'] : '')
+            },
+            auto_update: false
+          })
+          
+          this.$emit('snackbar', 'Imaging snapshot.')
+
+        } catch (error) {
+          this.$emit('snackbar', 'Failed to imaging snapshot.')
         }
       }
     }

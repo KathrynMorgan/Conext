@@ -6,10 +6,10 @@
  *  - dev               - path will be /
  */
 const router = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
-  middleware: 'check-auth',
+  middleware: ['check-auth'],
   base: '/Deval/'
 } : {
-  middleware: 'check-auth',
+  middleware: ['check-auth'],
   base: (process.env.npm_lifecycle_event === 'dev' ? '/' : '/ui/')
 }
 
@@ -43,10 +43,6 @@ module.exports = {
     '@nuxtjs/font-awesome',
     '@nuxtjs/vuetify'
   ],
-  //vuetify: {
-    // Vuetify options
-    // theme: { }
-  //},
   css: [
     'xterm/dist/xterm.css',
     'codemirror/lib/codemirror.css',
@@ -54,7 +50,7 @@ module.exports = {
   ],
   generate: {
     extractCSS: true,
-    cssSourceMap: false,
+    fallback: true,
     minify: {
       collapseBooleanAttributes: true,
       collapseWhitespace: false,
@@ -88,7 +84,6 @@ module.exports = {
         //'postcss-custom-properties': false
       }
     },
-    cssSourceMap: false,
     /*
     ** Run ESLint on save
     */
