@@ -189,10 +189,17 @@ class Index extends \Base\Controller
         $client = $f3->get('plinker');
         
         if ($verb === 'GET') {
+            $result = [];
+            foreach ((array) $client->tasks->getTasksLog((int) $params['id']) as $row) {
+                // decode params
+                $row->params = !empty($row->params) ? json_decode($row->params, JSON_FORCE_OBJECT) : [];
+                $result[] = $row;
+            }
+
             $f3->response->json([
                 'error' => null,
                 'code'  => 200,
-                'data'  => array_values($client->tasks->getTasksLog((int) $params['id']))
+                'data'  => array_values($result)
             ]);
         }
         

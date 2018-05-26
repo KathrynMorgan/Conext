@@ -21,12 +21,19 @@
                   {{ error }}
                 </v-alert>
                 <p>Tasks allow you to run custom or predefined system tasks on the server.</p>
-                
+
                 <v-tabs v-model="activeType" class="elevation-1">
                   <v-tab ripple :href="`#user`">User</v-tab>
                   <v-tab ripple :href="`#system`">System</v-tab>
+                  <!--
+                  <v-spacer></v-spacer>
+                  <div class="tabs__div" style="margin-right: 10px">
+                    <v-text-field style="margin-bottom: 5px" v-model="search" append-icon="search" label="Filter" single-line hide-details></v-text-field>
+                  </div>
+                  -->
+
                   <v-tab-item :id="`user`">
-                    <v-data-table :headers="tableHeaders" :items="items.user" hide-actions class="elevation-1" :loading="tableLoading">
+                    <v-data-table hide-actions :search="search" :headers="tableHeaders" :items="items.user" class="elevation-1" :loading="tableLoading">
                       <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                       <template slot="items" slot-scope="props">
                         <tr @click.stop="tableExpand(props)">
@@ -48,6 +55,9 @@
                           </v-tooltip>
                         </td>
                         </tr>
+                      </template>
+                      <template slot="no-results" :value="true" color="error" icon="warning">
+                        No items found matching "{{ search }}".
                       </template>
                       <template slot="no-data">
                         {{ tableLoading ? 'Fetching data, please wait...' : tableNoData }}
@@ -105,7 +115,7 @@
                           </template>
                           <template slot="expand" slot-scope="props">
                             <v-card flat>
-                              <v-card-text v-html="props.item.result ? '<pre>' + props.item.result + '</pre>' : 'Task ('+props.item.name+') has no result value.'"></v-card-text>
+                              <v-card-text v-html="props.item.result ? '<pre style=\'font-size:10px\'>' + props.item.result + '</pre>' : 'Task has not output.'"></v-card-text>
                             </v-card>
                           </template>
                         </v-data-table>
@@ -113,7 +123,7 @@
                     </v-data-table>
                   </v-tab-item>
                   <v-tab-item :id="`system`">
-                    <v-data-table :headers="tableHeaders" :items="items.system" hide-actions class="elevation-1" :loading="tableLoading">
+                    <v-data-table hide-actions :search="search" :headers="tableHeaders" :items="items.system" class="elevation-1" :loading="tableLoading">
                       <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                       <template slot="items" slot-scope="props">
                         <tr @click.stop="tableExpand(props)">
@@ -129,6 +139,9 @@
                           </v-tooltip>
                         </td>
                         </tr>
+                      </template>
+                      <template slot="no-results" :value="true" color="error" icon="warning">
+                        No items found matching "{{ search }}".
                       </template>
                       <template slot="no-data">
                         {{ tableLoading ? 'Fetching data, please wait...' : tableNoData }}
@@ -186,7 +199,7 @@
                           </template>
                           <template slot="expand" slot-scope="props">
                             <v-card flat>
-                              <v-card-text v-html="props.item.result ? '<pre>' + props.item.result + '</pre>' : 'Task ('+props.item.name+') has no result value.'"></v-card-text>
+                              <v-card-text v-html="props.item.result ? '<pre style=\'font-size:10px\'>' + props.item.result + '</pre>' : 'Task has no output.'"></v-card-text>
                             </v-card>
                           </template>
                         </v-data-table>
@@ -288,6 +301,7 @@
       },
       
       // table & items
+      search:'',
       activeType: 'user',
       system_tasks: [],
       items: {system: [], user: []},
