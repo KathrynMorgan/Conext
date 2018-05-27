@@ -42,7 +42,7 @@
                         <td>{{ props.item.type.toUpperCase() }}</td>
                         <td>
                           <v-tooltip left>
-                            <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)" :disabled="is_system_task(props.item)">
+                            <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="deleteItem('user', props.item)" :disabled="is_system_task(props.item)">
                               <v-icon color="pink">delete</v-icon>
                             </v-btn>
                             <span>Delete</span>
@@ -593,12 +593,12 @@
       },
 
       // delete item
-      async deleteItem (item) {
-        const index = this.items.indexOf(item)
+      async deleteItem (type, item) {
+        const index = this.items[type].indexOf(item)
         
         // local
         //if (confirm('Are you sure you want to delete this item?')){
-          this.items.splice(index, 1)
+          this.items[type].splice(index, 1)
         //}
 
         // remote
