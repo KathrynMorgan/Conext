@@ -42,24 +42,34 @@ class Index extends \Base\Controller
          * GET /api/lxd/operations
          */
         if ($verb === 'GET') {
-            // get containers
-            $result = $client->lxd->operations->list('local', function ($result) use ($client) {
-                $return = [];
-                foreach ($result as $type => $operations) {
-                    $return[$type] = [];
-                    foreach ($operations as $operation) {
-                        $row = str_replace('/1.0/operations/', '', $operation);  
-                        $return[$type][] = $client->lxd->operations->info('local', $row);
+            try {
+                //
+                $result = $client->lxd->operations->list('local', function ($result) use ($client) {
+                    $return = [];
+                    foreach ($result as $type => $operations) {
+                        $return[$type] = [];
+                        foreach ($operations as $operation) {
+                            $row = str_replace('/1.0/operations/', '', $operation);  
+                            $return[$type][] = $client->lxd->operations->info('local', $row);
+                        }
                     }
-                }
-                return $return;
-            });
+                    return $return;
+                });
+                
+                $response = [
+                    'error' => null,
+                    'code'  => 200,
+                    'data'  => $result
+                ];
+            } catch (\Exception $e) {
+                $response = [
+                    'error' => $e->getMessage(),
+                    'code'  => $e->getCode(),
+                    'data'  => []
+                ];
+            }
 
-            $f3->response->json([
-                'error' => null,
-                'code'  => 200,
-                'data'  => $result
-            ]);
+            $f3->response->json($response);
         }
         
     }

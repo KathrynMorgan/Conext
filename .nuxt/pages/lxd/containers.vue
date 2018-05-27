@@ -15,8 +15,9 @@
                 <!--<v-btn color="success" @click="newContainer()" style="float:right">New Container</v-btn>-->
               </v-flex>
               <v-flex>
-                <v-alert type="error" :value="error">
-                  {{ error }}
+
+                <v-alert v-if="alert.msg" :value="alert.msg" :outline="alert.outline" :color="alert.color" :icon="alert.icon" dismissible>
+                  {{ alert.msg }}
                 </v-alert>
 
                 <v-data-table :headers="tableHeaders" :items="items" hide-actions class="elevation-1" :loading="tableLoading">
@@ -276,8 +277,8 @@
     data: () => ({
       valid: true,
       
-      // global error
-      error: '',
+      //
+      alert: { msg: '', outline: false, color: 'info', icon: 'info' },
 
       // snackbar (notification)
       snackbar: false,
@@ -374,11 +375,11 @@
         } catch (error) {
           this.items = [];
           this.tableNoData = 'No data.';
-          this.error = 'Could not fetch data from server.';
+          this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
         }
         this.tableLoading = false
       },
-      
+
       async stateContainer (action, item) {
         // intercept console
         if (action.action === 'console') {
@@ -443,7 +444,7 @@
           
           setTimeout(() => this.initialize(), 1500)
         } catch (error) {
-          console.error(error);
+          this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
         }
       },
 
@@ -579,7 +580,6 @@
             this.snackbarText = 'Websocket connection failed, have you have visited https://'+tmp.hostname+':8443 to accept the SSL certificate?';
           }
         }).catch(error => {
-          console.log(error)
           //
           this.snackbar = true;
           this.snackbarTimeout = 5000
@@ -605,7 +605,7 @@
             info: container.infix(response.data.data),
           }
         } catch (error) {
-          console.error(error);
+          this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
         }
         
         this.containerDialog = openDialog
@@ -633,7 +633,7 @@
           this.setSnackbar('Snapshotting container.')
 
         } catch (error) {
-          console.error(error);
+          this.alert = { msg: 'Could not snapshot container.', outline: false, color: 'error', icon: 'error' };
         }
       },
       
@@ -669,7 +669,7 @@
           this.setSnackbar('Imaging container.')
           
         } catch (error) {
-          console.error(error);
+          this.alert = { msg: 'Could not image container.', outline: false, color: 'error', icon: 'error' };
         }
       },
 
@@ -689,7 +689,7 @@
           
           this.setSnackbar('Container deleted.')
         } catch (error) {
-          console.error(error);
+          this.alert = { msg: 'Could not delete container.', outline: false, color: 'error', icon: 'error' };
         }
       },
 

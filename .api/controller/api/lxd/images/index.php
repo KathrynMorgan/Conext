@@ -96,21 +96,7 @@ class Index extends \Base\Controller
          * PUT /api/lxd/images
          */
         if ($verb === 'PUT') {
-            $item = json_decode($f3->get('BODY'), true);
             
-            if (empty($item) || !is_numeric($item['id'])) {
-               $f3->response->json([
-                    'error' => 'Invalid PUT body, expecting item',
-                    'code'  => 422,
-                    'data'  => []
-                ]); 
-            }
-            
-            $f3->response->json([
-                'error' => '',
-                'code'  => 200,
-                'data'  => []
-            ]);
         }
         
     }
@@ -171,21 +157,23 @@ class Index extends \Base\Controller
          * PUT /api/lxd/images/@fingerprint
          */
         if ($verb === 'PUT') {
-            $item = json_decode($f3->get('BODY'), true);
+            $options = json_decode($f3->get('BODY'), true);
             
-            if (empty($item) || !is_numeric($item['id'])) {
-               $f3->response->json([
-                    'error' => 'Invalid PUT body, expecting item',
-                    'code'  => 422,
+            try {
+                $response = [
+                    'error' => null,
+                    'code'  => 200,
+                    'data'  => $client->lxd->images->replace($f3->get('GET.remote'), $params['fingerprint'], $options)
+                ];
+            } catch (\Exception $e) {
+                $response = [
+                    'error' => $e->getMessage(),
+                    'code'  => $e->getCode(),
                     'data'  => []
-                ]); 
+                ];
             }
-            
-            $f3->response->json([
-                'error' => '',
-                'code'  => 200,
-                'data'  => []
-            ]);
+
+            $f3->response->json($response);
         }
         
         /**

@@ -14,7 +14,6 @@
             <v-layout column>
               <v-flex tag="h1" class="display mb-2">
                 LXD - Images
-                <!--<v-btn color="success" @click="dialog = true" style="float:right">New Forward</v-btn>-->
               </v-flex>
               <v-flex>
                 <v-alert type="error" :value="error">
@@ -33,9 +32,12 @@
                 <v-data-table :headers="tableHeaders" :items="image_list" hide-actions class="elevation-1" :loading="tableLoading">
                   <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                   <template slot="items" slot-scope="props">
-                    <td><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.properties.description }}</a></td>
-                    <td>{{ props.item.properties.version }}</td>
-                    <td>{{ ucfirst(props.item.properties.release) }}</td>
+                    <td>
+                      <span v-if="publicServers.includes(activeRemote)">{{ props.item.properties.description ? props.item.properties.description : '-' }}</span>
+                      <span v-else><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.properties.description ? props.item.properties.description : '-' }}</a></span>
+                    </td>
+                    <td>{{ props.item.properties.version ? props.item.properties.version : '-' }}</td>
+                    <td>{{ props.item.properties.release ? ucfirst(props.item.properties.release) : '-' }}</td>
                     <td>{{ formatBytes(props.item.size) }}</td>
                     <td>{{ new Date(props.item.uploaded_at).toLocaleString() }}</td>
                     <td>
@@ -64,10 +66,10 @@
       </v-container>
       
       <!-- Fullscreen Dialog -->
-      <v-dialog v-model="createDialog" max-width="900px" scrollable>
+      <v-dialog v-model="dialog.create" max-width="600px" scrollable>
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
-            <v-btn icon @click.native="createDialog = false" dark>
+            <v-btn icon @click.native="dialog.create = false" dark>
               <v-icon>close</v-icon>
             </v-btn>
             <v-toolbar-title>Launch Container</v-toolbar-title>
@@ -89,13 +91,13 @@
       </v-dialog>
       
       <!-- Fullscreen Dialog -->
-      <v-dialog v-model="dialog" max-width="900px" scrollable>
+      <v-dialog v-model="dialog.edit" max-width="600px" scrollable>
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
-            <v-btn icon @click.native="dialog = false" dark>
+            <v-btn icon @click.native="dialog.edit = false" dark>
               <v-icon>close</v-icon>
             </v-btn>
-            <v-toolbar-title>.</v-toolbar-title>
+            <v-toolbar-title>{{ publicServers.includes(activeRemote) ? 'View' : 'Edit' }} Image</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
               <v-btn dark flat @click.native="save()">Save</v-btn>
@@ -103,23 +105,14 @@
           </v-toolbar>
           <v-card-text style="padding: 0px;">
             <v-card flat>
-              <v-card-text>
-                <!--
-                <v-alert :value="true" outline color="info" icon="info" style="margin-bottom: 10px;">
-                  <strong>Endpoint:</strong> {{loggedUser.sub}}/{{editingItem.version}}/{{editingItem.module}} [GET|POST|PUT|DELETE]
-                </v-alert>
-                -->
-                <!--<v-form ref="form" v-model="valid" lazy-validation>-->
-                  <!--<v-text-field v-model="editingItem.label" :rules="labelRule" label="Label:" placeholder="" required hint="Enter a label for the port forward." persistent-hint></v-text-field>-->
-                  <!--<v-text-field v-model="editingItem.ip" label="IP:" placeholder="" required hint="Enter the IP address for the port forward." persistent-hint></v-text-field>-->
-                  <!--<v-text-field v-model="editingItem.port" label="External Port:" placeholder="" required hint="Enter the external port to forward." persistent-hint></v-text-field>-->
-                  <!--<v-text-field v-model="editingItem.srv_port" label="Internal Port:" placeholder="" required hint="Enter the internal port to forward" persistent-hint></v-text-field>-->
-                   <!--
-                  <v-text-field v-model="editingItem.srv_type" label="Service Type:" placeholder="" required hint="Enter the service type." persistent-hint></v-text-field>
-                  <v-text-field v-model="editingItem.srv_port" label="Service Port:" placeholder="" required hint="Enter the service port." persistent-hint></v-text-field>
-                  <pre>{{editingItem}}</pre>
-                  -->
-                <!--</v-form>-->
+              <v-card-text v-if="editingItem.properties">
+                <v-form ref="form" v-model="valid" lazy-validation>
+                  <v-text-field v-model="editingItem.properties.description" label="Description" :rules="descriptionRule" hint="Enter description for image." required></v-text-field>
+                  <v-text-field v-model="editingItem.properties.version" label="Version" hint="Enter version for image."></v-text-field>
+                  <v-text-field v-model="editingItem.properties.release" label="Release" hint="Enter release for image."></v-text-field>
+                  <v-switch label="Auto Update" color="success" v-model="editingItem.auto_update"></v-switch>
+                  <v-switch label="Public" color="success" v-model="editingItem.public"></v-switch>
+                </v-form>
               </v-card-text>
             </v-card>
           </v-card-text>
@@ -195,9 +188,11 @@
       ],
 
       // dialog
-      dialog: false,
-      createDialog: false,
+      dialog: {create: false, edit: false},
       
+      // item
+      editingIndex: {create: -1, edit: -1},
+      editingItem: {},
       // item
       newItem: {
         name: '',
@@ -222,6 +217,9 @@
         v => !!v || 'Name is required.',
         v => (v && /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/.test(v)) || 'Only letters, digits or hyphens. No leading hyphen or digit. Dots are converted to hyphens.',
         v => (v && isNaN(v.charAt(0))) || 'Only letters, digits or hyphens. No leading hyphen or digit. Dots are converted to hyphens.'
+      ],      
+      descriptionRule: [
+        v => !!v || 'Description is required.'
       ],
       profilesRule: [
         v => v.length >= 1 || 'At least one profile is required.'
@@ -231,8 +229,11 @@
       this.initialize()
     },
     watch: {
-      dialog (val) {
-        val || this.close()
+      'dialog.create': function (val) {
+         val || this.close('create')
+      },
+      'dialog.edit': function (val) {
+         val || this.close('edit')
       }
     },
     methods: {
@@ -260,6 +261,10 @@
       },
       
       async loadRemoteImages(remote = 'local') {
+        //
+        this.items = []
+        //
+        this.tableLoading = true
         //
         try {
           if (!this.loggedUser) {
@@ -289,11 +294,12 @@
           this.tableNoData = 'No data.';
           this.error = 'Could not fetch data from server.';
         }
+        this.tableLoading = false
       },
       
      createContainer (item, launch = false) {
         if (!launch) {
-          this.createDialog = true
+          this.dialog.create = true
           this.newItem = {
             name: '',
             image: item.properties.description,
@@ -329,7 +335,7 @@
             }).catch(error => {
               this.error = 'Could not create container.'
             })
-            this.createDialog = false
+            this.dialog.create = false
           }
         }
       },
@@ -340,9 +346,9 @@
 
       // create or edit item
       editItem (item) {
-        this.editingIndex = this.items.indexOf(item)
+        this.editingIndex.edit = this.items.indexOf(item)
         this.editingItem = Object.assign({}, item)
-        this.dialog = true
+        this.dialog.edit = true
       },
 
       // delete item
@@ -376,8 +382,8 @@
       async save () {
         if (this.$refs.form.validate()) {
           // local
-          if (this.editingIndex > -1) {
-            Object.assign(this.items[this.editingIndex], this.editingItem)
+          if (this.editingIndex.edit > -1) {
+            Object.assign(this.items[this.editingIndex.edit], this.editingItem)
           } else {
             this.items.push(Object.assign({}, this.editingItem))
           }
@@ -390,27 +396,27 @@
   
             axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
             //
-            const response = await axios.post(this.loggedUser.sub + '/api/routes/port-forwards', this.editingItem)
+            const response = await axios.put(this.loggedUser.sub + '/api/lxd/images/'+this.editingItem.fingerprint+'?remote='+this.activeRemote, this.editingItem)
             //
             this.snackbar = true;
-            this.snackbarText = 'Port forward successfully saved.';
+            this.snackbarText = 'Image successfully updated.';
           } catch (error) {
-            this.error = 'Could not save port forward to server.';
+            this.error = 'Could not update image.';
           }
           
-          // reload data
-          this.initialize()
-          
-          this.close()
+          this.close('edit')
+          setTimeout(() => {
+            this.initialize()
+          }, 300)
         }
       },
       
       // close item dialog, and reset to default item
-      close () {
-        this.dialog = false
+      close (type) {
+        this.dialog[type] = false
         setTimeout(() => {
           this.editingItem = Object.assign({}, this.defaultItem)
-          this.editingIndex = -1
+          this.editingIndex = {create: -1, edit: -1}
         }, 300)
       },
       
