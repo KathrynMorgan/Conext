@@ -32,7 +32,7 @@
         </tr>
       </template>
       <template slot="no-data">
-        {{ tableLoading ? 'Fetching data, please wait...' : 'Currently there are no snapshots for this container.' }}
+        {{ tableLoading ? 'Fetching data, please wait...' : 'There are currently no snapshots for this container.' }}
       </template>
     </v-data-table>
   </div>

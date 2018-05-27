@@ -40,7 +40,7 @@
                           </tr>
                         </template>
                         <template slot="no-data">
-                          {{ tableLoading ? 'Fetching data, please wait...' : 'Currently there are no running operations.' }}
+                          {{ tableLoading ? 'Fetching data, please wait...' : 'There are currently no running operations.' }}
                         </template>
                         <template slot="expand" slot-scope="props">
                           <table class="table">
@@ -79,7 +79,7 @@
                           </tr>
                         </template>
                         <template slot="no-data">
-                          {{ tableLoading ? 'Fetching data, please wait...' : 'Currently there are no success operations.' }}
+                          {{ tableLoading ? 'Fetching data, please wait...' : 'There are currently no success operations.' }}
                         </template>
                         <template slot="expand" slot-scope="props">
                           <table class="table">
