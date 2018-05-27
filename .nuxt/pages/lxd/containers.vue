@@ -368,7 +368,6 @@
           if (!this.loggedUser) {
             this.$router.replace('/servers')
           }
-
           axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers')
