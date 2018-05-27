@@ -92,15 +92,15 @@
                       <v-data-table :headers="expandedTableHeaders" :items="props.item.ownAmsemaildebug" hide-actions>
                         <template slot="items" slot-scope="props">
                           <tr @click.stop="props.expanded = !props.expanded">
-                            <td>{{ props.item.date }}</td>
                             <td>{{ props.item.from }}</td>
                             <td>{{ props.item.to }}</td>
                             <td>{{ props.item.subject }}</td>
-                            <td>
-                              <v-btn icon class="mx-0" style="float:right" @click.stop="deleteLog(props.item)">
-                                <v-icon color="pink">delete</v-icon>
-                              </v-btn>
-                            </td>
+                            <td>{{ props.item.date }}</td>
+                            <!--<td>-->
+                            <!--  <v-btn icon class="mx-0" style="float:right" @click.stop="deleteLog(props.item)">-->
+                            <!--    <v-icon color="pink">delete</v-icon>-->
+                            <!--  </v-btn>-->
+                            <!--</td>-->
                           </tr>
                         </template>
                         <template slot="no-data">
@@ -308,11 +308,11 @@
         ]
       },
       expandedTableHeaders: [
-        { text: 'Date', value: 'date' },
         { text: 'From', value: 'from' },
         { text: 'To', value: 'to' },
         { text: 'Subject', value: 'subject' },
-        { text: 'Actions', value: 'name', sortable: false, align: 'right' }
+        { text: 'Date', value: 'date' },
+        // { text: 'Actions', value: 'name', sortable: false, align: 'right' }
       ],
       
       // dialogs
