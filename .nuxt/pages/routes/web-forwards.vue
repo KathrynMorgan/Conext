@@ -5,7 +5,6 @@
       {{ snackbarText }}
       <v-btn dark flat @click.native="snackbar = false">Close</v-btn>
     </v-snackbar>
-
     <v-content>
       <!-- Main Content -->
       <v-container fluid tag="section" id="grid">
