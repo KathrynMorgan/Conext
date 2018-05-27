@@ -55,7 +55,7 @@
                           </v-tooltip>
                           <v-tooltip left>
                             <v-btn slot="activator" icon class="mx-0" style="float:right" @click="testItem('testemail', props.item)">
-                              <v-icon color="light-blue lighten-1">thumbs_up_down</v-icon>
+                              <v-icon color="blue-grey darken-2">bug_report</v-icon>
                             </v-btn>
                             <span>Test</span>
                           </v-tooltip>
