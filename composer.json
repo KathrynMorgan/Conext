@@ -26,6 +26,7 @@
         "plinker/tasks": "master"
     },
     "scripts": {
+        "build": "cd .nuxt/ && npm run generate && cd ../",
         "__post-create-project-cmd": "bash ./.api/setup.sh",
         "__setup": "bash ./.api/setup.sh"
     }

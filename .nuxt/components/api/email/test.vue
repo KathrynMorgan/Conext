@@ -68,15 +68,11 @@
 });`
       },
       examplePHP () {
-        return `// set post fields
-$post = [
-    `+this.curlParams+`];
-
-$ch = curl_init('`+this.loggedUser.sub+`/api/email/`+this.template.slug+`');
+        return `$ch = curl_init('`+this.loggedUser.sub+`/api/email/`+this.template.slug+`');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+curl_setopt($ch, CURLOPT_POSTFIELDS, [
+    `+this.curlParams+`]);
 
-// execute!
 $response = curl_exec($ch);
 curl_close($ch);`
       }
