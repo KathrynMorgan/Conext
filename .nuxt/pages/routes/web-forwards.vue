@@ -29,7 +29,11 @@
                     <td>{{ props.item.port }}</td>
                     <td><ul><li style="list-style-type: none;" v-for="domain in props.item.ownDomain" :key="domain.name">{{ domain.name }}</li></ul></td>
                     <td>
-                      <span v-if="props.item.ssl_type === 'letsencrypt'"><v-icon color="amber darken-3">https</v-icon> Expires: {{ new Date(props.item.certificate_expiry*1000).toLocaleDateString() }}</span>
+                      <span v-if="props.item.ssl_type === 'letsencrypt'">
+                        <v-icon color="amber darken-3">https</v-icon> 
+                        <span v-if="props.item.certificate_expiry">Expires: {{ new Date(props.item.certificate_expiry*1000).toLocaleDateString() }}</span>
+                        <span v-else>Acquiring certificate</span>
+                      </span>
                       <span v-else>-</span>
                     </td>
                     <td>
