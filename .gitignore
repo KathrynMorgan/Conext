@@ -2,4 +2,15 @@
 tmp/
 vendor/
 composer.lock
-node_modules/
+.nuxt/node_modules/
+.nuxt/.nuxt/*
+.nuxt/package-lock.json
+./public/ui/*
+.plinker/Queue.pid
+.plinker/bash/*
+.plinker/dbbackup/*
+.plinker/iptables/*
+.plinker/logs/*
+.plinker/system/*
+.plinker/database/*
+./config.ini
