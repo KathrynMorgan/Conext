@@ -12,5 +12,5 @@ composer.lock
 .plinker/iptables/*
 .plinker/logs/*
 .plinker/system/*
-.plinker/database/*
+.plinker/database.db
 ./config.ini
