@@ -53,7 +53,12 @@
                             </v-btn>
                             <span>Preview</span>
                           </v-tooltip>
-                          
+                          <v-tooltip left>
+                            <v-btn slot="activator" icon class="mx-0" style="float:right" @click="testItem('testemail', props.item)">
+                              <v-icon color="light-blue lighten-1">thumbs_up_down</v-icon>
+                            </v-btn>
+                            <span>Test</span>
+                          </v-tooltip>
                         </td>
                       </tr>
                     </template>
@@ -174,13 +179,13 @@
                 <v-form ref="formtemplate" v-model="valid.template" lazy-validation>
                   <v-layout row wrap>
                     <v-flex xs6>
-                      <v-text-field v-model="editingItem.template.name" label="Name:" placeholder="" required hint="Enter the name of the email template."></v-text-field>
+                      <v-text-field v-model="editingItem.template.name" label="Name:" placeholder="" :rules="nameRules" required hint="Enter the name of the email template."></v-text-field>
                       <v-text-field v-model="editingItem.template.subject" label="Subject:" placeholder="" required hint="Enter the email subject for this template."></v-text-field>
                       <v-select :items="['HTML', 'Plain']" v-model="editingItem.template.type" label="Type:" hint="Choose the email template content type."></v-select>
                     </v-flex>
                     <v-flex xs6>
-                      <v-text-field v-model="editingItem.template.from" label="From:" placeholder="" required hint="Enter the from email address."></v-text-field>
-                      <v-text-field v-model="editingItem.template.replyto" label="Reply To:" placeholder="" required hint="Enter the reply to email address."></v-text-field>
+                      <v-text-field v-model="editingItem.template.from" label="From:" placeholder="" :rules="emailRules" required hint="Enter the from email address."></v-text-field>
+                      <v-text-field v-model="editingItem.template.replyto" label="Reply To:" placeholder="" :rules="emailRules" required hint="Enter the reply to email address."></v-text-field>
                       <v-text-field v-model="editingItem.template.key" label="Send Key:" placeholder="" hint="Enter a key which is required before sending email."></v-text-field>
                     </v-flex>
                   </v-layout>
@@ -212,6 +217,26 @@
           <div style="flex: 1 1 auto;"></div>
         </v-card>
       </v-dialog>
+      
+       <!-- Fullscreen Dialog -->
+      <v-dialog v-model="dialog.testemail" max-width="900px" scrollable>
+        <v-card tile>
+          <v-toolbar card dark color="light-blue darken-3">
+            <v-btn icon @click.native="close('testemail')" dark>
+              <v-icon>close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Test Email</v-toolbar-title>
+            <v-spacer></v-spacer>
+            <v-toolbar-items>
+              <v-btn dark flat @click.native="$refs['testemail' + editingItem.template.id].send()">Send</v-btn>
+            </v-toolbar-items>
+          </v-toolbar>
+          <v-card-text v-if="editingItem.template.id !== -1">
+            <test-email :ref="`testemail${editingItem.template.id}`" :item="editingItem.template" :key="editingItem.template.id" @snackbar="setSnackbar"></test-email>
+          </v-card-text>
+          <div style="flex: 1 1 auto;"></div>
+        </v-card>
+      </v-dialog>
 
     </v-content>
   </v-app>
@@ -221,12 +246,16 @@
   import { mapGetters, mapMutations } from 'vuex'
   import { setToken } from '~/utils/auth'
   import axios from 'axios'
+  // components
+  import testEmail from '~/components/api/email/test.vue'
 
   export default {
     middleware: [
       'authenticated'
     ],
-    components: {},
+    components: {
+      testEmail
+    },
     computed: {
       ...mapGetters({
         isAuthenticated: 'auth/isAuthenticated',
@@ -287,7 +316,7 @@
       ],
       
       // dialogs
-      dialog: {template: false, provider: false, preview: false},
+      dialog: {template: false, provider: false, preview: false, testemail: false},
 
       // item
       editingIndex: {template: -1, provider: -1},
@@ -338,20 +367,23 @@
       
       // item form & validation
       valid: {template: true, provider: true},
-      
-      moduleRules: [
-        v => !!v || 'Module name is required',
-        v => (v && v.length <= 100) || 'Module name must be less than 100 characters'
+      nameRules: [
+        v => !!v || 'Name is required.'
       ],
-      versionRules: [
-        v => !!v || 'Version is required',
-        v => (v && Number(v)) || 'Version must be a number'
+      emailRules: [
+        v => {
+          return !!v || 'E-mail is required'
+        },
+        v => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$/.test(v) || 'E-mail must be valid'
       ]
     }),
     mounted: function () {
       this.initialize()
     },
     watch: {
+      'dialog.testemail': function (val) {
+         val || this.close('testemail')
+      },      
       'dialog.template': function (val) {
          val || this.close('template')
       },
@@ -391,8 +423,15 @@
         this.dialog[type] = true
       },
 
-      // create or edit item
+      // preview item
       previewItem (type, item) {
+        this.editingIndex.template = this.items.template.indexOf(item)
+        this.editingItem.template = Object.assign({}, item)
+        this.dialog[type] = true
+      },
+      
+      // test item
+      testItem (type, item) {
         this.editingIndex.template = this.items.template.indexOf(item)
         this.editingItem.template = Object.assign({}, item)
         this.dialog[type] = true
@@ -471,6 +510,14 @@
           this.editingItem = Object.assign({}, this.defaultItem)
           this.editingIndex = {template: -1, provider: -1}
         }, 300)
+      },
+      
+      // set snackbar invoked from component test-email
+      setSnackbar (msg) {
+        //
+        this.snackbar = true;
+        this.snackbarTimeout = 2500
+        this.snackbarText = msg;
       }
 
     }

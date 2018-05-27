@@ -55,7 +55,11 @@ class Email extends \Base\Controller
         $template = $this->email_template->findOne('slug = ?', [$params['slug']]);
         
         // get POST params
-        $vars = $f3->get('REQUEST');
+        $vars = $f3->get('POST');
+        
+        if (empty($vars)) {
+            $vars = json_decode($f3->get('BODY'), true);
+        }
         
         if (empty($vars['to'])) {
             $f3->response->json([
@@ -81,13 +85,18 @@ class Email extends \Base\Controller
             }
         }
         
+        // match any single word with _ or -, with spaces either side or not
+        // e.g: {{key}} or {{ key }} or {{key-foo}} or {{ key-foo }}
+        // not {{ a b c }}
+        $placeholder_regex = "/\{\{[ ]{0,}([\w\_-]{1,})[ ]{0,1}\}\}/";
+        
         // replace source vars with posted values
-        $subject = preg_replace_callback("/\{\{([\w\_]{1,})\}\}/", function ($match) use ($vars) {
+        $subject = preg_replace_callback($placeholder_regex, function ($match) use ($vars) {
             return array_key_exists($match[1], $vars) ? $vars[$match[1]] : '';
         }, $template->subject);
 
         // replace source vars with posted values
-        $source = preg_replace_callback("/\{\{([\w\_]{1,})\}\}/", function ($match) use ($vars) {
+        $source = preg_replace_callback($placeholder_regex, function ($match) use ($vars) {
             return array_key_exists($match[1], $vars) ? $vars[$match[1]] : '';
         }, $template->source);
         
