@@ -28,7 +28,10 @@
                     <td>{{ props.item.ip }}</td>
                     <td>{{ props.item.port }}</td>
                     <td><ul><li style="list-style-type: none;" v-for="domain in props.item.ownDomain" :key="domain.name">{{ domain.name }}</li></ul></td>
-                    <td><v-icon color="amber darken-3" v-if="props.item.ssl_type === 'letsencrypt'">https</v-icon> Expires: {{ new Date(props.item.certificate_expiry*1000).toLocaleDateString() }}</td>
+                    <td>
+                      <span v-if="props.item.ssl_type === 'letsencrypt'"><v-icon color="amber darken-3">https</v-icon> Expires: {{ new Date(props.item.certificate_expiry*1000).toLocaleDateString() }}</span>
+                      <span v-else>-</span>
+                    </td>
                     <td>
                       <v-btn icon class="mx-0" style="float:right" @click="deleteItem(props.item)">
                         <v-icon color="pink">delete</v-icon>
