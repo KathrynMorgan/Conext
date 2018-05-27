@@ -176,50 +176,48 @@ class Index extends \Base\Controller
         
         if ($verb === 'POST') {
             $item = json_decode($f3->get('BODY'), true);
-           
-            if (empty($item) || !is_numeric($item['id'])) {
+            
+            if (empty($item) || empty($item['name'])) {
               $f3->response->json([
                     'error' => 'Invalid POST body, expecting item',
                     'code'  => 422,
                     'data'  => []
                 ]); 
             }
+
+            //
+            $result = $client->lxd->containers->rename('local', $params['name'], $item['name']);
             
-            // find task
-            $task = $this->tasks->load($item['id']);
-            
-            // validate sleep value, return current value on failure
-            if (!is_numeric($item['sleep']) && !is_int($item['sleep'])) {
-                $f3->response->json([
-                    'error' => 'Invalid sleep value, expected integer',
+            $f3->response->json([
+                'error' => null,
+                'code'  => 200,
+                'data'  => $result
+            ]);
+        }
+
+        if ($verb === 'PATCH') {
+            $options = json_decode($f3->get('BODY'), true);
+
+            if (empty($options) || empty($params['name'])) {
+              $f3->response->json([
+                    'error' => 'Invalid PATCH body, expecting item',
                     'code'  => 422,
-                    'data'  => ['sleep' => $task->sleep]
-                ]); 
-            } elseif ($item['sleep'] > 31557600) {
-                $f3->response->json([
-                    'error' => 'Invalid sleep value, must be less than 31557600',
-                    'code'  => 422,
-                    'data'  => ['sleep' => $task->sleep]
+                    'data'  => []
                 ]); 
             }
-
-            // update run next
-            $task->run_next = date_create($task->run_last)->modify("+".$item['sleep']." seconds")->format('Y-m-d H:i:s');
-            // update repeats
-            $task->repeats = !empty($item['sleep']);
-            // update
-            $task->sleep = $item['sleep'];
             
-            $this->tasks->store($task);
-
+            //
+            $result = $client->lxd->containers->update('local', $params['name'], $options);
+            
             $f3->response->json([
-                'error' => '',
+                'error' => null,
                 'code'  => 200,
-                'data'  => $task->fresh()
+                'data'  => $result
             ]);
         }
         
         if ($verb === 'PUT') {
+            /*
             $item = json_decode($f3->get('BODY'), true);
            
             if (empty($item) || !is_numeric($params['id'])) {
@@ -230,26 +228,8 @@ class Index extends \Base\Controller
                 ]); 
             }
             
-            // find task
-            $task = $this->tasks->load($params['id']);
-
-            // update run next
-            $task->run_next = date_create($task->run_last)->modify("+".$item['sleep']." seconds")->format('Y-m-d H:i:s');
-            // update repeats
-            $task->repeats = !empty($item['sleep']);
-            // update
-            $task->sleep = $item['sleep'];
-            // 
-            $task->completed = 0;
-            $task->run_count = 0;
-            
-            $this->tasks->store($task);
-
-            $f3->response->json([
-                'error' => '',
-                'code'  => 200,
-                'data'  => $task->fresh()
-            ]);
+            //...
+            */
         }
         
         if ($verb === 'DELETE') {

@@ -24,7 +24,7 @@
                   <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                   <template slot="items" slot-scope="props">
                     <tr>
-                      <td><a href="javascript:void(0)" @click.stop="viewContainer(props.item)">{{ props.item.name }}</a></td>
+                      <td><a href="javascript:void(0)" @click.stop="editContainer(props.item)">{{ props.item.name }}</a></td>
                       <td>
                         <span v-if="check_started_with_ip(props.item)">{{ props.item.network.eth0.addresses[0].address }}</span>
                         <span v-if="props.item.status === 'Running' && (props.item.network.eth0.addresses.length === 0 || isIP4(props.item.network.eth0.addresses[0].address) === false)">
@@ -59,7 +59,7 @@
         </v-layout>
       </v-container>
 
-      <v-dialog v-model="consoleDialog" fullscreen hide-overlay color="black" style="overflow-y:hidden;">
+      <v-dialog v-model="consoleDialog"  fullscreen hide-overlay transition="dialog-bottom-transition" color="black" style="overflow-y:hidden;">
         <v-toolbar card dark color="black">
           <v-btn icon @click.native="consoleDialog = false" dark>
             <v-icon>close</v-icon>
@@ -73,7 +73,7 @@
         <div id="terminal"></div>
       </v-dialog>
 
-      <v-dialog v-model="containerDialog" max-width="900px" scrollable v-if="container.info">
+      <v-dialog v-model="containerDialog" max-width="800px" scrollable v-if="container.info">
         <v-card tile>
           <v-toolbar card dark color="light-blue darken-3">
             <v-btn icon @click.native="containerDialog = false" dark>
@@ -82,23 +82,23 @@
             <v-toolbar-title>Container: {{ container.info && container.info.name }}</v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items>
-              <v-btn dark flat @click.native="containerDialog = false">Save</v-btn>
+              <v-btn dark flat @click.native="saveContainer()">Save</v-btn>
             </v-toolbar-items>
           </v-toolbar>
           <v-card-text style="padding: 0px;">
             <v-tabs v-model="activeTab">
-              <v-tab ripple :href="`#tab-information`" >Information</v-tab>
+              <!--<v-tab ripple :href="`#tab-information`" >Information</v-tab>-->
               <v-tab ripple :href="`#tab-configuration`">Configuration</v-tab>
               <v-tab ripple :href="`#tab-snapshots`">Snapshots</v-tab>
-              <v-tab-item :id="`tab-information`">
-                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <v-card-text><pre>{{ container }}</pre></v-card-text>
-                </v-card>
-              </v-tab-item>
+              <!--<v-tab-item :id="`tab-information`">-->
+              <!--  <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">-->
+              <!--    <v-card-text><pre>{{ container }}</pre></v-card-text>-->
+              <!--  </v-card>-->
+              <!--</v-tab-item>-->
               <v-tab-item :id="`tab-configuration`" v-if="container.info">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <v-card-text>
-                    <v-form v-model="valid" lazy v-if="container.info.config">
+                    <v-form ref="form" v-model="valid" lazy v-if="container.info.config">
                       <h2>General</h2>
                       <v-layout row wrap style="margin-top:-20px">
                         <v-flex xs6>
@@ -112,7 +112,7 @@
                             <v-layout row wrap>
                               <v-flex xs6>
                                 <h4>Auto Start</h4>
-                                <v-switch :label="`${container.info.config['boot.autostart'] ? 'Yes' : 'No'}`" color="success" v-model="container.info.config['boot.autostart']"></v-switch>
+                                <v-switch :label="`${container.info.config['boot.autostart'] === '1' ? 'Yes' : 'No'}`" true-value="1" false-value="0" color="success" v-model="container.info.config['boot.autostart']"></v-switch>
                               </v-flex>
                               <v-flex xs6>
                                 <h4>Ephemeral</h4>
@@ -122,11 +122,11 @@
                            <v-layout row wrap>
                               <v-flex xs6>
                                 <h4>Privileged</h4>
-                                <v-switch :label="`${container.info.config['security.privileged'] ? 'Yes' : 'No'}`" color="success" v-model="container.info.config['security.privileged']"></v-switch>
+                                <v-switch :label="`${container.info.config['security.privileged'] === '1' ? 'Yes' : 'No'}`" true-value="1" false-value="0" color="success" v-model="container.info.config['security.privileged']"></v-switch>
                               </v-flex>
                               <v-flex xs6>
                                 <h4>Nesting</h4>
-                                <v-switch :label="`${container.info.config['security.nesting'] ? 'Yes' : 'No'}`" color="success" v-model="container.info.config['security.nesting']"></v-switch>
+                                <v-switch :label="`${container.info.config['security.nesting'] === '1' ? 'Yes' : 'No'}`" true-value="1" false-value="0" color="success" v-model="container.info.config['security.nesting']"></v-switch>
                               </v-flex>
                            </v-layout>
                          </v-card-text>
@@ -146,7 +146,7 @@
                           <v-card-text class="px-1">
                             <h4 style="margin-bottom:-20px">CPU Allowance ({{ container.info.config['limits.cpu.allowance'] }}%)</h4>
                             <v-slider v-model="container.info.config['limits.cpu.allowance']" thumb-label max="100" step="1" ticks></v-slider>
-                            <h4 style="margin-bottom:-20px">CPU Priority ({{ container.info.config['limits.cpu.priority'] }})</h4>
+                            <h4 style="margin-bottom:-20px">CPU Priority ({{ container.info.config['limits.cpu.priority'] }}/10)</h4>
                             <v-slider v-model="container.info.config['limits.cpu.priority']" thumb-label max="10" step="1" ticks></v-slider>
                           </v-card-text>
                         </v-flex>
@@ -155,18 +155,18 @@
                       <v-layout row wrap>
                         <v-flex xs6>
                           <v-card-text class="px-1">
-                            <h4 style="margin-bottom:-20px">Memory ({{ container.info.config['limits.memory'] }})</h4>
+                            <h4 style="margin-bottom:-20px">Memory ({{ container.info.config['limits.memory'] }}MB)</h4>
                             <v-slider v-model="container.info.config['limits.memory']" max="16000" thumb-label step="64" ticks></v-slider>
-                            <h4 style="margin-bottom:-20px">Swap Priority ({{ container.info.config['limits.memory.swap.priority'] }})</h4>
+                            <h4 style="margin-bottom:-20px">Swap Priority ({{ container.info.config['limits.memory.swap.priority'] }}/10)</h4>
                             <v-slider v-model="container.info.config['limits.memory.swap.priority']" thumb-label max="10" step="1" ticks></v-slider>
                           </v-card-text>
                         </v-flex>
                         <v-flex xs6>
                           <v-card-text class="px-1">
                             <h4>Enforce</h4>
-                            <v-switch :label="`${container.info.config['limits.memory.enforce'] ? 'Hard' : 'Soft'}`" color="success" v-model="container.info.config['limits.memory.enforce']"></v-switch>
+                            <v-switch :label="`${container.info.config['limits.memory.enforce'] === 'hard' ? 'Hard' : 'Soft'}`" true-value="hard" false-value="soft" color="success" v-model="container.info.config['limits.memory.enforce']"></v-switch>
                             <h4>Swap</h4>
-                            <v-switch :label="`${container.info.config['limits.memory.swap'] ? 'Yes' : 'No'}`" color="success" v-model="container.info.config['limits.memory.swap']"></v-switch>
+                            <v-switch :label="`${container.info.config['limits.memory.swap'] === '1' ? 'Yes' : 'No'}`" true-value="1" false-value="0" color="success" v-model="container.info.config['limits.memory.swap']"></v-switch>
                           </v-card-text>
                         </v-flex>
                       </v-layout>
@@ -181,13 +181,13 @@
                       <v-layout row wrap>
                         <v-flex xs6>
                           <v-card-text class="px-1">
-                            <h4 style="margin-bottom:-20px">Priority ({{ container.info.config['limits.disk.priority'] }})</h4>
+                            <h4 style="margin-bottom:-20px">Priority ({{ container.info.config['limits.disk.priority'] }}/10)</h4>
                             <v-slider v-model="container.info.config['limits.disk.priority']" thumb-label max="10" step="1" ticks></v-slider>
                           </v-card-text>
                         </v-flex>
                         <v-flex xs6>
                           <v-card-text class="px-1">
-                            <h4 style="margin-bottom:-20px">Priority ({{ container.info.config['limits.network.priority'] }})</h4>
+                            <h4 style="margin-bottom:-20px">Priority ({{ container.info.config['limits.network.priority'] }}/10)</h4>
                             <v-slider v-model="container.info.config['limits.network.priority']" thumb-label max="10" step="1" ticks></v-slider>
                           </v-card-text>
                         </v-flex>
@@ -198,7 +198,7 @@
               </v-tab-item>
               <v-tab-item :id="`tab-snapshots`">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
-                  <snapshots :item="container" :key="container.info.name" @snackbar="setSnackbar"></snapshots>
+                  <snapshots :item="container" :key="editingIndex" @snackbar="setSnackbar"></snapshots>
                 </v-card>
               </v-tab-item>
             </v-tabs>
@@ -207,29 +207,29 @@
         </v-card>
       </v-dialog>
       
-      <v-dialog v-model="newContainerDialog" max-width="900px" scrollable>
-        <v-card tile>
-          <v-toolbar card dark color="light-blue darken-3">
-            <v-btn icon @click.native="containerDialog = false" dark>
-              <v-icon>close</v-icon>
-            </v-btn>
-            <v-toolbar-title>New Container</v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-toolbar-items>
-              <v-btn dark flat @click.native="newContainerDialog = false">Save</v-btn>
-            </v-toolbar-items>
-          </v-toolbar>
-          <v-card-text>
-            <v-form ref="form" v-model="valid" lazy-validation>
-              <v-text-field v-model="newItem.name" label="Name" :rules="nameRule" @input="safe_name()" hint="Enter name for new container." required></v-text-field>
-              <v-select :items="['default']" :rules="profilesRule" v-model="newItem.image" label="Image" required></v-select>
-              <v-select :items="['default']" :rules="profilesRule" v-model="newItem.profile" label="Profiles" multiple chips required></v-select>
-              <v-switch :label="`${newItem.ephemeral ? 'Ephemeral' : 'Ephemeral'}`" color="success" v-model="newItem.ephemeral"></v-switch>
-            </v-form>
-          </v-card-text>
-          <div style="flex: 1 1 auto;"></div>
-        </v-card>
-      </v-dialog>
+      <!--<v-dialog v-model="newContainerDialog" max-width="800px" scrollable>-->
+      <!--  <v-card tile>-->
+      <!--    <v-toolbar card dark color="light-blue darken-3">-->
+      <!--      <v-btn icon @click.native="containerDialog = false" dark>-->
+      <!--        <v-icon>close</v-icon>-->
+      <!--      </v-btn>-->
+      <!--      <v-toolbar-title>New Container</v-toolbar-title>-->
+      <!--      <v-spacer></v-spacer>-->
+      <!--      <v-toolbar-items>-->
+      <!--        <v-btn dark flat @click.native="newContainerDialog = false">Save</v-btn>-->
+      <!--      </v-toolbar-items>-->
+      <!--    </v-toolbar>-->
+      <!--    <v-card-text>-->
+      <!--      <v-form ref="nform" v-model="valid" lazy-validation>-->
+      <!--        <v-text-field v-model="newItem.name" label="Name" :rules="nameRule" @input="safe_name()" hint="Enter name for new container." required></v-text-field>-->
+      <!--        <v-select :items="['default']" :rules="profilesRule" v-model="newItem.image" label="Image" required></v-select>-->
+      <!--        <v-select :items="['default']" :rules="profilesRule" v-model="newItem.profile" label="Profiles" multiple chips required></v-select>-->
+      <!--        <v-switch :label="`${newItem.ephemeral ? 'Ephemeral' : 'Ephemeral'}`" color="success" v-model="newItem.ephemeral"></v-switch>-->
+      <!--      </v-form>-->
+      <!--    </v-card-text>-->
+      <!--    <div style="flex: 1 1 auto;"></div>-->
+      <!--  </v-card>-->
+      <!--</v-dialog>-->
     </v-content>
   </v-app>
 </template>
@@ -288,6 +288,7 @@
 
       // table & items
       items: [],
+      editingIndex: -1,
       
       tableLoading: true,
       tableNoData: 'You have not added any containers.',
@@ -315,7 +316,7 @@
       },
 
       // tab
-      activeTab: 'tab-information',
+      activeTab: 'tab-configuration',
 
       dialog: false,
       consoleDialog: false,
@@ -387,8 +388,11 @@
             state: item,
             info: {name: item.name}
           }
-          this.viewContainer(item, false)
-          this.console()
+          this.editContainer(item, false)
+          setTimeout(() => {
+            this.console()
+          }, 300)
+          
           this.consoleDialog = true;
           return
         }
@@ -457,11 +461,6 @@
         )
       },
 
-      updateConfigItem(key, value) {
-        console.log(key)
-        console.log(value)
-      },
-      
       safe_name() {
         this.container.info.name = this.container.info.name.replace(".", "-");
       },
@@ -588,7 +587,8 @@
         })
       },
       
-      async viewContainer (item, openDialog = true) {
+      async editContainer (item, openDialog = true) {
+        this.editingIndex = this.items.indexOf(item)
         //
         try {
           if (!this.loggedUser) {
@@ -609,6 +609,34 @@
         }
         
         this.containerDialog = openDialog
+      },
+      
+      async saveContainer () {
+        if (this.$refs.form.validate()) {
+
+          // remote
+          try {
+            if (!this.loggedUser) {
+              this.$router.replace('/servers')
+            }
+            
+            this.container.info = Object.assign({}, container.outfix(this.container.info))
+  
+            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+            //
+            const response = await axios.patch(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name, {
+              config: this.container.info.config,
+              ephemeral: this.container.info.ephemeral,
+              stateful: this.container.info.stateful,
+              profiles: this.container.info.profiles
+            })
+            //
+            this.snackbar = true;
+            this.snackbarText = 'Container '+this.container.info.name+' configuration saved.';
+          } catch (error) {
+            this.error = 'Could not save container configuration.';
+          }
+        }
       },
       
       newContainer() {

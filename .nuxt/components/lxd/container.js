@@ -83,9 +83,9 @@ module.exports = {
     // get config
     let config = _default.config
     //
-    config['boot.autostart'] = (container.config['boot.autostart'] === '1')
-    config['security.privileged'] = (container.config['security.privileged'] === '1')
-    config['security.nesting'] = (container.config['security.nesting'] === '1')
+    config['boot.autostart'] = container.config['boot.autostart']
+    config['security.privileged'] = container.config['security.privileged']
+    config['security.nesting'] = container.config['security.nesting']
     config['limits.cpu'] = (container.config['limits.cpu'] ? Number(container.config['limits.cpu']) : _default.config['limits.cpu'])
     config['limits.cpu.priority'] = (container.config['limits.cpu.priority'] ? Number(container.config['limits.cpu.priority']) : _default.config['limits.cpu.priority'])
     config['limits.processes'] = (container.config['limits.processes'] ? Number(container.config['limits.processes']) : _default.config['limits.processes'])
@@ -94,7 +94,7 @@ module.exports = {
     config['limits.network.priority'] = (container.config['limits.network.priority'] ? Number(container.config['limits.network.priority']) : _default.config['limits.network.priority'])
     config['limits.cpu.allowance'] = (container.config['limits.cpu.allowance'] ? Number(container.config['limits.cpu.allowance'].substring(0, container.config['limits.cpu.allowance'].indexOf('%'))) : _default.config['limits.cpu.allowance'])
     config['limits.memory'] = (container.config['limits.memory'] ? Number(container.config['limits.memory'].substring(0, container.config['limits.memory'].indexOf('MB'))) : _default.config['limits.memory'])
-    config['limits.memory.swap'] = (container.config['limits.memory.swap'] === '1' ? '1' : '0')
+    config['limits.memory.swap'] = container.config['limits.memory.swap']
     config['limits.memory.enforce'] = (container.config['limits.memory.enforce'] === 'hard' ? 'hard' : 'soft')
     
     // general props - image
@@ -128,10 +128,10 @@ module.exports = {
     //
     let config = {
       // autostart
-      'boot.autostart': (container.config['boot.autostart'] === true ? '1' : '0'),
+      'boot.autostart': container.config['boot.autostart'],
       // security
-      'security.privileged': (container.config['security.privileged'] === true ? '1' : '0'),
-      'security.nesting': (container.config['security.nesting'] === true ? '1' : '0'),
+      'security.privileged': container.config['security.privileged'],
+      'security.nesting': container.config['security.nesting'],
       // cpu
       'limits.cpu': String(container.config['limits.cpu']),
       'limits.cpu.allowance': String(container.config['limits.cpu.allowance']) + '%',

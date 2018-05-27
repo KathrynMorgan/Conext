@@ -107,7 +107,7 @@
             <v-card flat>
               <v-card-text v-if="editingItem.properties">
                 <v-form ref="form" v-model="valid" lazy-validation>
-                  <v-text-field v-model="editingItem.properties.description" label="Description" :rules="descriptionRule" hint="Enter description for image." required></v-text-field>
+                  <v-text-field v-model="editingItem.properties.description" label="Description" :counter="60" :rules="descriptionRule" hint="Enter description for image." required></v-text-field>
                   <v-text-field v-model="editingItem.properties.version" label="Version" hint="Enter version for image."></v-text-field>
                   <v-text-field v-model="editingItem.properties.release" label="Release" hint="Enter release for image."></v-text-field>
                   <v-switch label="Auto Update" color="success" v-model="editingItem.auto_update"></v-switch>
@@ -219,7 +219,8 @@
         v => (v && isNaN(v.charAt(0))) || 'Only letters, digits or hyphens. No leading hyphen or digit. Dots are converted to hyphens.'
       ],      
       descriptionRule: [
-        v => !!v || 'Description is required.'
+        v => !!v || 'Description is required.',
+        v => (v && v.length < 60) || 'Max length of description should not exceed 60 characters.'
       ],
       profilesRule: [
         v => v.length >= 1 || 'At least one profile is required.'

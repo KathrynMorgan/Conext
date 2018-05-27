@@ -73,6 +73,9 @@
     },
     methods: {
       async initialize () {
+        if (!this.container.info || !this.container.info.name) {
+          return
+        }
         try {
           if (!this.loggedUser) {
             this.$router.replace('/servers')

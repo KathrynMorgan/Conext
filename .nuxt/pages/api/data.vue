@@ -181,7 +181,7 @@
       ],
       versionRules: [
         v => !!v || 'Version is required',
-        v => (v && Number(v)) || 'Version must be a number'
+        v => (v && !isNaN(v)) || 'Version must be a number'
       ]
     }),
     mounted: function () {
