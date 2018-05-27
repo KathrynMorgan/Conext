@@ -86,16 +86,22 @@ module.exports = {
     config['boot.autostart'] = container.config['boot.autostart']
     config['security.privileged'] = container.config['security.privileged']
     config['security.nesting'] = container.config['security.nesting']
+    
+    // cpu
     config['limits.cpu'] = (container.config['limits.cpu'] ? Number(container.config['limits.cpu']) : _default.config['limits.cpu'])
     config['limits.cpu.priority'] = (container.config['limits.cpu.priority'] ? Number(container.config['limits.cpu.priority']) : _default.config['limits.cpu.priority'])
+    config['limits.cpu.allowance'] = (container.config['limits.cpu.allowance'] ? Number(container.config['limits.cpu.allowance'].substring(0, container.config['limits.cpu.allowance'].indexOf('%'))) : _default.config['limits.cpu.allowance'])
     config['limits.processes'] = (container.config['limits.processes'] ? Number(container.config['limits.processes']) : _default.config['limits.processes'])
-    config['limits.memory.swap.priority'] = (container.config['limits.memory.swap.priority'] ? Number(container.config['limits.memory.swap.priority']) : _default.config['limits.memory.swap.priority'])
+    
+    // disk and network
     config['limits.disk.priority'] = (container.config['limits.disk.priority'] ? Number(container.config['limits.disk.priority']) : _default.config['limits.disk.priority'])
     config['limits.network.priority'] = (container.config['limits.network.priority'] ? Number(container.config['limits.network.priority']) : _default.config['limits.network.priority'])
-    config['limits.cpu.allowance'] = (container.config['limits.cpu.allowance'] ? Number(container.config['limits.cpu.allowance'].substring(0, container.config['limits.cpu.allowance'].indexOf('%'))) : _default.config['limits.cpu.allowance'])
+
+    // memory
     config['limits.memory'] = (container.config['limits.memory'] ? Number(container.config['limits.memory'].substring(0, container.config['limits.memory'].indexOf('MB'))) : _default.config['limits.memory'])
-    config['limits.memory.swap'] = container.config['limits.memory.swap']
+    config['limits.memory.swap'] = (container.config['limits.memory.swap'] ? container.config['limits.memory.swap'] : 0)
     config['limits.memory.enforce'] = (container.config['limits.memory.enforce'] === 'hard' ? 'hard' : 'soft')
+    config['limits.memory.swap.priority'] = (container.config['limits.memory.swap.priority'] ? Number(container.config['limits.memory.swap.priority']) : _default.config['limits.memory.swap.priority'])
     
     // general props - image
     config['image.architecture'] = container.config['image.architecture'] || ''
@@ -151,12 +157,12 @@ module.exports = {
     container.config = config
 
     // if !defined set to soft
-    if (container.config['limits.memory.enforce'] === undefined) {
+    if (typeof container.config['limits.memory.enforce'] === 'undefined' || container.config['limits.memory.enforce'] === null) {
       container.config['limits.memory.enforce'] = 'soft'
     }
 
     // if !defined set to 0
-    if (container.config['limits.memory.swap'] === undefined) {
+    if (typeof container.config['limits.memory.swap'] === 'undefined' || container.config['limits.memory.swap'] === null) {
       container.config['limits.memory.swap'] = '0'
     }
 
