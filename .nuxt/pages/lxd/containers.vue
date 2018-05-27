@@ -81,7 +81,7 @@
             </v-btn>
             <v-toolbar-title>Container: {{ container.info && container.info.name }}</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-toolbar-items>
+            <v-toolbar-items v-if="activeTab !== 'tab-snapshots'">
               <v-btn dark flat @click.native="saveContainer()">Save</v-btn>
             </v-toolbar-items>
           </v-toolbar>
