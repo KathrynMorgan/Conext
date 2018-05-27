@@ -40,6 +40,17 @@ class Email extends \Base\Controller
      */
     public function index(\Base $f3, $params)
     {
+        $verb = $f3->get('VERB');
+        
+        // POST only
+        if ($verb !== 'POST') {
+            $f3->response->json([
+                'error' => 'Method Not Allowed - Use POST',
+                'code'  => 405,
+                'data'  => []
+            ]);
+        }
+        
         // get provider with least sent and within quota
         $provider = $this->email_provider->findOne('`limit` > `limit_sent` ORDER BY `limit_sent` DESC LIMIT 1');
 
