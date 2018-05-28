@@ -62,9 +62,9 @@
               <v-card-text>
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-text-field v-model="editingItem.label" :rules="labelRule" label="Label:" placeholder="" required hint="Enter a label for the port forward."></v-text-field>
-                  <v-text-field v-model="editingItem.ip" label="IP:" placeholder="" required hint="Enter the IP address for the port forward."></v-text-field>
+                  <v-text-field v-model="editingItem.ip" label="IP:" placeholder="" required hint="Enter the containers IP address for the port forward."></v-text-field>
                   <v-text-field v-model="editingItem.port" label="External Port:" placeholder="" required hint="Enter the external port to forward."></v-text-field>
-                  <v-text-field v-model="editingItem.srv_port" label="Internal Port:" placeholder="" required hint="Enter the internal port to forward"></v-text-field>
+                  <v-text-field v-model="editingItem.srv_port" label="Internal Port:" placeholder="" required hint="Enter the internal port to forward."></v-text-field>
                 </v-form>
               </v-card-text>
             </v-card>
