@@ -69,7 +69,7 @@
               <v-card-text>
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-text-field v-model="editingItem.label" :rules="labelRule" label="Label:" placeholder="" required hint="Enter a label for the web forward."></v-text-field>
-                  <h3 style="margin-top:15px">Domains</h3>
+                  <h3 style="margin-top:15px">Domain/s</h3>
                   <v-layout row wrap>
                     <v-flex xs11>
                       <v-text-field v-model="newDomain" label="Domain:" hint="Enter a domain name to forward to upstream/s."></v-text-field>
