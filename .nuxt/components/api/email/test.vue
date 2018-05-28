@@ -10,7 +10,7 @@
       <h3>Recipient</h3><v-text-field v-model="to" label="To:" :rules="emailRules" hint="Enter the recipients email address."></v-text-field>
   
       <div v-if="parameters.length > 0">
-        <h3>Paramiters</h3>
+        <h3>Parameters</h3>
         <p>The following parameters were matched from the templates source, they should be sent in the POST request when sending from your application.</p>
         <v-text-field v-for="parameter in parameters" :key="parameter.key" v-model="parameter.value" :label="parameter.key" hint="Enter value for parameter."></v-text-field>
       </div>    
