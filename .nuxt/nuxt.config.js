@@ -20,6 +20,7 @@ const publicPath = process.env.DEPLOY_ENV === 'GH_PAGES' ? '/dist/' : '/dist/'
  * @see: node_modules/lib/common/options.js
  */
 module.exports = {
+  mode: 'spa',
   head: {
     title: '',
     meta: [
@@ -46,12 +47,10 @@ module.exports = {
   ],
   css: [
     'xterm/dist/xterm.css',
-    'codemirror/lib/codemirror.css',
-    'vuetify/dist/vuetify.css'
+    'codemirror/lib/codemirror.css'
   ],
   generate: {
     extractCSS: true,
-    fallback: true,
     minify: {
       collapseBooleanAttributes: true,
       collapseWhitespace: false,
@@ -79,12 +78,6 @@ module.exports = {
     vendor: [
       'axios'
     ],
-    postcss: {
-      plugins: {
-        // prevent compile CSS warnings
-        //'postcss-custom-properties': false
-      }
-    },
     /*
     ** Run ESLint on save
     */
