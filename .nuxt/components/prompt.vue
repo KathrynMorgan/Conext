@@ -56,8 +56,5 @@
 </script>
 
 <style>
-.dialog__content {
-  align-items: flex-start;
-  margin-top: 20vh;
-}
+
 </style>
