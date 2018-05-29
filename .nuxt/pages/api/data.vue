@@ -217,30 +217,50 @@
       },
 
       // delete item
-      async deleteItem (item) {
-        const index = this.items.indexOf(item)
+      deleteItem (item) {
+        this.$prompt.show({
+          persistent: true,
+          width: 400,
+          toolbar: {
+            color: 'red darken-3',
+            closable: false,
+          },
+          title: 'Delete endpoint?',
+          text: 'Are you sure you want to delete the <b>'+item.module+'</b> endpoint?',
+          buttons: [
+            {
+              title: 'Yes',
+              color: 'success',
+              handler: async () => { 
+                const index = this.items.indexOf(item)
         
-        // local
-        //if (confirm('Are you sure you want to delete this item?')){
-          this.items.splice(index, 1)
-        //}
-
-        // remote
-        try {
-          if (!this.loggedUser) {
-            this.$router.replace('/servers')
-          }
-
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-          //
-          const response = await axios.delete(this.loggedUser.sub + '/api/ams/data', { data: item })
-          //
-          this.snackbar = true;
-          this.snackbarText = 'Endpoint successfully deleted.';
-          
-        } catch (error) {
-          this.error = 'Could not delete endpoint from server.';
-        }
+                // local
+                this.items.splice(index, 1)
+        
+                // remote
+                try {
+                  if (!this.loggedUser) {
+                    this.$router.replace('/servers')
+                  }
+        
+                  axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+                  //
+                  const response = await axios.delete(this.loggedUser.sub + '/api/ams/data', { data: item })
+                  //
+                  this.snackbar = true;
+                  this.snackbarText = 'Endpoint successfully deleted.';
+                  
+                } catch (error) {
+                  this.error = 'Could not delete endpoint from server.';
+                }
+              }
+            },
+            {
+              title: 'No',
+              color: 'error'
+            }
+         ]
+        })
       },
 
       // save item

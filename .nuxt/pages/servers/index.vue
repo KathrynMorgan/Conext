@@ -154,10 +154,32 @@
       },
 
       deleteItem (item) {
-        const index = this.items.indexOf(item)
-        confirm('Are you sure you want to delete this item?') && this.items.splice(index, 1)
-
-        this.$storage.set("servers", this.items)
+        this.$prompt.show({
+          persistent: true,
+          width: 400,
+          toolbar: {
+            color: 'red darken-3',
+            closable: false,
+          },
+          title: 'Delete server?',
+          text: 'Are you sure you want to delete the <b>'+item.label+'</b> server?',
+          buttons: [
+            {
+              title: 'Yes',
+              color: 'success',
+              handler: () => { 
+                const index = this.items.indexOf(item)
+                this.items.splice(index, 1)
+        
+                this.$storage.set("servers", this.items)
+              }
+            },
+            {
+              title: 'No',
+              color: 'error'
+            }
+         ]
+        })
       },
 
       close () {

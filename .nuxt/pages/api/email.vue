@@ -438,30 +438,51 @@
       },
 
       // delete item
-      async deleteItem (type, item) {
-        const index = this.items[type].indexOf(item)
+      deleteItem (type, item) {
+        var label = (type === 'template') ? item.name : item.host
+        this.$prompt.show({
+          persistent: true,
+          width: 400,
+          toolbar: {
+            color: 'red darken-3',
+            closable: false,
+          },
+          title: 'Delete '+type+'?',
+          text: 'Are you sure you want to delete the <b>'+label+'</b> '+type+'?',
+          buttons: [
+            {
+              title: 'Yes',
+              color: 'success',
+              handler: async () => { 
+                const index = this.items[type].indexOf(item)
+                
+                // local
+                this.items[type].splice(index, 1)
+
+                // remote
+                try {
+                  if (!this.loggedUser) {
+                    this.$router.replace('/servers')
+                  }
         
-        // local
-        //if (confirm('Are you sure you want to delete this item?')){
-          this.items[type].splice(index, 1)
-        //}
-
-        // remote
-        try {
-          if (!this.loggedUser) {
-            this.$router.replace('/servers')
-          }
-
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-          //
-          const response = await axios.delete(this.loggedUser.sub + '/api/ams/email/' + type, { data: item })
-          //
-          this.snackbar = true;
-          this.snackbarText = 'Email '+type+' successfully deleted.';
-          
-        } catch (error) {
-          this.error = 'Could not delete email '+type+' from server.';
-        }
+                  axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+                  //
+                  const response = await axios.delete(this.loggedUser.sub + '/api/ams/email/' + type, { data: item })
+                  //
+                  this.snackbar = true;
+                  this.snackbarText = 'Email '+type+' successfully deleted.';
+                  
+                } catch (error) {
+                  this.error = 'Could not delete email '+type+' from server.';
+                }
+              }
+            },
+            {
+              title: 'No',
+              color: 'error'
+            }
+         ]
+        })
       },
 
       // save

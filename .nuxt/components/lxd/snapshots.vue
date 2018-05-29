@@ -91,40 +91,85 @@
         this.tableLoading = false
       },
       
-      async deleteSnapshot (item) {
-        try {
-          if (!this.loggedUser) {
-            this.$router.replace('/servers')
-          }
-          
-          // delete local
-          const index = this.items.indexOf(item)
-          this.items.splice(index, 1)
-
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-          //
-          const response = await axios.delete(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name + '/snapshots/'+item.name.substr(item.name.lastIndexOf('/') + 1))
-          this.$emit('snackbar', 'Snapshot deleted.')
-        } catch (error) {
-          this.$emit('snackbar', 'Failed to delete snapshot.')
-        }
+      deleteSnapshot (item) {
+        this.$prompt.show({
+          persistent: true,
+          width: 400,
+          toolbar: {
+            color: 'red darken-3',
+            closable: false,
+          },
+          title: 'Delete snapshot?',
+          text: 'Are you sure you want to delete snapshot:<br><b>'+item.name.substr(item.name.lastIndexOf('/') + 1)+'</b>',
+          buttons: [
+            {
+              title: 'Yes',
+              color: 'success',
+              handler: async () => { 
+                try {
+                  if (!this.loggedUser) {
+                    this.$router.replace('/servers')
+                  }
+                  
+                  // delete local
+                  const index = this.items.indexOf(item)
+                  this.items.splice(index, 1)
+        
+                  // remote
+                  axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+                  //
+                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name + '/snapshots/'+item.name.substr(item.name.lastIndexOf('/') + 1))
+                  this.$emit('snackbar', 'Snapshot deleted.')
+                } catch (error) {
+                  this.$emit('snackbar', 'Failed to delete snapshot.')
+                }
+              }
+            },
+            {
+              title: 'No',
+              color: 'error'
+            }
+         ]
+        })
       },
 
-      async restoreSnapshot (item) {
-        try {
-          if (!this.loggedUser) {
-            this.$router.replace('/servers')
-          }
-
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-          //
-          const response = await axios.put(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name + '/snapshots', {
-            name: item.name.substr(item.name.lastIndexOf('/') + 1)
-          })
-          this.$emit('snackbar', 'Snapshot restored.')
-        } catch (error) {
-          this.$emit('snackbar', 'Failed to restore snapshot.')
-        }
+      restoreSnapshot (item) {
+        this.$prompt.show({
+          persistent: true,
+          width: 400,
+          toolbar: {
+            color: 'orange darken-3',
+            closable: false,
+          },
+          title: 'Restore snapshot?',
+          text: 'Are you sure you want to restore container from snapshot:<br><b>'+item.name.substr(item.name.lastIndexOf('/') + 1)+'</b><p class="text-md-center red--text"><br><b>Current container state will be overwritten!</b></p>',
+          buttons: [
+            {
+              title: 'Yes',
+              color: 'success',
+              handler: async () => { 
+                try {
+                  if (!this.loggedUser) {
+                    this.$router.replace('/servers')
+                  }
+        
+                  axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+                  //
+                  const response = await axios.put(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name + '/snapshots', {
+                    name: item.name.substr(item.name.lastIndexOf('/') + 1)
+                  })
+                  this.$emit('snackbar', 'Snapshot restored.')
+                } catch (error) {
+                  this.$emit('snackbar', 'Failed to restore snapshot.')
+                }
+              }
+            },
+            {
+              title: 'No',
+              color: 'error'
+            }
+         ]
+        })
       },
       
       async imageSnapshot (item) {

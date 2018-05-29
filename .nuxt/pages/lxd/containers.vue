@@ -709,7 +709,7 @@
             closable: false,
           },
           title: 'Delete container?',
-          text: 'Are you sure you want to delete the <b>'+item.label+'</b> container?<p class="text-md-center red--text"><br><b>This action cannot be undone!</b></p>',
+          text: 'Are you sure you want to delete the <b>'+item.name+'</b> container?<p class="text-md-center red--text"><br><b>This action cannot be undone!</b></p>',
           buttons: [
             {
               title: 'Yes',
