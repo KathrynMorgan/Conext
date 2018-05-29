@@ -11,7 +11,7 @@
               <v-alert type="error" :value="error">
                 {{ error }}
               </v-alert>
-              <v-data-table :headers="headers" :items="items" hide-actions class="elevation-1">
+              <v-data-table :headers="tableHeaders" :items="items" hide-actions class="elevation-1" :loading="tableLoading">
                 <template slot="items" slot-scope="props">
                   <td>{{ props.item['PID'] }}</td>
                   <td>{{ props.item['USER'] }}</td>
@@ -54,7 +54,8 @@
     },
     data: () => ({
       error: '',
-      headers: [
+      tableLoading: true,
+      tableHeaders: [
         { text: 'PID', value: 'PID' },
         { text: 'USER', value: 'USER' },
         { text: 'PR', value: 'PR' },
@@ -89,6 +90,8 @@
         //
         const response = await axios.get(this.loggedUser.sub + '/api/server/information/top')
         this.items = response.data.data
+        //
+        this.tableLoading = false
       }
     }
   }

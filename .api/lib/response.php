@@ -21,12 +21,4 @@ class Response extends \Prefab
             echo \View::instance()->render($this->f3->get('template'));
         }
     }
-
-    public function xml($data = null)
-    {
-    }
-
-    public function csv($data = null)
-    {
-    }
 }

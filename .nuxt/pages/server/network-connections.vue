@@ -11,7 +11,7 @@
               <v-alert type="error" :value="error">
                 {{ error }}
               </v-alert>
-              <v-data-table :headers="headers" :items="items" hide-actions class="elevation-1">
+              <v-data-table :headers="tableHeaders" :items="items" hide-actions class="elevation-1" :loading="tableLoading">
                 <template slot="items" slot-scope="props">
                   <td>{{ props.item['Proto'] }}</td>
                   <td>{{ props.item['Recv-Q'] }}</td>
@@ -51,7 +51,8 @@
     data: () => ({
       error: '',
       dialog: false,
-      headers: [
+      tableLoading: true,
+      tableHeaders: [
         { text: 'Proto', align: 'left', value: 'Proto' },
         { text: 'Recv-Q', value: 'Recv-Q' },
         { text: 'Send-Q', value: 'Send-Q' },
@@ -91,6 +92,8 @@
         //
         const response = await axios.get(this.loggedUser.sub + '/api/server/information/network-connections')
         this.items = response.data.data
+        //
+        this.tableLoading = false
       }
     }
   }

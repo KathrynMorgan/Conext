@@ -36,10 +36,17 @@
     </v-card>
 
     <!--Details Dialog -->
-    <v-dialog v-model="dialog" max-width="900px">
-      <v-card>
-        <v-card-title class="headline">Disks</v-card-title>
-        <v-card-text>
+    <!--Details Dialog -->
+    <v-dialog v-model="dialog" scrollable max-width="900px">
+      <v-card tile>
+        <v-toolbar card dark color="light-blue darken-3">
+          <v-btn icon @click.native="dialog = false" dark>
+            <v-icon>close</v-icon>
+          </v-btn>
+          <v-toolbar-title>Disks</v-toolbar-title>
+          <v-spacer></v-spacer>
+        </v-toolbar>
+        <v-card-text flat style="padding: 0px; overflow-x:hidden; overflow-y: auto; min-height:calc(100vh - 400px);">
           <v-data-table :headers="headers" :items="items.disks" hide-actions>
             <template slot="items" slot-scope="props">
               <td>{{ props.item['Filesystem'] }}</td>
@@ -53,10 +60,6 @@
             <template slot="no-data"></template>
           </v-data-table>
         </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="green darken-1" flat="flat" @click.native="dialog = false">Close</v-btn>
-        </v-card-actions>
       </v-card>
     </v-dialog>
   </div>

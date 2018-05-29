@@ -68,7 +68,7 @@
 
         // if not logged in
         if (!this.loggedUser || !this.loggedUser.sub) {
-          items.push({ icon: 'chevron_right', text: 'About', route: '/about' });
+          //items.push({ icon: 'chevron_right', text: 'About', route: '/about' });
           return items
         }
 
@@ -149,12 +149,13 @@
     },
     components: { },
     data: () => ({
-      dialog: false,
       drawer: null
     }),
+    /*
     props: {
       source: String
     },
+    */
     methods: {
       navigate(route) {
         this.$router.push(route)

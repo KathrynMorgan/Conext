@@ -2,6 +2,7 @@
   <v-app>
     <main-nav/>
     <nuxt/>
+    <prompt></prompt>
   </v-app>
 </template>
 

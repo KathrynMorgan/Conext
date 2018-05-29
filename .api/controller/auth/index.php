@@ -2,7 +2,7 @@
 namespace Controller\Auth;
 
 /**
- * Auth Class
+ * Auth index - this controller is used by the app with a server/secret auth.
  * 
  */
 class Index
@@ -28,15 +28,8 @@ class Index
         //
         if (isset($post['secret'])) {
 
-            //$user = $this->user->findOne('username = ?', [$post['username']]);
-
             // check password
-            $authenticated = false;
             if ($post['secret'] === $f3->get('AUTH.secret')) {
-                $authenticated = true;
-            }
-
-            if ($authenticated) {
                 $token = [];
                 // Standard JWT Claims
                 $token['iss'] = $_SERVER['HTTP_HOST'];  // issuer
@@ -44,11 +37,11 @@ class Index
                 $token['exp'] = time() + $this->jwt_ttl;// expiration
                 $token['aud'] = $_SERVER['HTTP_HOST'];  // audience
                 $token['sub'] = $post['server'];        // subject
-                $token['lab'] = $post['label'];         // label
-                $token['mod'] = $f3->get('modules');    // enabled modules
 
                 // Additional Claims
-                $token['role'] = 'user';
+                $token['lab'] = $post['label'];         // label
+                $token['mod'] = $f3->get('modules');    // enabled modules
+                $token['role'] = 'server';
 
                 $f3->response->json([
                     'exp' => $token['exp'],
@@ -62,7 +55,7 @@ class Index
                 ]);
             }
         } else {
-            $headers = \getallheaders();
+            $headers = $f3->get('HEADERS');
 
             if (array_key_exists('authorization', $headers)) {
                 $jwt = $headers['authorization'];
@@ -112,7 +105,7 @@ class Index
     {
         $post = json_decode($f3->get('BODY'), true);
 
-        $headers = getallheaders();
+        $headers = $f3->get('HEADERS');
 
         if (array_key_exists('authorization', $headers)) {
             $jwt = $headers['authorization'];

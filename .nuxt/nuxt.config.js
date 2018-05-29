@@ -37,7 +37,8 @@ module.exports = {
   },
   plugins: [
     { src: '~plugins/localStorage.js', ssr: false },
-    { src: '~plugins/nuxt-codemirror-plugin.js', ssr: false }
+    { src: '~plugins/nuxt-codemirror-plugin.js', ssr: false },
+    '~/plugins/prompt/index.js'
   ],
   modules: [
     '@nuxtjs/font-awesome',

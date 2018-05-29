@@ -90,7 +90,7 @@ class Jwt
                 ]);
             }
         } else {
-            $headers = getallheaders();
+            $headers = $f3->get('HEADERS');
 
             if (array_key_exists('authorization', $headers)) {
                 $jwt = $headers['authorization'];
@@ -140,7 +140,8 @@ class Jwt
     {
         $post = json_decode($f3->get('BODY'), true);
 
-        $headers = getallheaders();
+        $headers = $f3->get('HEADERS');
+
 
         if (array_key_exists('authorization', $headers)) {
             $jwt = $headers['authorization'];

@@ -88,6 +88,8 @@ class Data extends \Base\Controller
                 extract($module->config);
             }
             
+            $f3->response->csv($module);
+            
             // set source into scope
             $source = @$module->source;
             

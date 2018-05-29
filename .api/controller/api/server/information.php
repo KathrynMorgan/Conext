@@ -105,6 +105,10 @@ class Information extends \Base\Controller
             //
             $data = $client->system->enumerate(['logins']);
             //
+            $data['logins'] = array_values(array_filter($data['logins'], function ($item) {
+                return $item['User'] != 'Reboot';
+            }));
+            //
             $this->cache->set(__FUNCTION__, $data, $this->cache_ttl);
         }
         

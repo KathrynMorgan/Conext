@@ -11,7 +11,8 @@
               <v-alert type="error" :value="error">
                 {{ error }}
               </v-alert>
-              <v-data-table :headers="headers" :items="items.logins" hide-actions class="elevation-1">
+              <v-data-table :headers="tableHeaders" :items="items.logins" hide-actions class="elevation-1" :loading="tableLoading">
+                <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                 <template slot="items" slot-scope="props">
                   <td>{{ props.item['User'] }}</td>
                   <td>{{ props.item['Terminal'] }}</td>
@@ -47,7 +48,8 @@
     },
     data: () => ({
       error: '',
-      headers: [
+      tableLoading: true,
+      tableHeaders: [
         { text: 'User', value: 'User' },
         { text: 'Terminal', value: 'Terminal' },
         { text: 'Date', value: 'Date' },
@@ -66,6 +68,8 @@
         //
         const response = await axios.get(this.loggedUser.sub + '/api/server/information/logins')
         this.items = response.data.data
+        //
+        this.tableLoading = false
       }
     }
   }

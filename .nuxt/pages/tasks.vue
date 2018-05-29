@@ -252,6 +252,8 @@
           <div style="flex: 1 1 auto;"></div>
         </v-card>
       </v-dialog>
+      
+      <!---->
     </v-content>
   </v-app>
 </template>
@@ -381,6 +383,31 @@
     },
     methods: {
       async initialize () {
+        
+        /*
+        this.$prompt.show({
+          persistent: true,
+          toolbar: {
+            color: 'red darken-3',
+            closable: false,
+          },
+          title: 'Alert!',
+          text: 'Would you like to delete?',
+          buttons: [
+            {
+              title: 'Yes',
+              color: 'success',
+              handler: () => { alert('Woot!') }
+            },
+            {
+              title: 'No',
+              color: 'error',
+              //handler: () => { alert('Woot!') }
+            }
+         ]
+        })
+        */
+        
         try {
           if (!this.loggedUser) {
             this.$router.replace('/servers')

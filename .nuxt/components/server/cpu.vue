@@ -50,10 +50,16 @@
       </v-card-text>
     </v-card>
     <!--Details Dialog -->
-    <v-dialog v-model="dialog" max-width="550px">
-      <v-card>
-        <v-card-title class="headline">CPU Information</v-card-title>
-        <v-card-text>
+    <v-dialog v-model="dialog" scrollable max-width="600px">
+      <v-card tile>
+        <v-toolbar card dark color="light-blue darken-3">
+          <v-btn icon @click.native="dialog = false" dark>
+            <v-icon>close</v-icon>
+          </v-btn>
+          <v-toolbar-title>CPU Information</v-toolbar-title>
+          <v-spacer></v-spacer>
+        </v-toolbar>
+        <v-card-text style="padding: 0px;">
           <table class="table">
             <tbody>
               <tr v-for="(value, key) in items.cpu_info" :key="key">
@@ -63,10 +69,6 @@
             </tbody>
           </table>
         </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="green darken-1" flat="flat" @click.native="dialog = false">Close</v-btn>
-        </v-card-actions>
       </v-card>
     </v-dialog>
   </div>

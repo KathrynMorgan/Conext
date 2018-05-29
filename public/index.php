@@ -54,11 +54,12 @@ if ($f3->get('CORS.enabled')) {
 $f3->set('f3', $f3);
 
 // load libs
-//$f3->set('session', \Lib\Session::instance($f3));
-$f3->set('cache', \Cache::instance());
+if ($f3->get('db.session')) {
+  $f3->set('session', \Lib\Session::instance($f3));
+}
+$f3->set('cache',    \Cache::instance());
 $f3->set('response', \Lib\Response::instance($f3));
 $f3->set('helper',   \Lib\helper::instance($f3));
-//$f3->set('flashbag', \Lib\flashbag::instance($f3));
 
 // run app
 $f3->run();
