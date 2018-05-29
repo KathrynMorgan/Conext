@@ -700,24 +700,46 @@
         }
       },
 
-      async deleteContainer (item) {
-        const index = this.items.indexOf(item)
-        this.items.splice(index, 1)
+      deleteContainer (item) {
+        this.$prompt.show({
+          persistent: true,
+          width: 400,
+          toolbar: {
+            color: 'red darken-3',
+            closable: false,
+          },
+          title: 'Delete container?',
+          text: 'Are you sure you want to delete the <b>'+item.label+'</b> container?<p class="text-md-center red--text"><br><b>This action cannot be undone!</b></p>',
+          buttons: [
+            {
+              title: 'Yes',
+              color: 'success',
+              handler: async () => { 
+                const index = this.items.indexOf(item)
+                this.items.splice(index, 1)
+                
+                try {
+                  if (!this.loggedUser) {
+                    this.$router.replace('/servers')
+                  }
         
-        try {
-          if (!this.loggedUser) {
-            this.$router.replace('/servers')
-          }
-
-          //
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-          //
-          const response = await axios.delete(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
-          
-          this.setSnackbar('Container deleted.')
-        } catch (error) {
-          this.alert = { msg: 'Could not delete container.', outline: false, color: 'error', icon: 'error' };
-        }
+                  //
+                  axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+                  //
+                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
+                  
+                  this.setSnackbar('Container deleted.')
+                } catch (error) {
+                  this.alert = { msg: 'Could not delete container.', outline: false, color: 'error', icon: 'error' };
+                }
+              }
+            },
+            {
+              title: 'No',
+              color: 'error'
+            }
+         ]
+        })
       },
 
       close () {
