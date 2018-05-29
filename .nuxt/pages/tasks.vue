@@ -383,31 +383,6 @@
     },
     methods: {
       async initialize () {
-        
-        /*
-        this.$prompt.show({
-          persistent: true,
-          toolbar: {
-            color: 'red darken-3',
-            closable: false,
-          },
-          title: 'Alert!',
-          text: 'Would you like to delete?',
-          buttons: [
-            {
-              title: 'Yes',
-              color: 'success',
-              handler: () => { alert('Woot!') }
-            },
-            {
-              title: 'No',
-              color: 'error',
-              //handler: () => { alert('Woot!') }
-            }
-         ]
-        })
-        */
-        
         try {
           if (!this.loggedUser) {
             this.$router.replace('/servers')
@@ -487,35 +462,57 @@
           }
       },
 
-      async deleteInstance(item) {
-        const index = this.item.indexOf(item)
-        try {
-            if (!this.loggedUser) {
-              this.$router.replace('/servers')
+      deleteInstance(item) {
+        this.$prompt.show({
+          persistent: true,
+          width: 400,
+          toolbar: {
+            color: 'red darken-3',
+            closable: false,
+          },
+          title: 'Delete task instance?',
+          text: 'Are you sure you want to delete the <b>'+item.name+'</b> task instance?',
+          buttons: [
+            {
+              title: 'Yes',
+              color: 'success',
+              handler: async () => {
+                const index = this.item.indexOf(item)
+                try {
+                    if (!this.loggedUser) {
+                      this.$router.replace('/servers')
+                    }
+                    
+                    // delete local
+                    this.item.splice(index, 1)
+          
+                    axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+                    //
+                    const response = await axios.delete(this.loggedUser.sub + '/api/tasks/' + item.id)
+        
+                    // check for error, reset values with response
+                    if (response.data.code === 422) {
+                      //
+                      this.snackbar = true;
+                      this.snackbarColor = 'red';
+                      this.snackbarText = response.data.error;
+                    } else {
+                      //
+                      this.snackbar = true;
+                      this.snackbarColor = 'green';
+                      this.snackbarText = 'Task instance deleted.';
+                    }
+                  } catch (error) {
+                    this.error = 'Could not deleted task instance.';
+                  }
+              }
+            },
+            {
+              title: 'No',
+              color: 'error'
             }
-            
-            // delete local
-            this.item.splice(index, 1)
-  
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-            //
-            const response = await axios.delete(this.loggedUser.sub + '/api/tasks/' + item.id)
-
-            // check for error, reset values with response
-            if (response.data.code === 422) {
-              //
-              this.snackbar = true;
-              this.snackbarColor = 'red';
-              this.snackbarText = response.data.error;
-            } else {
-              //
-              this.snackbar = true;
-              this.snackbarColor = 'green';
-              this.snackbarText = 'Task instance deleted.';
-            }
-          } catch (error) {
-            this.error = 'Could not deleted task instance.';
-          }
+         ]
+        })
       },
       
       async reloadInstance(item) {
@@ -616,34 +613,53 @@
         // mutate task source type
         this.editingItem.type = this.editingItem.type.toUpperCase()
         this.dialog = true
-
       },
 
       // delete item
-      async deleteItem (type, item) {
-        const index = this.items[type].indexOf(item)
+       deleteItem (type, item) {
+        this.$prompt.show({
+          persistent: true,
+          width: 400,
+          toolbar: {
+            color: 'red darken-3',
+            closable: false,
+          },
+          title: 'Delete task?',
+          text: 'Are you sure you want to delete the <b>'+item.name+'</b> task?',
+          buttons: [
+            {
+              title: 'Yes',
+              color: 'success',
+              handler: async () => {
+                const index = this.items[type].indexOf(item)
+                
+                // local
+                this.items[type].splice(index, 1)
         
-        // local
-        //if (confirm('Are you sure you want to delete this item?')){
-          this.items[type].splice(index, 1)
-        //}
-
-        // remote
-        try {
-          if (!this.loggedUser) {
-            this.$router.replace('/servers')
-          }
-
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-          //
-          const response = await axios.delete(this.loggedUser.sub + '/api/tasks', { data: item })
-          //
-          this.snackbar = true;
-          this.snackbarText = 'Task successfully deleted.';
-          
-        } catch (error) {
-          this.error = 'Could not delete task from server.';
-        }
+                // remote
+                try {
+                  if (!this.loggedUser) {
+                    this.$router.replace('/servers')
+                  }
+        
+                  axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+                  //
+                  const response = await axios.delete(this.loggedUser.sub + '/api/tasks', { data: item })
+                  //
+                  this.snackbar = true;
+                  this.snackbarText = 'Task successfully deleted.';
+                  
+                } catch (error) {
+                  this.error = 'Could not delete task from server.';
+                }
+              }
+            },
+            {
+              title: 'No',
+              color: 'error'
+            }
+         ]
+        })
       },
 
       // save item
