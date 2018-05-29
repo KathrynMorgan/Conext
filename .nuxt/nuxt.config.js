@@ -76,6 +76,7 @@ module.exports = {
     extractCSS: true,
     publicPath: publicPath,
     vendor: [
+      'babel-polyfill',
       'axios'
     ],
     /*
