@@ -306,30 +306,50 @@
       },
 
       // delete item
-      async deleteItem (item) {
-        const index = this.items.indexOf(item)
+      deleteItem (item) {
+        this.$prompt.show({
+          persistent: true,
+          width: 400,
+          toolbar: {
+            color: 'red darken-3',
+            closable: false,
+          },
+          title: 'Delete web forward?',
+          text: 'Are you sure you want to delete the <b>'+item.label+'</b> web forward?',
+          buttons: [
+            {
+              title: 'Yes',
+              color: 'success',
+              handler: async () => { 
+                const index = this.items.indexOf(item)
         
-        // local
-        //if (confirm('Are you sure you want to delete this item?')){
-          this.items.splice(index, 1)
-        //}
-
-        // remote
-        try {
-          if (!this.loggedUser) {
-            this.$router.replace('/servers')
-          }
-
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-          //
-          const response = await axios.delete(this.loggedUser.sub + '/api/routes/web-forwards', { data: item })
-          //
-          this.snackbar = true;
-          this.snackbarText = 'Web forward successfully deleted.';
-          
-        } catch (error) {
-          this.error = 'Could not delete web forward from server.';
-        }
+                // local
+                this.items.splice(index, 1)
+        
+                // remote
+                try {
+                  if (!this.loggedUser) {
+                    this.$router.replace('/servers')
+                  }
+        
+                  axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+                  //
+                  const response = await axios.delete(this.loggedUser.sub + '/api/routes/web-forwards', { data: item })
+                  //
+                  this.snackbar = true;
+                  this.snackbarText = 'Web forward successfully deleted.';
+                  
+                } catch (error) {
+                  this.error = 'Could not delete web forward from server.';
+                }
+              }
+            },
+            {
+              title: 'No',
+              color: 'error'
+            }
+         ]
+        })
       },
 
       // save item

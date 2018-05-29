@@ -616,7 +616,7 @@
       },
 
       // delete item
-       deleteItem (type, item) {
+      deleteItem (type, item) {
         this.$prompt.show({
           persistent: true,
           width: 400,
