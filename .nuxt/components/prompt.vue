@@ -21,13 +21,9 @@
 </template>
 
 <script>
-  import { mapGetters } from 'vuex'
-  import axios from 'axios'
   import prompt from '~/plugins/prompt/prompt'
 
   export default {
-    components: {},
-    props: [],
     computed: {
       buttons () {
         return this.options.buttons || this.defaultButtons
@@ -47,7 +43,6 @@
         this.dialog = false
       })
     },
-    mounted: function () {},
     methods: {
       click (i, event, source = 'click') {
         const button = this.buttons[i]
