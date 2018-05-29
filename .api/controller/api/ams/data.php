@@ -9,8 +9,6 @@ class Data extends \Base\Controller
 {
     public function beforeRoute(\Base $f3, $params)
     {
-        //$this->user = new \Model\User($f3);
-        
         // check auth
         try {
             \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
@@ -92,19 +90,6 @@ class Data extends \Base\Controller
                 'code'  => 200,
                 'data'  => []
             ]);
-            /*
-            $module = $this->ams->findOrCreate([
-            'module' => $params['module'],
-            'version' => $params['version'],
-            'source' => '<?php echo json_encode(["Hello World"]); ?>',
-            'config' => json_encode([
-                
-            ]),
-            'headers' => json_encode([
-                'Content-Type' => 'application/json'
-            ]),
-            'auth' => ''
-        ]);*/
         }
         
         if ($verb === 'PUT') {

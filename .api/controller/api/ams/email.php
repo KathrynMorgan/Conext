@@ -9,8 +9,6 @@ class Email extends \Base\Controller
 {
     public function beforeRoute(\Base $f3, $params)
     {
-        //$this->user = new \Model\User($f3);
-        
         // check auth
         try {
             \Lib\JWT::checkAuthThen(function ($server) use ($f3) {

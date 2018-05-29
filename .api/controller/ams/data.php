@@ -9,31 +9,6 @@ class Data extends \Base\Controller
     /**
      *
      */
-    /*
-    public function __construct()
-    {
-        parent::__construct();
-
-        // load core models
-        $this->user     = new \Framework\Model('user');
-        $this->page     = new \Framework\Model('page');
-        $this->menu     = new \Framework\Model('menu');
-        $this->tasks    = new \Framework\Model('tasks');
-        $this->module   = new \Framework\Model('module');
-        $this->servers  = new \Framework\Model('servers');
-        $this->objects  = new \Framework\Model('objects');
-        $this->snippet  = new \Framework\Model('snippet');
-        $this->template = new \Framework\Model('template');
-        $this->settings = new \Framework\Model('settings');
-        $this->tasksource = new \Framework\Model('tasksource');
-        //
-        $this->helper     = \Framework\Helper::instance();
-    }
-    */
-    
-    /**
-     *
-     */
     public function index(\Base $f3, $params)
     {
         $this->ams = new \Base\Model('ams');
@@ -87,9 +62,7 @@ class Data extends \Base\Controller
                 $module->config = (array) json_decode($module->config, true);
                 extract($module->config);
             }
-            
-            $f3->response->csv($module);
-            
+
             // set source into scope
             $source = @$module->source;
             
@@ -107,22 +80,6 @@ class Data extends \Base\Controller
             }
         })($module);
         exit(ob_get_clean());
-        
-        
-        // url: /1.0/customers/123
-        
-        // url: /1.0/customers/edit/a/b/c/d
-        
-        // lookup version    = 1.0
-        
-        // lookup module     = customers
-                
-        // eval code:       
-        //  - action         = edit
-        //  - sub_action     = a
-        //  - sub_action_id  = b
-        //  - id             = c
-        //  - sub_id         = d
     }
 
 }
