@@ -34,9 +34,6 @@
         </v-card-text>
       </v-card-text>
     </v-card>
-
-    <!--Details Dialog -->
-    <!--Details Dialog -->
     <v-dialog v-model="dialog" scrollable max-width="900px">
       <v-card tile>
         <v-toolbar card dark color="light-blue darken-3">

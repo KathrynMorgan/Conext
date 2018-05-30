@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <v-card height="315px">
       <v-card-title class="grey lighten-1">
         <span class="headline blue-grey--text text--darken-3">CPU</span>
