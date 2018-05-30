@@ -31,7 +31,6 @@
                     <v-text-field style="margin-bottom: 5px" v-model="search" append-icon="search" label="Filter" single-line hide-details></v-text-field>
                   </div>
                   -->
-
                   <v-tab-item :id="`user`">
                     <v-data-table hide-actions :search="search" :headers="tableHeaders" :items="items.user" class="elevation-1" :loading="tableLoading">
                       <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
@@ -179,7 +178,7 @@
                                   </v-btn>
                                   <span>Delete</span>
                                 </v-tooltip>
-                                 <v-tooltip left  v-if="props.item.completed != 0">
+                                <v-tooltip left  v-if="props.item.completed != 0">
                                   <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="reloadInstance(props.item)">
                                     <v-icon color="blue">replay</v-icon>
                                   </v-btn>

@@ -16,7 +16,7 @@ $task = new Plinker\Tasks\Runner([
     'database'    => $f3->get('db'),
     'debug'       => true,
     'log'         => true,
-    'sleep_time'  => 2,
+    'sleep_time'  => 1,
     'tmp_path'    => './.plinker',
     'auto_update' => 0
 ]);
