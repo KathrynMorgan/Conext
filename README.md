@@ -62,6 +62,12 @@ git clone git@github.com:lcherone/Deval.git .
 composer install
 
 composer setup
+
+cd .nuxt
+
+npm install
+
+npm run dev
 ```
 
 ## Contributing
@@ -70,7 +76,7 @@ Please see [CONTRIBUTING](https://github.com/lcherone/Deval/blob/master/CONTRIBU
 
 ## Bespoke System
 
-If you would like a bespoke system created at very competivive rates, with a turn around of a week or so, contact me via my website @ [https://cherone.co.uk](https://cherone.co.uk) or if you use [Upwork](https://www.upwork.com/o/profiles/users/~01ff0ec055a5895e8f/), though that.
+If you would like a bespoke system created at very competitive rates, with a turn around of a week, contact me via my website @ [https://cherone.co.uk](https://cherone.co.uk) or if you use [Upwork](https://www.upwork.com/o/profiles/users/~01ff0ec055a5895e8f/), though that.
 
 ## Developer Support
 
