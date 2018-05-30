@@ -219,7 +219,7 @@ main() {
 if [ "$(. /etc/os-release; echo $NAME)" = "Ubuntu" ]; then
   echo -e "\033[4;31m\
 Automatic post install only works on Ubuntu!\033[0m\nRefer to manually installing, \
-see: https://github.com/lcherone/Deval for details.\033[0m"
+see: https://github.com/lcherone/Deval for details."
 fi
 
 # Check is root user
