@@ -68,6 +68,9 @@ cd .nuxt
 npm install
 
 npm run dev
+
+// or
+npm run generate
 ```
 
 ## Contributing
