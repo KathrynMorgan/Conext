@@ -207,6 +207,15 @@ tasks=1
     #
     chmod 0777 .plinker -R
     
+    
+    echo - e "
+\033[1;32mProject installed!\033[0m
+Now go to the panel at http://IP:88, and then add the server with the following secret:
+
+\033[1m$AUTHsecret\033[0m
+
+You can change it in the config file /var/www/html/config.ini"
+    
 }
 
 # Main
