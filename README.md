@@ -73,6 +73,10 @@ npm run dev
 npm run generate
 ```
 
+## Github Hosted
+
+You can use the github hosted version of the panel which is located here: [https://lcherone.github.io/Deval](https://lcherone.github.io/Deval), did I mention its decentralized.
+
 ## Contributing
 
 Please see [CONTRIBUTING](https://github.com/lcherone/Deval/blob/master/CONTRIBUTING.md) for details.
