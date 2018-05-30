@@ -16,6 +16,8 @@ prepare_system() {
     #
     # remove apache2
     sudo apt-get -yq --purge remove apache2
+    #
+    sudo apt-get autoremove
 }
 
 # Install PHP
@@ -28,7 +30,6 @@ install_php() {
     sudo apt-get -yq install php-xml
     sudo apt-get -yq install php-mysql
     sudo apt-get -yq install php-sqlite3
-    sudo apt-get -yq install php-zip
 }
 
 # Genaral webroot setup - initial nginx part, specific configuration to be added
@@ -129,43 +130,43 @@ install_project() {
 
     # bash
     if [ ! -d "$webroot/.plinker/bash" ]; then
-        mkdir -p $webroot/bash
+        mkdir -p $webroot/.plinker/bash
     fi
 
     # dbbackup
     if [ ! -d "$webroot/.plinker/dbbackup" ]; then
-        mkdir -p $webroot/dbbackup
+        mkdir -p $webroot/.plinker/dbbackup
     fi
 
     # iptables
     if [ ! -d "$webroot/.plinker/iptables" ]; then
-        mkdir -p $webroot/iptables
+        mkdir -p $webroot/.plinker/iptables
     fi
 
     # logs
     if [ ! -d "$webroot/.plinker/logs" ]; then
-        mkdir -p $webroot/logs
+        mkdir -p $webroot/.plinker/logs
     fi
-    
+
     # system
     if [ ! -d "$webroot/.plinker/system" ]; then
-        mkdir -p $webroot/system
+        mkdir -p $webroot/.plinker/system
     fi
-    
+
     # check default database.db exists
     if [ ! -f "$webroot/.plinker/database.db" ]; then
-        cp -p $webroot/.api/files/database.db $webroot/.plinker/database.db
+        cp $webroot/.api/files/database.db $webroot/.plinker/database.db
     fi
-    
+
     # check config.ini exists
     if [ ! -f "$webroot/config.ini" ]; then
-    
+
         JWTsecret=$(date +%s%N | sha256sum | base64 | head -c 32 ; echo)
         sleep .1
         AUTHsecret=$(date +%s%N | sha256sum | base64 | head -c 8 ; echo)
-        
+
         echo -e "[globals]
-        
+
 ; Database
 db.dsn=\"sqlite:./.plinker/database.db\"
 db.host=\"\"
@@ -197,14 +198,21 @@ api=1
 lxd=1
 routes=1
 tasks=1
-" > $webroot/config.in
+" > $webroot/config.ini
     fi
+    
+    # fix permissions
+    chown www-data:www-data $webroot -R
+    
+    #
+    chmod 0777 .plinker -R
+    
 }
 
 # Main
 #
 main() {
-    setup_system
+    prepare_system
     #
     install_php
     #
@@ -214,13 +222,6 @@ main() {
     #
     install_project
 }
-
-# Check ubuntu
-if [ "$(. /etc/os-release; echo $NAME)" = "Ubuntu" ]; then
-  echo -e "\033[4;31m\
-Automatic post install only works on Ubuntu!\033[0m\nRefer to manually installing, \
-see: https://github.com/lcherone/Deval for details."
-fi
 
 # Check is root user
 if [[ $EUID -ne 0 ]]; then
