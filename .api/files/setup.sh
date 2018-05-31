@@ -124,8 +124,10 @@ install_project() {
     # Check required folders exist
 
     # tmp
-    if [ ! -d "$webroot/tmp" ]; then
-        mkdir -p $webroot/tmp
+    if [ ! -d "$webroot/tmp/cache" ]; then
+        mkdir -p $webroot/tmp/cache
+        # fix permissions
+        chown www-data:www-data $webroot/tmp/cache
     fi
 
     # bash
@@ -208,7 +210,7 @@ tasks=1
     chmod 0777 .plinker -R
     
     
-    echo - e "
+    echo -e "
 \033[1;32mProject installed!\033[0m
 Now go to the panel at http://IP:88, and then add the server with the following secret:
 

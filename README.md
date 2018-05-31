@@ -16,21 +16,23 @@ Not going to bore you with stuff you probably won't read, so here is what the sy
 
 ## Install
 
-There are 2 ways to install, first way takes almost no brain cells, the other is typically for developers or people who want to contribute.
+There are 2 ways to install the project, composer and git, some setup is required as shown below.
 
 ### With Composer
 
-On a **clean** Ubuntu server run the following commands, in order. 
-(If you already installed them with your standard practices, go back to the start of this sentence and read it again).
+On a **clean** Ubuntu server run the following commands:
 
 ```
-// update package lists
-sudo apt upgrade
+# switch into root user!
+sudo su
 
-// install deps
-sudo apt install zip php-cli
+# update package lists and packages
+sudo apt update && sudo apt -y upgrade
 
-// install composer
+# install deps
+sudo apt -y install zip php-cli
+
+# install composer
 sudo curl -sS https://getcomposer.org/installer | sudo php
 sudo mv composer.phar /usr/local/bin/composer
 sudo ln -s /usr/local/bin/composer /usr/bin/composer
@@ -39,16 +41,46 @@ sudo ln -s /usr/local/bin/composer /usr/bin/composer
 Once done, install the project:
 
 ```
-# yes do it 
-rm /var/www/html -Rf && mkdir /var/www/html
+# make webroot and move into it
+mkdir -p /var/www/html && cd /var/www/html
 
-#
-cd /var/www/html
-
+# install project (ignore warning about not to use root, root is required for post-install)
 composer create-project lcherone/deval .
 ```
 
+## Install LXD
+
+You must be using LXD version 3.0.0 or above, so unless your using 18.04 or above use the snap package.
+
+```
+# add www-data to lxd group
+sudo usermod -a -G lxd www-data
+
+# install snapd
+sudo apt -y install snapd
+
+# install lxd snap package
+sudo snap install lxd
+
+# initialise lxd (make sure you allow lxd over network - or the console wont work)
+sudo lxd init
+```
+
+## Allow www-data LXD access
+
+```
+# add www-data to sudoers so can run lxc commands
+visudo
+
+# then amend to User privilege specification, it should look like the following:
+
+# User privilege specification
+root     ALL=(ALL:ALL) ALL
+www-data ALL=(ALL:ALL) NOPASSWD: /usr/bin/lxc
+```
+
 Once complete, you will be able to go to the panel at http://IP:88, and then add the server, with the provided key during install.
+
 
 ### With Git
 
