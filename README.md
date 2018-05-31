@@ -14,9 +14,13 @@ Not going to bore you with stuff you probably won't read, so here is what the sy
  - Create API endpoints for stuff the panel does not do.
  - Server information, so you know when to stop.
 
+## Quick Overview
+
+<img src="https://i.imgur.com/YXHFjcU.gif" alt="Screen" title="Screen"/>
+
 ## Install
 
-There are 2 ways to install the project, composer and git, some setup is required as shown below.
+There are 2 ways to install the project, composer and git, some setup is required as shown below. [See wiki for screencasts](https://github.com/lcherone/Deval/wiki/Installing).
 
 ### With Composer
 
@@ -48,7 +52,7 @@ mkdir -p /var/www/html && cd /var/www/html
 composer create-project lcherone/deval .
 ```
 
-## Install LXD
+### Install LXD
 
 You must be using LXD version 3.0.0 or above, so unless your using 18.04 or above use the snap package.
 
@@ -66,7 +70,11 @@ sudo snap install lxd
 sudo lxd init
 ```
 
-## Allow www-data LXD access
+Now visit LXD API in your browser `https://IP:8443` and accept the self-signed certificate, 
+this is done so the websocket connection will work when connecting to containers console.
+
+
+### Allow www-data LXD access
 
 ```
 # add www-data to sudoers so can run lxc commands
@@ -79,7 +87,7 @@ root     ALL=(ALL:ALL) ALL
 www-data ALL=(ALL:ALL) NOPASSWD: /usr/bin/lxc
 ```
 
-Once complete, you will be able to go to the panel at http://IP:88, and then add the server, with the provided key during install.
+Once complete, you will be able to go to the panel at `http://IP:88`, and then add the server, with the provided key during install.
 
 
 ### With Git
