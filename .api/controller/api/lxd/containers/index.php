@@ -103,7 +103,7 @@ class Index extends \Base\Controller
                 ];
             } catch (\Exception $e) {
                 $result = [
-                    'error' => 'Could not create container.'.$e->getMessage(),
+                    'error' => 'Could not create container.',
                     'code'  => 422,
                     'data'  => []
                 ];
