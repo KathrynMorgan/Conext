@@ -20,7 +20,26 @@ Not going to bore you with stuff you probably won't read, so here is what the sy
 
 ## Install
 
-There are 2 ways to install the project, composer and git, some setup is required as shown below. [See wiki for screencasts](https://github.com/lcherone/Deval/wiki/Installing).
+There are 3 ways to install the project, a gist, composer or git, some setup is required as shown below. [See wiki for screencasts](https://github.com/lcherone/Deval/wiki/Installing). If you use the git way you can simply do `git pull` to get the latest updates to the panel.
+
+### With Install.sh Script
+
+On a **clean** Ubuntu server run the following commands to install the system [from a gist](https://gist.github.com/lcherone/d7e5ba660bc20d738132ccb1a453459d), or see further down on how to do it manually:
+
+```
+# switch into root user!
+sudo su
+
+# update package lists
+apt update
+
+# install wget
+apt install wget
+
+wget https://gist.githubusercontent.com/lcherone/d7e5ba660bc20d738132ccb1a453459d/raw/391216d4bc298419e4fa68703e0e8c54c18071cc/install.sh && bash install.sh
+```
+
+Once complete, you will be able to go to the panel at `http://IP:88`, and then add the server, with the provided key during install.
 
 ### With Composer
 
@@ -84,7 +103,7 @@ visudo
 
 # User privilege specification
 root     ALL=(ALL:ALL) ALL
-www-data ALL=(ALL:ALL) NOPASSWD: /usr/bin/lxc
+www-data ALL=(ALL:ALL) NOPASSWD: /snap/bin/lxc
 ```
 
 Once complete, you will be able to go to the panel at `http://IP:88`, and then add the server, with the provided key during install.
