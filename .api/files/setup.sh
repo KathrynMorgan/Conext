@@ -179,6 +179,9 @@ db.freeze=true
 db.debug=false
 db.session=false
 
+; path to lxc binary
+LXC.path=\"/snap/bin\"
+
 ; Auth Secret
 AUTH.secret=\"$AUTHsecret\"
 

@@ -15,7 +15,8 @@ class Snapshots extends \Base\Controller
                 // set plinker client
                 $f3->set('plinker', new \Plinker\Core\Client($server, [
                     'secret' => $f3->get('AUTH.secret'),
-                    'database' => $f3->get('db')
+                    'database' => $f3->get('db'),
+                    'lxc_path' => $f3->get('LXC.path')
                 ]));
             });
         } catch (\Exception $e) {
