@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Application Name
-appname="LXD Control Panel"
+appname="Conext - LXD Control Panel"
 webroot="/var/www/html"
 
 # Setup & Install Dependencys

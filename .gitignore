@@ -12,4 +12,5 @@ composer.lock
 .plinker/logs/*
 .plinker/system/*
 .plinker/database.db
+.plinker/.htaccess
 config.ini
