@@ -170,10 +170,10 @@
           server: item.host,
           secret: item.secret
         }).then(response => {
-          if (response.data !== Array) {
+          if (response.data.constructor !== Object) {
             this.error = 'Failed to connect to host, check details.'
           } else {
-            setToken(response.data['token'])
+            setToken(response.data.token)
             //axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data['token']
             //axios.post(item.host + '/sync', this.items)
             this.$router.replace('/')
