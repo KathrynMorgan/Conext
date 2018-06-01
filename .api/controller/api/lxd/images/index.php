@@ -166,6 +166,8 @@ class Index extends \Base\Controller
                     'code'  => 200,
                     'data'  => $client->lxd->images->replace($f3->get('GET.remote'), $params['fingerprint'], $options)
                 ];
+                
+                $this->cache->clear('images.'.$f3->get('GET.remote'));
             } catch (\Exception $e) {
                 $response = [
                     'error' => $e->getMessage(),
@@ -199,6 +201,8 @@ class Index extends \Base\Controller
                     'code'  => 200,
                     'data'  => $result
                 ];
+                
+                $this->cache->clear('images.'.$f3->get('GET.remote'));
             } catch (\Exception $e) {
                 $response = [
                     'error' => $e->getMessage(),
