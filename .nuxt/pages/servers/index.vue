@@ -16,15 +16,31 @@
                 <v-data-table :headers="headers" :items="items" hide-actions class="elevation-1">
                   <template slot="items" slot-scope="props">
                     <td><a href="javascript:void(0)" @click="authItem(props.item)">{{ props.item.label }}</a></td>
-                    <td><a :href="props.item.host" target="_blank" rel="noopener">{{ props.item.host }}</a></td>
+                    <td>{{ props.item.host }}</td>
                     <td>{{ props.item.secret }}</td>
+                    <td>
+                      <span left v-if="props.item.status">
+                        <v-icon color="green">done</v-icon>
+                        <span>Connectable</span>
+                      </span>
+                      <span left v-if="!props.item.status">
+                        <v-icon color="red">error</v-icon>
+                        <span>Error</span>
+                      </span>
+                    </td>
                     <td class="justify-center layout px-0">
-                      <v-btn icon class="mx-0" @click="editItem(props.item)">
-                        <v-icon color="teal">edit</v-icon>
-                      </v-btn>
-                      <v-btn icon class="mx-0" @click="deleteItem(props.item)">
-                        <v-icon color="pink">delete</v-icon>
-                      </v-btn>
+                      <v-tooltip left>
+                        <v-btn slot="activator" icon class="mx-0" @click="editItem(props.item)">
+                          <v-icon color="teal">edit</v-icon>
+                        </v-btn>
+                        <span>Edit</span>
+                      </v-tooltip>
+                      <v-tooltip left>
+                        <v-btn slot="activator" icon class="mx-0" @click="deleteItem(props.item)">
+                          <v-icon color="pink">delete</v-icon>
+                        </v-btn>
+                        <span>Delete</span>
+                      </v-tooltip>
                     </td>
                   </template>
                   <template slot="no-data">
@@ -95,6 +111,7 @@
         { text: 'Label', align: 'left', value: 'label' },
         { text: 'Host', value: 'host' },
         { text: 'Secret', value: 'secret' },
+        { text: 'Status', value: 'status' },
         { text: 'Actions', value: 'host', sortable: false }
       ],
       items: [],
@@ -119,6 +136,11 @@
     methods: {
       initialize () {
         this.items = this.$storage.get("servers") || []
+        
+        // check status
+        this.items.forEach(item => {
+          this.status(item)
+        });
       },
 
       authItem (item) {
@@ -131,6 +153,8 @@
           secret: item.secret
         }).then(response => {
           setToken(response.data['token'])
+          //axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data['token']
+          //axios.post(item.host + '/sync', this.items)
           this.$router.replace('/')
         }).catch(error => {
           if (error.response) {
@@ -197,9 +221,21 @@
           this.items.push(this.editedItem)
         }
         
+        this.status(this.editedItem)
+        
         this.$storage.set("servers", this.items)
 
         this.close()
+      },
+      
+      async status (item) {
+        //
+        try {
+          const response = await axios.get(item.host + '/ping')
+          item.status = response.data === 'pong'
+        } catch (Error) {
+          item.status = false
+        }
       }
     }
   }

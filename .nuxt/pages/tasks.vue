@@ -178,13 +178,13 @@
                                   </v-btn>
                                   <span>Delete</span>
                                 </v-tooltip>
-                                <v-tooltip left  v-if="props.item.completed != 0">
+                                <v-tooltip left v-if="props.item.completed != 0">
                                   <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="reloadInstance(props.item)">
                                     <v-icon color="blue">replay</v-icon>
                                   </v-btn>
                                   <span>Restart</span>
                                 </v-tooltip>
-                                 <v-tooltip left v-if="props.item.completed == 0" >
+                                <v-tooltip left v-if="props.item.completed == 0">
                                   <v-btn slot="activator" icon class="mx-0" style="float:right" @click.stop="stopInstance(props.item)">
                                     <v-icon color="red">stop</v-icon>
                                   </v-btn>

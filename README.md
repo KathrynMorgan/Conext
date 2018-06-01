@@ -1,4 +1,4 @@
-# LXD Control Panel
+# Conext - LXD Control Panel
 
 <img src="https://i.imgur.com/gHhwGG4.png" alt="Screen" title="Screen" align="right" />
 
@@ -20,7 +20,7 @@ Not going to bore you with stuff you probably won't read, so here is what the sy
 
 ## Install
 
-There are 3 ways to install the project, a gist, composer or git, some setup is required as shown below. [See wiki for screencasts](https://github.com/lcherone/Deval/wiki/Installing). If you use the git way you can simply do `git pull` to get the latest updates to the panel.
+There are 3 ways to install the project, a gist, composer or git, some setup is required as shown below. [See wiki for screencasts](https://github.com/lcherone/Conext/wiki/Installing). If you use the git way you can simply do `git pull` to get the latest updates to the panel.
 
 ### With Install.sh Script
 
@@ -68,7 +68,7 @@ Once done, install the project:
 mkdir -p /var/www/html && cd /var/www/html
 
 # install project (ignore warning about not to use root, root is required for post-install)
-composer create-project lcherone/deval .
+composer create-project lcherone/Conext .
 ```
 
 ### Install LXD
@@ -116,7 +116,7 @@ Follow the above, then install with git.
 ```
 cd /var/www/html
 
-git clone git@github.com:lcherone/Deval.git .
+git clone git@github.com:lcherone/Conext.git .
 
 composer install
 
@@ -134,11 +134,11 @@ npm run generate
 
 ## Github Hosted
 
-You can use the github hosted version of the panel which is located here: [https://lcherone.github.io/Deval](https://lcherone.github.io/Deval), did I mention its decentralized.
+You can use the github hosted version of the panel which is located here: [https://lcherone.github.io/Conext](https://lcherone.github.io/Conext), did I mention its decentralized.
 
 ## Contributing
 
-Please see [CONTRIBUTING](https://github.com/lcherone/Deval/blob/master/CONTRIBUTING.md) for details.
+Please see [CONTRIBUTING](https://github.com/lcherone/Conext/blob/master/CONTRIBUTING.md) for details.
 
 ## Bespoke System
 
@@ -151,11 +151,11 @@ If you want to show your appreciation or you make money where this is used, plea
 ## Credits
 
 - [Lawrence Cherone](https://github.com/lcherone)
-- [All Contributors](https://github.com/lcherone/Deval/graphs/contributors)
+- [All Contributors](https://github.com/lcherone/Conext/graphs/contributors)
 
 ## License
 
-The MIT License (MIT). Please see [License File](https://github.com/lcherone/Deval/blob/master/LICENSE) for more information.
+The MIT License (MIT). Please see [License File](https://github.com/lcherone/Conext/blob/master/LICENSE) for more information.
 
 ```
 MIT License
