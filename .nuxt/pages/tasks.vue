@@ -23,8 +23,8 @@
                 <p>Tasks allow you to run custom or predefined system tasks on the server.</p>
 
                 <v-tabs v-model="activeType" class="elevation-1">
-                  <v-tab ripple :href="`#user`">User</v-tab>
-                  <v-tab ripple :href="`#system`">System</v-tab>
+                  <v-tab ripple :href="`#user`" v-if="loggedUser.mod.tasks.includes('user')">User</v-tab>
+                  <v-tab ripple :href="`#system`" v-if="loggedUser.mod.tasks.includes('system')">System</v-tab>
                   <!--
                   <v-spacer></v-spacer>
                   <div class="tabs__div" style="margin-right: 10px">

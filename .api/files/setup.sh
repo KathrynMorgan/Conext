@@ -165,7 +165,7 @@ install_project() {
 
         JWTsecret=$(date +%s%N | sha256sum | base64 | head -c 32 ; echo)
         sleep .1
-        AUTHsecret=$(date +%s%N | sha256sum | base64 | head -c 8 ; echo)
+        AUTHsecret=$(date +%s%N | sha256sum | base64 | head -c 16 ; echo)
 
         echo -e "[globals]
 
@@ -198,11 +198,11 @@ AUTOLOAD=\".api/\"
 
 ; System Modules (effects UI menu)
 [modules]
-server=1
-api=1
-lxd=1
-routes=1
-tasks=1
+server=\"network-connections\",\"processes\",\"logins\"
+api=\"data\",\"email\"
+lxd=\"containers\",\"images\",\"operations\"
+routes=\"web\",\"port\"
+tasks=\"user\",\"system\"
 " > $webroot/config.ini
     fi
     
