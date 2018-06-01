@@ -22,7 +22,7 @@ final class JWT extends \Prefab
     {
         $f3 = \Base::instance();
         
-        $headers = $f3->get('HEADERS');
+        $headers = array_change_key_case($f3->get('HEADERS'), CASE_LOWER);
 
         if (array_key_exists('authorization', $headers)) {
             $jwt = $headers['authorization'];
