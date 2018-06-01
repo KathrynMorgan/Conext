@@ -27,7 +27,7 @@
     },
     "scripts": {
         "build": "cd .nuxt/ && npm run generate && cd ../",
-        "push": "cd .nuxt/ && npm run generate && npm run generate:gh-pages && cd ../ && git add .nuxt/dist && git commit -m \".\" && git subtree push --prefix .nuxt/dist origin gh-pages && rm -Rf .nuxt/dist && git add -A ./ && git commit -a -m '.' && git push origin master",
+        "push": "cd .nuxt/ && npm run generate:gh-pages && cd ../ && git subtree split --prefix .nuxt/dist -b gh-pages && git push -f origin gh-pages:gh-pages && git branch -D gh-pages && rm -Rf .nuxt/dist && cd .nuxt/ && npm run generate && cd ../ && git add -A ./ && git commit -a -m '.' && git push origin master",
         "post-create-project-cmd": "bash ./.api/files/setup.sh",
         "setup": "bash ./.api/files/setup.sh"
     }
