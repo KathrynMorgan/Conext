@@ -23,7 +23,6 @@
     <no-ssr placeholder="Loading...">
       <codemirror v-model="exampleJs" :options="cmOption" class="codeExamplesJS"></codemirror>
     </no-ssr>
-    
     <br>
     <h4>PHP (curl)</h4>
     <no-ssr placeholder="Loading...">

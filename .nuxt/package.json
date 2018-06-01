@@ -1,7 +1,7 @@
 {
-  "name": "deval",
+  "name": "conext",
   "version": "0.0.1",
-  "description": "Deval",
+  "description": "Conext - A decentralized LXD server control panel!",
   "author": "Lawrence Cherone <lawrence@cherone.co.uk>",
   "private": true,
   "scripts": {
