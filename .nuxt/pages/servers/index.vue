@@ -244,12 +244,13 @@
       },
       
       async status (item) {
+        let index = this.items.indexOf(item)
         //
         try {
           const response = await axios.get(item.host + '/ping')
-          item.status = response.data === 'pong'
+          this.items[index].status = response.data === 'pong'
         } catch (Error) {
-          item.status = false
+          this.items[index].status = false
         }
       }
     }
