@@ -6,8 +6,16 @@ build_gh_pages() {
 
 push_gh_pages() {
     git subtree split --prefix .nuxt/dist -b gh-pages
+    
+    git checkout gh-pages
+    
+    git add -A ./
+    
+    git commit -a -m "."
 
     git push -f origin gh-pages:gh-pages
+    
+    git checkout master
     
     #git branch -D gh-pages
 }
