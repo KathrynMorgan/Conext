@@ -2,12 +2,12 @@
  * Define router base folder path, for all situations.
  * On:
  *  - generate          - path will be /ui/
- *  - generate:gh-pages - path will be /Deval/
+ *  - generate:gh-pages - path will be /Conext/
  *  - dev               - path will be /
  */
 const router = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
   middleware: ['check-auth'],
-  base: '/Deval/'
+  base: '/Conext/'
 } : {
   middleware: ['check-auth'],
   base: (process.env.npm_lifecycle_event === 'dev' ? '/' : '/ui/')
