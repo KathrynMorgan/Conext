@@ -9,12 +9,8 @@ class Portforwards extends \Base\Controller
 {
     public function beforeRoute(\Base $f3, $params)
     {
-        //$this->user = new \Model\User($f3);
-        
-        // check auth
         try {
             \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
-                // set plinker client
                 $f3->set('plinker', new \Plinker\Core\Client($server, [
                     'secret' => $f3->get('AUTH.secret'),
                     'database' => $f3->get('db')
@@ -27,8 +23,6 @@ class Portforwards extends \Base\Controller
                 'data'  => []
             ]);
         }
-        
-        $this->ams = new \Base\Model('ams');
     }
 
     /**
@@ -82,7 +76,7 @@ class Portforwards extends \Base\Controller
             }
 
             $f3->response->json([
-                'error' => $response['status'],
+                'error' => ($response['status'] === 'error' ? $response['errors'] : null),
                 'code'  => 200,
                 'data'  => $response['values']
             ]);
@@ -109,6 +103,66 @@ class Portforwards extends \Base\Controller
                 'error' => '',
                 'code'  => 204,
                 'data'  => []
+            ]);
+        }
+    }
+    
+    /**
+     *
+     */
+    public function check_port_in_use(\Base $f3, $params)
+    {
+        // GET | POST | PUT | DELETE
+        $verb = $f3->get('VERB');
+        
+        // plinker client
+        $client = $f3->get('plinker');
+
+        if ($verb === 'POST') {
+            $item = json_decode($f3->get('BODY'), true);
+           
+            if (empty($item) || !is_numeric($item['port'])) {
+               $f3->response->json([
+                    'error' => 'Invalid POST body, expecting {port: *int}',
+                    'code'  => 422,
+                    'data'  => []
+                ]); 
+            }
+
+            $f3->response->json([
+                'error' => null,
+                'code'  => 200,
+                'data'  => $client->iptables->checkPortInUse($item['port'])
+            ]);
+        }
+    }
+
+    /**
+     *
+     */
+    public function check_allowed_port(\Base $f3, $params)
+    {
+        // GET | POST | PUT | DELETE
+        $verb = $f3->get('VERB');
+        
+        // plinker client
+        $client = $f3->get('plinker');
+
+        if ($verb === 'POST') {
+            $item = json_decode($f3->get('BODY'), true);
+           
+            if (empty($item) || !is_numeric($item['port'])) {
+               $f3->response->json([
+                    'error' => 'Invalid POST body, expecting {port: *int}',
+                    'code'  => 422,
+                    'data'  => []
+                ]); 
+            }
+
+            $f3->response->json([
+                'error' => null,
+                'code'  => 200,
+                'data'  => $client->iptables->checkAllowedPort($item['port'])
             ]);
         }
     }

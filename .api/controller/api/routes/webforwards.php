@@ -9,9 +9,6 @@ class Webforwards extends \Base\Controller
 {
     public function beforeRoute(\Base $f3, $params)
     {
-        //$this->user = new \Model\User($f3);
-        
-        // check auth
         try {
             \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
                 // set plinker client
@@ -27,8 +24,6 @@ class Webforwards extends \Base\Controller
                 'data'  => []
             ]);
         }
-        
-        $this->ams = new \Base\Model('ams');
     }
 
     /**
