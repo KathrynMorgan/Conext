@@ -20,7 +20,9 @@ final class JWT extends \Prefab
 {
     public static function checkAuthThen($callback)
     {
-        $headers = getallheaders();
+        $f3 = \Base::instance();
+        
+        $headers = $f3->get('HEADERS');
 
         if (array_key_exists('authorization', $headers)) {
             $jwt = $headers['authorization'];
