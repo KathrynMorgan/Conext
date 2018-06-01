@@ -71,7 +71,7 @@
         }
 
         // server
-        if (this.loggedUser.mod.server) {
+        if (this.loggedUser.mod.server.constructor === Array) {
           // add child/module menu links
           modules.push({ icon: 'chevron_right', text: 'Overview', route: '/' })
           //
@@ -99,7 +99,7 @@
         }
 
         // api
-        if (this.loggedUser.mod.api) {
+        if (this.loggedUser.mod.api.constructor === Array) {
           // add child/module menu links
           if (this.loggedUser.mod.api.includes('data')) {
             modules.push({ icon: 'chevron_right', text: 'Data', route: '/api/data' })
@@ -121,7 +121,7 @@
         }
 
         // lxd
-        if (this.loggedUser.mod.lxd) {
+        if (this.loggedUser.mod.lxd.constructor === Array) {
           // add child/module menu links
           if (this.loggedUser.mod.lxd.includes('containers')) {
             modules.push({ icon: 'chevron_right', text: 'Containers', route: '/lxd/containers' })
@@ -179,7 +179,7 @@
         }
 
         // routes
-        if (this.loggedUser.mod.routes) {
+        if (this.loggedUser.mod.routes.constructor === Array) {
           // add child/module menu links
           if (this.loggedUser.mod.routes.includes('web')) {
             modules.push({ icon: 'chevron_right', text: 'Web Forwards', route: '/routes/web-forwards' })
@@ -201,7 +201,7 @@
         }
 
         // tasks
-        if (this.loggedUser.mod.tasks) {
+        if (this.loggedUser.mod.tasks.constructor === Array) {
           items.push({ icon: 'chevron_right', text: 'Tasks', route: '/tasks' })
         }
         

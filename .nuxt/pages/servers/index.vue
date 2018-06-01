@@ -19,13 +19,17 @@
                     <td>{{ props.item.host }}</td>
                     <td>{{ props.item.secret }}</td>
                     <td>
-                      <span left v-if="props.item.status">
-                        <v-icon color="green">done</v-icon>
-                        <span>Connectable</span>
+                      <span left v-if="props.item.status && props.item.status.status">
+                        <v-icon color="green">check_circle</v-icon>
+                        <span>{{ props.item.status.msg }}</span>
                       </span>
-                      <span left v-if="!props.item.status">
+                      <span left v-if="props.item.status && !props.item.status.status && props.item.status.msg">
                         <v-icon color="red">error</v-icon>
-                        <span>Error</span>
+                        <span>{{ props.item.status.msg }}</span>
+                      </span>
+                      <span left v-if="!props.item.status || props.item.status && !props.item.status.status && !props.item.status.msg">
+                        <v-icon color="orange">error_outline</v-icon>
+                        <span>Checking</span>
                       </span>
                     </td>
                     <td class="justify-center layout px-0">
@@ -151,7 +155,6 @@
     methods: {
       initialize () {
         this.items = this.$storage.get("servers") || []
-        
         // check status
         this.items.forEach(item => {
           this.status(item)
@@ -167,19 +170,23 @@
           server: item.host,
           secret: item.secret
         }).then(response => {
-          setToken(response.data['token'])
-          //axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data['token']
-          //axios.post(item.host + '/sync', this.items)
-          this.$router.replace('/')
+          if (response.data !== Array) {
+            this.error = 'Failed to connect to host, check details.'
+          } else {
+            setToken(response.data['token'])
+            //axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data['token']
+            //axios.post(item.host + '/sync', this.items)
+            this.$router.replace('/')
+          }
         }).catch(error => {
           if (error.response) {
             if (error.response.status === 401) {
               this.error = 'Incorrect secret!'
             } else {
-              this.error = 'Failed to connect to host, check details.'
+              this.error = 'Failed to connect to host, invalid connection details.'
             }
           } else if (error.request) {
-            this.error = 'Failed to connect to host, check details.'
+            this.error = 'Failed to connect to host, invalid connection details.'
           } else {
             this.error = error.message
           }
@@ -230,28 +237,37 @@
       },
 
       save () {
-        if (this.editedIndex > -1) {
-          Object.assign(this.items[this.editedIndex], this.editedItem)
-        } else {
-          this.items.push(this.editedItem)
+        if (this.$refs.form.validate()) {
+          if (this.editedIndex > -1) {
+            Object.assign(this.items[this.editedIndex], this.editedItem)
+          } else {
+            this.items.push(this.editedItem)
+          }
+  
+          this.$storage.set("servers", this.items)
+  
+          this.close()
+          
+          setTimeout(() => {
+            this.initialize()
+          }, 100)
         }
-        
-        this.status(this.editedItem)
-        
-        this.$storage.set("servers", this.items)
-
-        this.close()
       },
       
-      async status (item) {
+      status (item) {
         let index = this.items.indexOf(item)
-        //
-        try {
-          const response = await axios.get(item.host + '/ping')
-          this.items[index].status = response.data === 'pong'
-        } catch (Error) {
-          this.items[index].status = false
-        }
+        
+        axios.get(item.host + '/ping').then(response => {
+          this.items[index].status = { status: response.data === 'pong', msg: response.data === 'pong' ? 'Connectable' : 'Invalid Host' }
+        }).catch(error => {
+          if (error.response) {
+            this.items[index].status = { status: false, msg: 'Failed to connect'}
+          } else if (error.request) {
+              this.items[index].status = { status: false, msg: 'Failed to connect'}
+          } else {
+              this.items[index].status = { status: false, msg: 'Failed to connect'}
+          }
+        })
       }
     }
   }
