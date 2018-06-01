@@ -40,13 +40,19 @@ class Index extends \Base\Controller
         $client = $f3->get('plinker');
         
         /**
-         * GET /api/lxd
+         * GET /api/lxd/profiles
          */
         if ($verb === 'GET') {
-            // get containers
-            $result = $client->lxd->containers->list('local', function ($result) {
-                return str_replace('/1.0/containers/', '', $result);
+            //
+            $profiles = $client->lxd->profiles->list('local', function ($result) {
+                return str_replace('/1.0/profiles/', '', $result);
             });
+            
+            // get state
+            $result = [];
+            foreach ($profiles as $i => $profile) {
+            	$result[$i] = $client->lxd->profiles->info('local', $profile);
+            }
 
             $f3->response->json([
                 'error' => null,
@@ -56,7 +62,7 @@ class Index extends \Base\Controller
         }
         
         /**
-         * POST /api/lxd/containers
+         * POST /api/lxd/profiles
          */
         if ($verb === 'POST') {
             $f3->response->json([
@@ -67,7 +73,7 @@ class Index extends \Base\Controller
         }
         
         /**
-         * PUT /api/lxd/containers
+         * PUT /api/lxd/profiles
          */
         if ($verb === 'PUT') {
             $item = json_decode($f3->get('BODY'), true);
@@ -88,7 +94,88 @@ class Index extends \Base\Controller
         }
         
         /**
-         * DELETE /api/lxd/containers
+         * DELETE /api/lxd/profiles
+         */
+        if ($verb === 'DELETE') {
+            $item = json_decode($f3->get('BODY'), true);
+            
+            if (empty($item) || !is_numeric($item['id'])) {
+               $f3->response->json([
+                    'error' => 'Invalid DELETE body, expecting item',
+                    'code'  => 422,
+                    'data'  => []
+                ]); 
+            }
+            
+            $f3->response->json([
+                'error' => '',
+                'code'  => 200,
+                'data'  => []
+            ]);
+        }
+    }
+    
+    /**
+     *
+     */
+    public function item(\Base $f3, $params)
+    {
+        // GET | POST | PUT | DELETE
+        $verb = $f3->get('VERB');
+        
+        // plinker client
+        $client = $f3->get('plinker');
+        
+        /**
+         * GET /api/lxd/profiles
+         */
+        if ($verb === 'GET') {
+            // get containers
+            $result = $client->lxd->containers->list('local', function ($result) {
+                return str_replace('/1.0/containers/', '', $result);
+            });
+
+            $f3->response->json([
+                'error' => null,
+                'code'  => 200,
+                'data'  => $result
+            ]);
+        }
+        
+        /**
+         * POST /api/lxd/profiles
+         */
+        if ($verb === 'POST') {
+            $f3->response->json([
+                'error' => '',
+                'code'  => 200,
+                'data'  => []
+            ]);
+        }
+        
+        /**
+         * PUT /api/lxd/profiles
+         */
+        if ($verb === 'PUT') {
+            $item = json_decode($f3->get('BODY'), true);
+            
+            if (empty($item) || !is_numeric($item['id'])) {
+               $f3->response->json([
+                    'error' => 'Invalid PUT body, expecting item',
+                    'code'  => 422,
+                    'data'  => []
+                ]); 
+            }
+            
+            $f3->response->json([
+                'error' => '',
+                'code'  => 200,
+                'data'  => []
+            ]);
+        }
+        
+        /**
+         * DELETE /api/lxd/profiles
          */
         if ($verb === 'DELETE') {
             $item = json_decode($f3->get('BODY'), true);

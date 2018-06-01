@@ -57,15 +57,17 @@
                         Servers are securely stored in your browser for easy selection.
                       </v-alert>
                       <v-container grid-list-md>
-                        <v-text-field label="Label" v-model="editedItem.label"></v-text-field>
-                        <v-layout wrap>
-                          <v-flex xs12 sm6 md6>
-                            <v-text-field label="Host" v-model="editedItem.host"></v-text-field>
-                          </v-flex>
-                          <v-flex xs12 sm6 md6>
-                            <v-text-field label="Secret" v-model="editedItem.secret"></v-text-field>
-                          </v-flex>
-                        </v-layout>
+                        <v-form ref="form" v-model="valid" lazy-validation>
+                          <v-text-field label="Label" :rules="labelRule" v-model="editedItem.label" required></v-text-field>
+                          <v-layout wrap>
+                            <v-flex xs12 sm6 md6>
+                              <v-text-field label="Host" :rules="hostRule" v-model="editedItem.host" required></v-text-field>
+                            </v-flex>
+                            <v-flex xs12 sm6 md6>
+                              <v-text-field label="Secret" :rules="secretRule" v-model="editedItem.secret" required></v-text-field>
+                            </v-flex>
+                          </v-layout>
+                        </v-form>
                       </v-container>
                     </v-card-text>
                     <v-card-actions>
@@ -123,7 +125,20 @@
       defaultItem: {
         host: '',
         secret: ''
-      }
+      },
+      
+      // item form & validation
+      valid: true,
+      labelRule: [
+        v => !!v || 'Label is required'
+      ],
+      hostRule: [
+        v => !!v || 'Host is required',
+        v => (v && /^https?:\/\/.+:\d+/i.test(v)) || 'Host must be in the following format: '+window.location.protocol+'//'+window.location.hostname+':'+window.location.port
+      ],
+      secretRule: [
+        v => !!v || 'Secret is required'
+      ]
     }),
     mounted: function () {
       this.initialize()
