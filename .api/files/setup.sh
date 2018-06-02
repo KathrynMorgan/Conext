@@ -180,6 +180,11 @@ db.freeze=true
 db.debug=false
 db.session=false
 
+; Enable/disable panel
+PANEL.enabled=true
+; If disabled, redirect, otherwise its 204 no content
+PANEL.redirect=\"\"
+
 ; path to lxc binary
 LXC.path=\"/snap/bin\"
 

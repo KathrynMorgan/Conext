@@ -12,11 +12,18 @@ class Index extends \Base\Controller
      */
     public function index(\Base $f3, $params)
     {
-        // load spa if exists
-        if (file_exists('public/ui/index.html')) {
+        // load spa if exists, and endabled
+        if (file_exists('public/ui/index.html') && !$f3->devoid('PANEL.enabled')) {
             exit(\View::instance()->render('public/ui/index.html'));
+        } 
+        // not enabled, with redirect
+        elseif(!$f3->devoid('PANEL.redirect')) {
+            exit(header("Location: ".$f3->get('PANEL.redirect')));
+        } 
+        // no content
+        else {
+            exit(header("HTTP/1.1 204 No Content"));
         }
-        exit(header("HTTP/1.1 204 No Content"));
     }
     
     /**
