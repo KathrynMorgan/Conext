@@ -20,11 +20,7 @@ Not going to bore you with stuff you probably won't read, so here is what the sy
 
 ## Install
 
-There are 3 ways to install the project, a gist, composer or git, some setup is required as shown below. [See wiki for screencasts](https://github.com/lcherone/Conext/wiki/Installing). If you use the git way you can simply do `git pull` to get the latest updates to the panel.
-
-### With Install.sh Script
-
-On a **clean** Ubuntu server run the following commands to install the system [from a gist](https://gist.github.com/lcherone/d7e5ba660bc20d738132ccb1a453459d), or see further down on how to do it manually:
+Installing the project is easy, it should be done on a **clean ubuntu server**! [See wiki for screencasts](https://github.com/lcherone/Conext/wiki/Installing).
 
 ```
 # switch into root user!
@@ -40,6 +36,8 @@ wget https://gist.githubusercontent.com/lcherone/d7e5ba660bc20d738132ccb1a453459
 ```
 
 Once complete, you will be able to go to the panel at `http://IP:88`, and then add the server, with the provided key during install.
+
+<!--
 
 ### With Composer
 
@@ -69,6 +67,29 @@ mkdir -p /var/www/html && cd /var/www/html
 
 # install project (ignore warning about not to use root, root is required for post-install)
 composer create-project lcherone/Conext .
+```
+
+### Git
+
+Follow the above, then install with git.
+
+```
+cd /var/www/html
+
+git clone git@github.com:lcherone/Conext.git .
+
+composer install
+
+composer setup
+
+cd .nuxt
+
+npm install
+
+npm run dev
+
+// or
+npm run generate
 ```
 
 ### Install LXD
@@ -108,29 +129,8 @@ www-data ALL=(ALL:ALL) NOPASSWD: /snap/bin/lxc
 
 Once complete, you will be able to go to the panel at `http://IP:88`, and then add the server, with the provided key during install.
 
+-->
 
-### With Git
-
-Follow the above, then install with git.
-
-```
-cd /var/www/html
-
-git clone git@github.com:lcherone/Conext.git .
-
-composer install
-
-composer setup
-
-cd .nuxt
-
-npm install
-
-npm run dev
-
-// or
-npm run generate
-```
 
 ## Contributing
 
