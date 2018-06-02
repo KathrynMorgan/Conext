@@ -82,7 +82,7 @@
             <v-form ref="form" v-model="valid" lazy-validation>
               <v-text-field v-model="newItem.name" label="Name" :rules="nameRule" @input="safe_name()" hint="Enter name for new container." required></v-text-field>
               <v-select :items="[newItem.image]" v-model="newItem.image" label="Image" required disabled></v-select>
-              <v-select :items="['default']" :rules="profilesRule" v-model="newItem.profile" label="Profiles" multiple chips required></v-select>
+              <v-select :items="profiles" :rules="profilesRule" v-model="newItem.profile" label="Profiles" multiple chips required></v-select>
               <v-switch :label="`${newItem.ephemeral ? 'Ephemeral' : 'Ephemeral'}`" color="success" v-model="newItem.ephemeral"></v-switch>
             </v-form>
           </v-card-text>
@@ -163,6 +163,7 @@
 
       // table & items
       items: [],
+      profiles: [],
       remotes: [],
       distros: [],
       publicServers: ['images', 'ubuntu', 'ubuntu-daily'],
@@ -227,6 +228,7 @@
       ]
     }),
     mounted: function () {
+      axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
       this.initialize()
     },
     watch: {
@@ -245,7 +247,6 @@
             this.$router.replace('/servers')
           }
 
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
           var response = await axios.get(this.loggedUser.sub + '/api/lxd/images/remotes')
           this.remotes = response.data.data
@@ -259,6 +260,26 @@
           this.error = 'Could not fetch data from server.';
         }
         this.tableLoading = false
+      },
+      
+      async getProfiles () {
+        //
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/profiles')
+          
+          this.profiles = []
+          response.data.data.forEach(item => {
+            this.profiles.push(item.name);
+          });
+
+        } catch (error) {
+          this.profiles = [];
+        }
       },
       
       async loadRemoteImages(remote = 'local') {
@@ -300,6 +321,7 @@
       
      createContainer (item, launch = false) {
         if (!launch) {
+          this.getProfiles()
           this.dialog.create = true
           this.newItem = {
             name: '',
@@ -320,8 +342,7 @@
             this.snackbar = true;
             this.snackbarColor = 'green';
             this.snackbarText = 'Container queued for creation.';
-              
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
             axios.post(this.loggedUser.sub + '/api/lxd/containers', this.newItem).then(response => {
               if (response.data.code === 200) {
                 //
@@ -378,8 +399,7 @@
                   if (!this.loggedUser) {
                     this.$router.replace('/servers')
                   }
-        
-                  axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
                   //
                   const response = await axios.delete(this.loggedUser.sub + '/api/lxd/images/'+item.fingerprint+'?remote='+this.activeRemote)
                   //
@@ -414,8 +434,7 @@
             if (!this.loggedUser) {
               this.$router.replace('/servers')
             }
-  
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
             //
             const response = await axios.put(this.loggedUser.sub + '/api/lxd/images/'+this.editingItem.fingerprint+'?remote='+this.activeRemote, this.editingItem)
             //

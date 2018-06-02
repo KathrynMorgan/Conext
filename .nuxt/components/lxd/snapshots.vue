@@ -67,6 +67,7 @@
     }),
     beforeDestroy: function() {},
     mounted: function () {
+      axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
       this.container = Object.assign({info:{name:''}}, this.item)
       
       this.initialize()
@@ -81,7 +82,6 @@
             this.$router.replace('/servers')
           }
 
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name + '/snapshots')
           this.items = response.data.data
@@ -116,8 +116,6 @@
                   this.items.splice(index, 1)
         
                   // remote
-                  axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-                  //
                   const response = await axios.delete(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name + '/snapshots/'+item.name.substr(item.name.lastIndexOf('/') + 1))
                   this.$emit('snackbar', 'Snapshot deleted.')
                 } catch (error) {
@@ -152,8 +150,7 @@
                   if (!this.loggedUser) {
                     this.$router.replace('/servers')
                   }
-        
-                  axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
                   //
                   const response = await axios.put(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name + '/snapshots', {
                     name: item.name.substr(item.name.lastIndexOf('/') + 1)
@@ -179,8 +176,6 @@
             this.$router.replace('/servers')
           }
 
-          //
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
           const response = await axios.post(this.loggedUser.sub + '/api/lxd/images', {
             source: {

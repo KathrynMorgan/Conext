@@ -7,7 +7,6 @@
     </v-snackbar>
 
     <v-content>
-      
       <!-- Main Content -->
       <v-container fluid tag="section" id="grid">
         <v-layout row wrap>
@@ -185,6 +184,7 @@
       ]
     }),
     mounted: function () {
+      axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
       this.initialize()
     },
     watch: {
@@ -200,7 +200,6 @@
             this.$router.replace('/servers')
           }
 
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
           const response = await axios.get(this.loggedUser.sub + '/api/ams/data')
           this.items = response.data.data
@@ -242,8 +241,7 @@
                   if (!this.loggedUser) {
                     this.$router.replace('/servers')
                   }
-        
-                  axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
                   //
                   const response = await axios.delete(this.loggedUser.sub + '/api/ams/data', { data: item })
                   //
@@ -278,8 +276,7 @@
             if (!this.loggedUser) {
               this.$router.replace('/servers')
             }
-  
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
             //
             const response = await axios.post(this.loggedUser.sub + '/api/ams/data', this.editingItem)
             //

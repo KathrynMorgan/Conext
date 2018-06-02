@@ -167,6 +167,7 @@
       }
     },
     mounted: function () {
+      axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
       this.initialize()
     },
     watch: {
@@ -200,7 +201,6 @@
             this.$router.replace('/servers')
           }
 
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
           const response = await axios.get(this.loggedUser.sub + '/api/routes/port-forwards')
           this.items = response.data.data
@@ -216,8 +216,7 @@
           if (!this.loggedUser) {
             this.$router.replace('/servers')
           }
-          
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
           //
           const response = await axios.post(this.loggedUser.sub + '/api/routes/port-forwards/check-port-in-use', {port:port})
           
@@ -233,8 +232,7 @@
           if (!this.loggedUser) {
             this.$router.replace('/servers')
           }
-          
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
           //
           const response = await axios.post(this.loggedUser.sub + '/api/routes/port-forwards/check-allowed-port', {port:port})
           
@@ -283,8 +281,7 @@
                   if (!this.loggedUser) {
                     this.$router.replace('/servers')
                   }
-        
-                  axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
                   //
                   const response = await axios.delete(this.loggedUser.sub + '/api/routes/port-forwards', { data: item })
                   //
@@ -312,8 +309,7 @@
             if (!this.loggedUser) {
               this.$router.replace('/servers')
             }
-  
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
             //
             const response = await axios.post(this.loggedUser.sub + '/api/routes/port-forwards', this.editingItem)
             
