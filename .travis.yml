@@ -1,0 +1,35 @@
+language: php
+sudo: yes
+php:
+    - 7.1
+cache:
+  directories:
+    - $HOME/.composer/cache
+before_install:
+  - travis_retry composer self-update
+install:
+  - travis_retry composer update --no-interaction --prefer-source
+script:
+  # set PATH
+  - export PATH=/usr/bin:/bin:/snap/bin:$PATH
+  # install 
+  - sudo apt-get update
+  - sudo apt-get -y install wget
+  - wget https://gist.githubusercontent.com/lcherone/d7e5ba660bc20d738132ccb1a453459d/raw/8fcbaa016577c39847506ccf1510a27bcfd0df58/install.sh && sudo bash install.sh
+  
+  # exit on fail
+  #- set -eo pipefail
+  # setup LXD group
+  #- sudo groupadd --system lxd
+  #- sudo usermod -a -G lxd $USER
+  # install lxd
+  #- sudo apt-get --yes install snapd
+  #- sudo snap install lxd
+  #- sudo lxd waitready
+  #- sudo lxd init --auto --network-address="127.0.0.1" --storage-backend=dir --trust-password=$lxdSecret
+  # setup LXD REST api
+  #- openssl genrsa 2048 > client.key
+  #- openssl req -new -x509 -nodes -sha1 -days 365 -key client.key -out client.crt -subj "/C=GB/ST=London/L=London/O=TEST/OU=IT Department/CN=ssl.cherone.co.uk"
+  #- sudo lxd.lxc config trust add client.crt
+  #- curl -k -L --cert client.crt --key client.key "https://127.0.0.1:8443/1.0"
+  #- composer test
