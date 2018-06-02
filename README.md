@@ -20,7 +20,7 @@ Not going to bore you with stuff you probably won't read, so here is what the sy
 
 ## Install
 
-Installing the project is easy, it should be done on a **clean ubuntu server**! [See wiki for screencasts](https://github.com/lcherone/Conext/wiki/Installing).
+Installing the project is easy, it should be done on a **clean ubuntu server**!
 
 ```
 # switch into root user!
