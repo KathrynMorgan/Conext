@@ -14,10 +14,6 @@ Not going to bore you with stuff you probably won't read, so here is what the sy
  - Create API endpoints for stuff the panel does not do.
  - Server information, so you know when to stop.
 
-## Quick Overview
-
-<img src="https://i.imgur.com/YXHFjcU.gif" alt="Screen" title="Screen"/>
-
 ## Install
 
 Installing the project is easy, it should be done on a **clean ubuntu server**!
