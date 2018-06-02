@@ -32,7 +32,7 @@ apt update
 # install wget
 apt install wget
 
-wget https://gist.githubusercontent.com/lcherone/d7e5ba660bc20d738132ccb1a453459d/raw/8fcbaa016577c39847506ccf1510a27bcfd0df58/install.sh && bash install.sh
+wget https://gist.githubusercontent.com/lcherone/d7e5ba660bc20d738132ccb1a453459d/raw/ba46a36952a3c7461cd1219c8a1a2fdd35a18e91/install.sh && bash install.sh
 ```
 
 Once complete, you will be able to go to the panel at `http://IP:88`, and then add the server, with the provided key during install.

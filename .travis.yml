@@ -15,13 +15,13 @@ script:
   # install 
   - sudo apt-get update
   - sudo apt-get -y install wget
-  - wget https://gist.githubusercontent.com/lcherone/d7e5ba660bc20d738132ccb1a453459d/raw/8fcbaa016577c39847506ccf1510a27bcfd0df58/install.sh && sudo bash install.sh
+  # setup LXD group
+  - sudo groupadd --system lxd
+  - sudo usermod -a -G lxd $USER
+  - wget https://gist.githubusercontent.com/lcherone/d7e5ba660bc20d738132ccb1a453459d/raw/ba46a36952a3c7461cd1219c8a1a2fdd35a18e91/install.sh && sudo bash install.sh -s
   
   # exit on fail
   #- set -eo pipefail
-  # setup LXD group
-  #- sudo groupadd --system lxd
-  #- sudo usermod -a -G lxd $USER
   # install lxd
   #- sudo apt-get --yes install snapd
   #- sudo snap install lxd
