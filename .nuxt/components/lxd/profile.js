@@ -12,9 +12,9 @@ module.exports = {
         'limits.memory.swap.priority': 5,
         'limits.disk.priority': 5,
         'limits.network.priority': 5,
-        'boot.autostart': false,
-        'security.nesting': false,
-        'security.privileged': false,
+        'boot.autostart': '0',
+        'security.nesting': '0',
+        'security.privileged': '0',
         'limits.memory.swap': '0',
         'limits.memory.enforce': 'soft'
       },
@@ -33,7 +33,7 @@ module.exports = {
       },
       name: '',
       used_by: [],
-      ephemeral: false
+      //ephemeral: false
     }
   },
   
@@ -52,12 +52,6 @@ module.exports = {
    * - removes MB from limits.memory
    */
   infix: function (profile) {
-
-    // cast inbound config values to bool
-    profile.ephemeral = (profile.ephemeral === '1')
-    profile.config['boot.autostart'] = (profile.config['boot.autostart'] === '1')
-    profile.config['security.privileged'] = (profile.config['security.privileged'] === '1')
-    profile.config['security.nesting'] = (profile.config['security.nesting'] === '1')
 
     // strip off MB from end of string
     if (profile.config['limits.memory'] !== undefined && isNaN(profile.config['limits.memory'])) {
@@ -87,13 +81,6 @@ module.exports = {
    * - prepends MB to limits.memory
    */
   outfix: function (profile) {
-    //
-    profile.ephemeral = (profile.ephemeral === true ? '1' : '0')
-    // boot
-    profile.config['boot.autostart'] = (profile.config['boot.autostart'] === true ? '1' : '0')
-    // security
-    profile.config['security.privileged'] = (profile.config['security.privileged'] === true ? '1' : '0')
-    profile.config['security.nesting'] = (profile.config['security.nesting'] === true ? '1' : '0')
     // limits
     profile.config['limits.cpu'] = String(profile.config['limits.cpu'])
     profile.config['limits.processes'] = String(profile.config['limits.processes'])
