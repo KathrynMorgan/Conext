@@ -12,7 +12,7 @@ class Index extends \Base\Controller
      */
     public function index(\Base $f3, $params)
     {
-        // load spa if exists, and endabled
+        // load spa if exists, and enabled
         if (file_exists('public/ui/index.html') && !$f3->devoid('PANEL.enabled')) {
             exit(\View::instance()->render('public/ui/index.html'));
         } 
