@@ -28,8 +28,13 @@
                         </span>
                         <span v-if="props.item.status === 'Stopped'">-</span>
                       </td>
-                      <td>{{ props.item.cpu && props.item.cpu.usage ? Number(props.item.cpu.usage/1000000000).toFixed(2) + ' seconds' : '-' }}</td>
+                      <td>{{ props.item.cpu && props.item.cpu.usage ? Number(props.item.cpu.usage/1000000000).toFixed(2) + 's' : '-' }}</td>
+                      <td>{{ props.item.processes ? props.item.processes : '-' }}</td>
                       <td>{{ props.item.memory && props.item.memory.usage ? formatBytes(props.item.memory.usage) : '-' }}</td>
+                      <td>
+                        {{ props.item.network.eth0 && props.item.network.eth0.counters ? formatBytes(props.item.network.eth0.counters.bytes_received) : '-' }} /
+                        {{ props.item.network.eth0 && props.item.network.eth0.counters ? formatBytes(props.item.network.eth0.counters.bytes_sent) : '-' }}
+                      </td>
                       <td>{{ props.item.status }}</td>
                       <td class="px-0">
                         <v-menu offset-y left style="float:right" class="mr-3">
@@ -127,7 +132,7 @@
                         <v-flex xs6>
                           <v-card-text class="px-1">
                             <h4 style="margin-bottom:-20px">CPU Cores ({{ container.info.config['limits.cpu'] }})</h4>
-                            <v-slider v-model="container.info.config['limits.cpu']" thumb-label max="2" ticks></v-slider>
+                            <v-slider v-model="container.info.config['limits.cpu']" thumb-label :max="max_cpu" ticks></v-slider>
                             <h4 style="margin-bottom:-20px">Max Processes ({{ container.info.config['limits.processes'] }})</h4>
                             <v-slider v-model="container.info.config['limits.processes']" thumb-label max="20000" step="100" ticks></v-slider>
                           </v-card-text>
@@ -146,7 +151,7 @@
                         <v-flex xs6>
                           <v-card-text class="px-1">
                             <h4 style="margin-bottom:-20px">Memory ({{ container.info.config['limits.memory'] }}MB)</h4>
-                            <v-slider v-model="container.info.config['limits.memory']" max="16000" thumb-label step="64" ticks></v-slider>
+                            <v-slider v-model="container.info.config['limits.memory']" :max="max_memory" thumb-label step="64" ticks></v-slider>
                             <h4 style="margin-bottom:-20px">Swap Priority ({{ container.info.config['limits.memory.swap.priority'] }}/10)</h4>
                             <v-slider v-model="container.info.config['limits.memory.swap.priority']" thumb-label max="10" step="1" ticks></v-slider>
                           </v-card-text>
@@ -232,13 +237,12 @@
       formTitle () {
         return this.editedIndex === -1 ? 'New Container' : 'Edit Container'
       },
-      /*
       max_memory: function () {
-        return (container.max_memory() / 1024) / 1024
+        return this.resources.memory.total / 1000 / 1000
       },
       max_cpu: function () {
-        return container.max_cpu()
-      }*/
+        return Number(this.resources.cpu.total)
+      }
     },
     data: () => ({
       valid: true,
@@ -255,6 +259,14 @@
       // table & items
       items: [],
       profiles: [],
+      resources: {
+        cpu: {
+          total: 0
+        },
+        memory: {
+          total: 0
+        }
+      },
       editingIndex: -1,
       
       tableLoading: true,
@@ -263,7 +275,9 @@
         { text: 'Name', value: 'name' },
         { text: 'IP', value: 'network.eth0.addresses[0].address' },
         { text: 'CPU', value: 'cpu.usage' },
+        { text: 'Processes:', value: 'processes:' },
         { text: 'Memory', value: 'memory.usage' },
+        { text: 'Network (In/Out)', value: 'network' },
         { text: 'Status', value: 'status' },
         { text: 'Actions', value: 'name', sortable: false, align: 'right' }
       ],
@@ -318,6 +332,7 @@
     mounted: function () {
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
       this.initialize()
+      this.getResources()
       
       clearInterval(this.pollId);
       this.pollId = setInterval(function () {
@@ -346,6 +361,23 @@
           this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
         }
         this.tableLoading = false
+      },
+
+      async getResources () {
+        //
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/resources')
+          
+          this.resources = response.data.data
+
+        } catch (error) {
+          this.resources = {};
+        }
       },
       
       async getProfiles () {

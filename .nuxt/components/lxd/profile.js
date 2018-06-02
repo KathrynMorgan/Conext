@@ -6,7 +6,7 @@ module.exports = {
       config: {
         'limits.cpu': 1,
         'limits.processes': 500,
-        'limits.cpu.allowance': 100, // %
+        'limits.cpu.allowance': 50, // %
         'limits.cpu.priority': 5, //    1-10
         'limits.memory': 1024,
         'limits.memory.swap.priority': 5,
@@ -36,15 +36,7 @@ module.exports = {
       //ephemeral: false
     }
   },
-  
-  max_memory: function () {
-    return 5000
-  },
-  
-  max_cpu: function () {
-    return 2
-  },
-  
+
   /**
    * in fix: should be called before applying to model
    * - turns string values into numbers
