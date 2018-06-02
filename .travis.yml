@@ -3,8 +3,10 @@ sudo: yes
 php:
     - 7.1
 cache:
+  apt: true
   directories:
     - $HOME/.composer/cache
+    - vendor/.nuxt/node_modules
 before_install:
   - travis_retry composer self-update
 install:
