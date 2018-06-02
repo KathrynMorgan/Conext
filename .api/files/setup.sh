@@ -23,25 +23,14 @@ prepare_system() {
 # Install PHP
 install_php() {
     # build
-    if [ "$(printenv TRAVIS)" = true ]; then
-        sudo apt-get -yq install php7.1-cli
-        sudo apt-get -yq install php7.1-fpm
-        sudo apt-get -yq install php7.1-mbstring
-        sudo apt-get -yq install php7.1-curl
-        sudo apt-get -yq install php7.1-json
-        sudo apt-get -yq install php7.1-xml
-        sudo apt-get -yq install php7.1-mysql
-        sudo apt-get -yq install php7.1-sqlite3
-    else
-        sudo apt-get -yq install php-cli
-        sudo apt-get -yq install php-fpm
-        sudo apt-get -yq install php-mbstring
-        sudo apt-get -yq install php-curl
-        sudo apt-get -yq install php-json
-        sudo apt-get -yq install php-xml
-        sudo apt-get -yq install php-mysql
-        sudo apt-get -yq install php-sqlite3
-    fi
+    sudo apt-get -yq install php-cli
+    sudo apt-get -yq install php-fpm
+    sudo apt-get -yq install php-mbstring
+    sudo apt-get -yq install php-curl
+    sudo apt-get -yq install php-json
+    sudo apt-get -yq install php-xml
+    sudo apt-get -yq install php-mysql
+    sudo apt-get -yq install php-sqlite3
 }
 
 # Genaral webroot setup - initial nginx part, specific configuration to be added
