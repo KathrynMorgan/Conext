@@ -27,7 +27,7 @@ If applicable, add screenshots to help explain your problem.
 **Conext**
 
  - Which method did you install with [e.g the script]
- - Did you install with a clean system [e.g yes, no]?
+ - Did you install on a clean system [e.g yes, no]?
  - What OS and version did you install it on [e.g Ubuntu 18.04]
 
 **Browser**
