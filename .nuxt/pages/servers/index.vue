@@ -7,7 +7,14 @@
             <v-layout column>
               <v-flex tag="h1" class="display mb-2">
                 My Servers
-                <v-btn color="success" @click="dialog = true" style="float:right">Add Server</v-btn>
+                <v-btn color="success" @click="dialog = true" style="float:right" :ripple="false">Add Server</v-btn>
+                <v-btn dark color="blue-grey lighten-2" @click="export_servers()" style="float:right" v-if="items.length > 0" :ripple="false">Export</v-btn>
+                <form id="import_form" style="display:inline-block;float: right">
+                  <label for="import_file" class="btn theme--dark blue-grey lighten-2" style="cursor: pointer">
+                    Import
+                  </label>
+                  <input id="import_file" name="file" type="file" accept=".json"/>
+                </form>
               </v-flex>
               <v-flex>
                 <v-alert type="error" :value="error">
@@ -130,7 +137,7 @@
         host: '',
         secret: ''
       },
-      
+
       // item form & validation
       valid: true,
       labelRule: [
@@ -146,6 +153,10 @@
     }),
     mounted: function () {
       this.initialize()
+
+      document.forms['import_form'].elements['import_file'].onchange = e => {
+        this.import_servers(e)
+      }
     },
     watch: {
       dialog (val) {
@@ -156,9 +167,72 @@
       initialize () {
         this.items = this.$storage.get("servers") || []
         // check status
+        setTimeout(() => {
+          this.items.forEach(item => {
+            this.status(item)
+          });
+        }, 100);
+      },
+
+      export_servers() {
+        var contents = []
         this.items.forEach(item => {
-          this.status(item)
+          contents.push({label:item.label, host:item.host, secret:item.secret });
         });
+
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(contents, null, 2)));
+        element.setAttribute('download', 'servers.json');
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+      },
+
+      import_servers(e) {
+        if (!window.FileReader) {
+          this.error = 'Browser not supported.'
+          return;
+        }
+        
+        this.error = '';
+
+        var reader = new FileReader();
+
+        reader.onload = evt => {
+            if (evt.target.readyState != 2) return;
+            if (evt.target.error) {
+                this.error = 'Error reading file.'
+                return;
+            }
+            try {
+              var items = JSON.parse(evt.target.result);
+              
+              var servers = []
+              items.forEach(item => {
+                servers.push({label:item.label || '-', host:item.host || '-', secret:item.secret || '-' });
+              });
+
+              if (items.length > 0) {
+                this.items = servers
+
+                this.$storage.set("servers", this.items)
+
+                setTimeout(() => {
+                  this.initialize()
+                }, 300)
+              } else {
+                this.error = 'Nothing to import'
+              }
+            } catch(e) {
+              this.error = 'Invalid file.'
+            }
+        };
+
+        reader.readAsText(e.target.files[0]);
       },
 
       authItem (item) {
@@ -213,10 +287,10 @@
             {
               title: 'Yes',
               color: 'success',
-              handler: () => { 
+              handler: () => {
                 const index = this.items.indexOf(item)
                 this.items.splice(index, 1)
-        
+
                 this.$storage.set("servers", this.items)
               }
             },
@@ -243,29 +317,29 @@
           } else {
             this.items.push(this.editedItem)
           }
-  
+
           this.$storage.set("servers", this.items)
-  
+
           this.close()
-          
+
           setTimeout(() => {
             this.initialize()
           }, 100)
         }
       },
-      
+
       status (item) {
         let index = this.items.indexOf(item)
-        
+
         axios.get(item.host + '/ping').then(response => {
-          this.items[index].status = { status: response.data === 'pong', msg: response.data === 'pong' ? 'Connectable' : 'Invalid Host' }
+          this.$set(this.items[index], 'status', { status: response.data === 'pong', msg: response.data === 'pong' ? 'Connectable' : 'Invalid Host' })
         }).catch(error => {
           if (error.response) {
-            this.items[index].status = { status: false, msg: 'Failed to connect'}
+            this.$set(this.items[index], 'status', { status: false, msg: 'Failed to connect'})
           } else if (error.request) {
-              this.items[index].status = { status: false, msg: 'Failed to connect'}
+            this.$set(this.items[index], 'status', { status: false, msg: 'Failed to connect'})
           } else {
-              this.items[index].status = { status: false, msg: 'Failed to connect'}
+            this.$set(this.items[index], 'status', { status: false, msg: 'Failed to connect'})
           }
         })
       }
@@ -274,5 +348,7 @@
 </script>
 
 <style>
-
+input[type="file"] {
+    display: none;
+}
 </style>
