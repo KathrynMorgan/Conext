@@ -4,7 +4,6 @@
       {{ snackbarText }}
       <v-btn dark flat @click.native="snackbar = false">Close</v-btn>
     </v-snackbar>
-
     <v-content>
       <v-container fluid tag="section" id="grid">
         <v-layout row wrap>
@@ -12,14 +11,11 @@
             <v-layout column>
               <v-flex tag="h1" class="display mb-2">
                 LXD - Containers
-                <!--<v-btn color="success" @click="newContainer()" style="float:right">New Container</v-btn>-->
               </v-flex>
               <v-flex>
-
                 <v-alert v-if="alert.msg" :value="alert.msg" :outline="alert.outline" :color="alert.color" :icon="alert.icon" dismissible>
                   {{ alert.msg }}
                 </v-alert>
-
                 <v-data-table :headers="tableHeaders" :items="items" hide-actions class="elevation-1" :loading="tableLoading">
                   <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                   <template slot="items" slot-scope="props">
@@ -87,14 +83,8 @@
           </v-toolbar>
           <v-card-text style="padding: 0px;">
             <v-tabs v-model="activeTab">
-              <!--<v-tab ripple :href="`#tab-information`" >Information</v-tab>-->
               <v-tab ripple :href="`#tab-configuration`">Configuration</v-tab>
               <v-tab ripple :href="`#tab-snapshots`">Snapshots</v-tab>
-              <!--<v-tab-item :id="`tab-information`">-->
-              <!--  <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">-->
-              <!--    <v-card-text><pre>{{ container }}</pre></v-card-text>-->
-              <!--  </v-card>-->
-              <!--</v-tab-item>-->
               <v-tab-item :id="`tab-configuration`" v-if="container.info">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
                   <v-card-text>
@@ -104,7 +94,7 @@
                         <v-flex xs6>
                           <v-card-text class="px-1">
                             <v-text-field v-model="container.info.name" label="Name" :rules="nameRule" @input="safe_name()" required></v-text-field>
-                            <v-select :items="['default']" :rules="profilesRule" v-model="container.info.profiles" label="Profiles" multiple chips required></v-select>
+                            <v-select :items="profiles" :rules="profilesRule" v-model="container.info.profiles" label="Profiles" multiple chips required></v-select>
                           </v-card-text>
                         </v-flex>
                         <v-flex xs6>
@@ -206,30 +196,6 @@
           <div style="flex: 1 1 auto;"></div>
         </v-card>
       </v-dialog>
-      
-      <!--<v-dialog v-model="newContainerDialog" max-width="800px" scrollable>-->
-      <!--  <v-card tile>-->
-      <!--    <v-toolbar card dark color="light-blue darken-3">-->
-      <!--      <v-btn icon @click.native="containerDialog = false" dark>-->
-      <!--        <v-icon>close</v-icon>-->
-      <!--      </v-btn>-->
-      <!--      <v-toolbar-title>New Container</v-toolbar-title>-->
-      <!--      <v-spacer></v-spacer>-->
-      <!--      <v-toolbar-items>-->
-      <!--        <v-btn dark flat @click.native="newContainerDialog = false">Save</v-btn>-->
-      <!--      </v-toolbar-items>-->
-      <!--    </v-toolbar>-->
-      <!--    <v-card-text>-->
-      <!--      <v-form ref="nform" v-model="valid" lazy-validation>-->
-      <!--        <v-text-field v-model="newItem.name" label="Name" :rules="nameRule" @input="safe_name()" hint="Enter name for new container." required></v-text-field>-->
-      <!--        <v-select :items="['default']" :rules="profilesRule" v-model="newItem.image" label="Image" required></v-select>-->
-      <!--        <v-select :items="['default']" :rules="profilesRule" v-model="newItem.profile" label="Profiles" multiple chips required></v-select>-->
-      <!--        <v-switch :label="`${newItem.ephemeral ? 'Ephemeral' : 'Ephemeral'}`" color="success" v-model="newItem.ephemeral"></v-switch>-->
-      <!--      </v-form>-->
-      <!--    </v-card-text>-->
-      <!--    <div style="flex: 1 1 auto;"></div>-->
-      <!--  </v-card>-->
-      <!--</v-dialog>-->
     </v-content>
   </v-app>
 </template>
@@ -288,6 +254,7 @@
 
       // table & items
       items: [],
+      profiles: [],
       editingIndex: -1,
       
       tableLoading: true,
@@ -379,6 +346,26 @@
           this.alert = { msg: 'Could not fetch data from server.', outline: false, color: 'error', icon: 'error' };
         }
         this.tableLoading = false
+      },
+      
+      async getProfiles () {
+        //
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/profiles')
+          
+          this.profiles = []
+          response.data.data.forEach(item => {
+            this.profiles.push(item.name);
+          });
+
+        } catch (error) {
+          this.profiles = [];
+        }
       },
 
       async stateContainer (action, item) {
@@ -582,6 +569,7 @@
       },
       
       async editContainer (item, openDialog = true) {
+        this.getProfiles()
         this.editingIndex = this.items.indexOf(item)
         //
         try {
