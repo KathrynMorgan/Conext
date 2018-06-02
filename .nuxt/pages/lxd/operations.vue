@@ -165,6 +165,7 @@
     }),
     beforeDestroy: function() {},
     mounted: function () {
+      axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
       this.initialize()
     },
     watch: {
@@ -180,7 +181,6 @@
             this.$router.replace('/servers')
           }
 
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/operations')
           this.items = response.data.data
@@ -203,8 +203,6 @@
       async cancelOperation (item) {
         //
         try {
-          //
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
           const response = await axios.delete(this.loggedUser.sub + '/api/lxd/operations/' + item.id)
           

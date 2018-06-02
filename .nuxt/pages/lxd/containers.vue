@@ -349,6 +349,7 @@
       clearInterval(this.pollId);
     },
     mounted: function () {
+      axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
       this.initialize()
       
       clearInterval(this.pollId);
@@ -368,7 +369,7 @@
           if (!this.loggedUser) {
             this.$router.replace('/servers')
           }
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+          
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers')
           this.items = response.data.data
@@ -407,8 +408,6 @@
         // intercept image
         if (action.action === 'image') {
           //
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-          //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
           
           this.container = {
@@ -430,8 +429,6 @@
             this.$router.replace('/servers')
           }
 
-          //
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
           const response = await axios.put(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/state', {
               "action": action.action,
@@ -489,8 +486,6 @@
         var tmp = document.createElement ('a');
         tmp.href = this.loggedUser.sub;
 
-        // init request for websocket connection
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
         //
         const response = axios.post(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name + '/exec', {
           'command': [command],
@@ -595,8 +590,6 @@
           }
 
           //
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-          //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
           
           this.container = {
@@ -620,8 +613,7 @@
             }
             
             this.container.info = Object.assign({}, container.outfix(this.container.info))
-  
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
             //
             const response = await axios.patch(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name, {
               config: this.container.info.config,
@@ -650,8 +642,6 @@
           }
 
           //
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-          //
           let response = await axios.post(this.loggedUser.sub + '/api/lxd/containers/'+ item.name +'/snapshots', {
               name: new Date().toISOString(),
               stateful: false
@@ -671,8 +661,6 @@
             this.$router.replace('/servers')
           }
 
-          //
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
           const response = await axios.post(this.loggedUser.sub + '/api/lxd/images', {
             source: {
@@ -722,9 +710,7 @@
                   if (!this.loggedUser) {
                     this.$router.replace('/servers')
                   }
-        
-                  //
-                  axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
                   //
                   const response = await axios.delete(this.loggedUser.sub + '/api/lxd/containers/' + item.name)
                   

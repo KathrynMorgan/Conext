@@ -215,6 +215,7 @@
     }),
     beforeDestroy: function() {},
     mounted: function () {
+      axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
       this.initialize()
     },
     watch: {
@@ -230,7 +231,6 @@
             this.$router.replace('/servers')
           }
 
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/profiles')
           this.items = response.data.data
@@ -273,9 +273,7 @@
             }
             
             this.editingItem = profile.outfix(this.editingItem);
-  
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
-            
+
             // edit
             if (this.editingIndex > -1) {
               var response = await axios.post(this.loggedUser.sub + '/api/lxd/profiles/'+this.editingItem.name, {
@@ -332,8 +330,6 @@
                 
                 // remote
                 try {
-                  //
-                  axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
                   //
                   const response = await axios.delete(this.loggedUser.sub + '/api/lxd/profiles/'+item.name)
 

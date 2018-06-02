@@ -370,6 +370,7 @@
       pollItem: 0
     }),
     mounted: function () {
+      axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
       this.initialize()
     },
     beforeDestroy: function(){
@@ -387,7 +388,6 @@
             this.$router.replace('/servers')
           }
 
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
           //
           const response = await axios.get(this.loggedUser.sub + '/api/tasks')
           //
@@ -406,8 +406,7 @@
           if (!this.loggedUser) {
             this.$router.replace('/servers')
           }
-  
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
           //
           const response = await axios.get(this.loggedUser.sub + '/api/tasks/' + item.id)
           this.item = response.data.data
@@ -437,8 +436,7 @@
             }
             
             item.sleep = sleep || 0
-  
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
             //
             const response = await axios.post(this.loggedUser.sub + '/api/tasks/' + item.id, item)
             
@@ -484,8 +482,7 @@
                     
                     // delete local
                     this.item.splice(index, 1)
-          
-                    axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
                     //
                     const response = await axios.delete(this.loggedUser.sub + '/api/tasks/' + item.id)
         
@@ -521,7 +518,6 @@
               this.$router.replace('/servers')
             }
 
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
             //
             const response = await axios.put(this.loggedUser.sub + '/api/tasks/' + item.id, item)
             
@@ -550,12 +546,10 @@
             if (!this.loggedUser) {
               this.$router.replace('/servers')
             }
-            
-            //
+
             // set sleep wheich will cause stop
             item.sleep = 0
 
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
             //
             const response = await axios.put(this.loggedUser.sub + '/api/tasks/' + item.id, item)
             
@@ -583,8 +577,7 @@
             if (!this.loggedUser) {
               this.$router.replace('/servers')
             }
-  
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
             //
             const response = await axios.put(this.loggedUser.sub + '/api/tasks', item)
             
@@ -640,8 +633,7 @@
                   if (!this.loggedUser) {
                     this.$router.replace('/servers')
                   }
-        
-                  axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
                   //
                   const response = await axios.delete(this.loggedUser.sub + '/api/tasks', { data: item })
                   //
@@ -680,8 +672,7 @@
             if (!this.loggedUser) {
               this.$router.replace('/servers')
             }
-  
-            axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
+
             //
             const response = await axios.post(this.loggedUser.sub + '/api/tasks', this.editingItem)
             //
