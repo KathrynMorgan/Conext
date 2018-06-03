@@ -17,7 +17,7 @@
                 <v-alert type="error" :value="error.global">
                   {{ error.global }}
                 </v-alert>
-                <v-data-table :headers="tableHeaders" :items="items" hide-actions class="elevation-1" :loading="tableLoading">
+                <v-data-table :headers="tableHeaders" :items="networks" hide-actions class="elevation-1" :loading="tableLoading">
                   <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
                   <template slot="items" slot-scope="props">
                     <tr>
@@ -75,57 +75,73 @@
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the network."></v-text-field>
                   <v-text-field v-model="editingItem.description" label="Description:" placeholder="" hint="Enter a description for the network."></v-text-field>
-                  <h2>IPv4 <v-switch color="success" v-model="state.ip4" style="margin-left:60px;margin-right:-60px;margin-top:-30px;width:50%;"></v-switch></h2>
-                  <div v-if="state.ip4" style="margin-top:-20px">
-                    <v-text-field v-model="editingItem.config['ipv4.address']" label="IPv4 address:" required placeholder="" hint="IPv4 address for the bridge (CIDR notation). Enter &quot;auto&quot; to generate a new one."></v-text-field>
-                    <v-text-field v-model="editingItem.config['ipv4.routes']" label="IPv4 routes:" placeholder="" hint="Comma separated list of additional IPv4 CIDR subnets to route to the bridge."></v-text-field>
-                    <v-layout row wrap style="margin-top:10px">
-                      <v-flex xs4>
-                        <h4>NAT</h4>
-                        <v-switch :label="`${editingItem.config['ipv4.nat'] === 'true' ? 'Yes' : 'No'}`" true-value="true" false-value="false" color="success" v-model="editingItem.config['ipv4.nat']" persistent-hint hint="Whether to NAT."></v-switch>
-                      </v-flex>
-                      <v-flex xs4>
-                        <h4>Firewall</h4>
-                        <v-switch :label="`${editingItem.config['ipv4.firewall'] === 'true' ? 'Yes' : 'No'}`" true-value="true" false-value="false" color="success" v-model="editingItem.config['ipv4.firewall']" persistent-hint hint="Generate filtering firewall rules."></v-switch>
-                      </v-flex>
-                      <v-flex xs4>
-                        <h4>Routing</h4>
-                        <v-switch :label="`${editingItem.config['ipv4.routing'] === 'true' ? 'Yes' : 'No'}`" true-value="true" false-value="false" color="success" v-model="editingItem.config['ipv4.routing']" persistent-hint hint="Route traffic in and out of the bridge."></v-switch>
-                      </v-flex>
-                    </v-layout>
-                    <h3 style="margin-top:20px">IPv4 DHCP <v-switch color="success" v-model="editingItem.config['ipv4.dhcp']" true-value="true" false-value="false" style="margin-left:100px;margin-right:-60px;margin-top:-28px;width:50%;"></v-switch></h3>
-                    <div v-if="editingItem.config['ipv4.dhcp'] === 'true'" style="margin-top:-20px">
-                      <v-text-field v-model="editingItem.config['ipv4.dhcp.expiry']" label="IPv4 DHCP expiry:" placeholder="" hint="When to expire DHCP leases."></v-text-field>
-                      <v-text-field v-model="editingItem.config['ipv4.dhcp.gateway']" label="IPv4 gateway address:" placeholder="" hint="Address of the gateway for the subnet."></v-text-field>
-                      <v-text-field v-model="editingItem.config['ipv4.dhcp.ranges']" label="IPv4 DHCP ranges:" placeholder="" :hint="`Comma separated list of IP ranges to use for DHCP (e.g: ${editingItem.config['ipv4.address'].substring(0, editingItem.config['ipv4.address'].lastIndexOf('.') + 2)}.2-${editingItem.config['ipv4.address'].substring(0, editingItem.config['ipv4.address'].lastIndexOf('.') + 2)}.255)`"></v-text-field>
+                  
+                  <h2>Bridge</h2>
+                  <v-select :items="['native','openvswitch']" v-model="editingItem.config['bridge.driver']" label="Driver:"></v-select>
+                  <v-text-field v-model="editingItem.config['bridge.external_interfaces']" label="External Interfaces:" placeholder="" hint="Comma separate list of unconfigured network interfaces to include in the bridge."></v-text-field>
+                  <v-select :items="['standard','fan']" v-model="editingItem.config['bridge.mode']" label="Mode:"></v-select>
+                  <v-text-field v-model="editingItem.config['bridge.mtu']" label="MTU:" placeholder="" hint="Bridge MTU (default varies if tunnel or fan setup)"></v-text-field>
+
+                  <div v-if="editingItem.config['bridge.mode'] === 'standard'">
+                    <h2>IPv4 <v-switch color="success" v-model="state.ip4" style="margin-left:60px;margin-right:-60px;margin-top:-30px;width:50%;"></v-switch></h2>
+                    <div v-if="state.ip4" style="margin-top:-20px">
+                      <v-text-field v-model="editingItem.config['ipv4.address']" label="IPv4 address:" required placeholder="" hint="IPv4 address for the bridge (CIDR notation). Enter &quot;auto&quot; to generate a new one."></v-text-field>
+                      <v-text-field v-model="editingItem.config['ipv4.routes']" label="IPv4 routes:" placeholder="" hint="Comma separated list of additional IPv4 CIDR subnets to route to the bridge."></v-text-field>
+                      <v-layout row wrap style="margin-top:10px">
+                        <v-flex xs4>
+                          <h4>NAT</h4>
+                          <v-switch :label="`${editingItem.config['ipv4.nat'] === 'true' ? 'Yes' : 'No'}`" true-value="true" false-value="false" color="success" v-model="editingItem.config['ipv4.nat']" persistent-hint hint="Whether to NAT."></v-switch>
+                        </v-flex>
+                        <v-flex xs4>
+                          <h4>Firewall</h4>
+                          <v-switch :label="`${editingItem.config['ipv4.firewall'] === 'true' ? 'Yes' : 'No'}`" true-value="true" false-value="false" color="success" v-model="editingItem.config['ipv4.firewall']" persistent-hint hint="Generate filtering firewall rules."></v-switch>
+                        </v-flex>
+                        <v-flex xs4>
+                          <h4>Routing</h4>
+                          <v-switch :label="`${editingItem.config['ipv4.routing'] === 'true' ? 'Yes' : 'No'}`" true-value="true" false-value="false" color="success" v-model="editingItem.config['ipv4.routing']" persistent-hint hint="Route traffic in and out of the bridge."></v-switch>
+                        </v-flex>
+                      </v-layout>
+                      <h3 style="margin-top:20px">IPv4 DHCP <v-switch color="success" v-model="editingItem.config['ipv4.dhcp']" true-value="true" false-value="false" style="margin-left:100px;margin-right:-60px;margin-top:-28px;width:50%;"></v-switch></h3>
+                      <div v-if="editingItem.config['ipv4.dhcp'] === 'true'" style="margin-top:-20px">
+                        <v-text-field v-model="editingItem.config['ipv4.dhcp.expiry']" label="IPv4 DHCP expiry:" placeholder="" hint="When to expire DHCP leases."></v-text-field>
+                        <v-text-field v-model="editingItem.config['ipv4.dhcp.gateway']" label="IPv4 gateway address:" placeholder="" hint="Address of the gateway for the subnet."></v-text-field>
+                        <v-text-field v-model="editingItem.config['ipv4.dhcp.ranges']" label="IPv4 DHCP ranges:" placeholder="" :hint="`Comma separated list of IP ranges to use for DHCP (e.g: ${editingItem.config['ipv4.address'].substring(0, editingItem.config['ipv4.address'].lastIndexOf('.') + 2)}.2-${editingItem.config['ipv4.address'].substring(0, editingItem.config['ipv4.address'].lastIndexOf('.') + 2)}.255)`"></v-text-field>
+                      </div>
+                    </div>
+  
+                    <h2>IPv6 <v-switch color="success" v-model="state.ip6" style="margin-left:60px;margin-right:-60px;margin-top:-30px;width:50%;"></v-switch></h2>
+                    <div v-if="state.ip6" style="margin-top:-20px">
+                      <v-text-field v-model="editingItem.config['ipv6.address']" label="IPv6 address:" required placeholder="" hint="IPv6 address for the bridge (CIDR notation). Enter &quot;auto&quot; to generate a new one."></v-text-field>
+                      <v-text-field v-model="editingItem.config['ipv6.routes']" label="IPv6 routes:" placeholder="" hint="Comma separated list of additional IPv6 CIDR subnets to route to the bridge."></v-text-field>
+                      <v-layout row wrap style="margin-top:10px">
+                        <v-flex xs4>
+                          <h4>NAT</h4>
+                          <v-switch :label="`${editingItem.config['ipv6.nat'] === 'true' ? 'Yes' : 'No'}`" true-value="true" false-value="false" color="success" v-model="editingItem.config['ipv6.nat']" persistent-hint hint="Whether to NAT."></v-switch>
+                        </v-flex>
+                        <v-flex xs4>
+                          <h4>Firewall</h4>
+                          <v-switch :label="`${editingItem.config['ipv6.firewall'] === 'true' ? 'Yes' : 'No'}`" true-value="true" false-value="false" color="success" v-model="editingItem.config['ipv6.firewall']" persistent-hint hint="Generate filtering firewall rules."></v-switch>
+                        </v-flex>
+                        <v-flex xs4>
+                          <h4>Routing</h4>
+                          <v-switch :label="`${editingItem.config['ipv6.routing'] === 'true' ? 'Yes' : 'No'}`" true-value="true" false-value="false" color="success" v-model="editingItem.config['ipv6.routing']" persistent-hint hint="Route traffic in and out of the bridge."></v-switch>
+                        </v-flex>
+                      </v-layout>
+                      <h3 style="margin-top:20px">IPv6 DHCP <v-switch color="success" v-model="editingItem.config['ipv6.dhcp']" true-value="true" false-value="false" style="margin-left:100px;margin-right:-60px;margin-top:-28px;width:50%;"></v-switch></h3>
+                      <div v-if="editingItem.config['ipv6.dhcp'] === 'true'" style="margin-top:-20px">
+                        <v-text-field v-model="editingItem.config['ipv6.dhcp.expiry']" label="IPv6 DHCP expiry:" placeholder="" hint="When to expire DHCP leases."></v-text-field>
+                        <h4>Stateful</h4>
+                        <v-switch :label="`${editingItem.config['ipv6.dhcp.stateful'] === 'true' ? 'Yes' : 'No'}`" true-value="true" false-value="false" color="success" v-model="editingItem.config['ipv6.dhcp.stateful']" persistent-hint hint="Whether to allocate addresses using DHCP."></v-switch>
+                        <v-text-field style="margin-top:10px" v-model="editingItem.config['ipv6.dhcp.ranges']" label="IPv6 DHCP ranges:" placeholder="" :hint="`Comma separated list of IP ranges to use for DHCP (e.g: ${editingItem.config['ipv6.address'].substring(0, editingItem.config['ipv6.address'].lastIndexOf(':') + 1)}2-${editingItem.config['ipv6.address'].substring(0, editingItem.config['ipv6.address'].lastIndexOf(':') + 1)}255)`"></v-text-field>
+                      </div>
                     </div>
                   </div>
+                  <div v-if="editingItem.config['bridge.mode'] === 'fan'">
+                    <h2>Fan</h2>
+                    <v-text-field v-model="editingItem.config['fan.overlay_subnet']" label="Overlay Subnet:" placeholder="" hint="Subnet to use as the overlay for the FAN (CIDR notation)."></v-text-field>
+                    <v-text-field v-model="editingItem.config['fan.underlay_subnet']" label="Underlay Subnet:" placeholder="" hint="Subnet to use as the underlay for the FAN (CIDR notation)."></v-text-field>
+                    <v-select :items="['vxlan','ipip']" v-model="editingItem.config['fan.type']" label="Type:"></v-select>
 
-                  <h2>IPv6 <v-switch color="success" v-model="state.ip6" style="margin-left:60px;margin-right:-60px;margin-top:-30px;width:50%;"></v-switch></h2>
-                  <div v-if="state.ip6" style="margin-top:-20px">
-                    <v-text-field v-model="editingItem.config['ipv6.address']" label="IPv6 address:" required placeholder="" hint="IPv6 address for the bridge (CIDR notation). Enter &quot;auto&quot; to generate a new one."></v-text-field>
-                    <v-text-field v-model="editingItem.config['ipv6.routes']" label="IPv6 routes:" placeholder="" hint="Comma separated list of additional IPv6 CIDR subnets to route to the bridge."></v-text-field>
-                    <v-layout row wrap style="margin-top:10px">
-                      <v-flex xs4>
-                        <h4>NAT</h4>
-                        <v-switch :label="`${editingItem.config['ipv6.nat'] === 'true' ? 'Yes' : 'No'}`" true-value="true" false-value="false" color="success" v-model="editingItem.config['ipv6.nat']" persistent-hint hint="Whether to NAT."></v-switch>
-                      </v-flex>
-                      <v-flex xs4>
-                        <h4>Firewall</h4>
-                        <v-switch :label="`${editingItem.config['ipv6.firewall'] === 'true' ? 'Yes' : 'No'}`" true-value="true" false-value="false" color="success" v-model="editingItem.config['ipv6.firewall']" persistent-hint hint="Generate filtering firewall rules."></v-switch>
-                      </v-flex>
-                      <v-flex xs4>
-                        <h4>Routing</h4>
-                        <v-switch :label="`${editingItem.config['ipv6.routing'] === 'true' ? 'Yes' : 'No'}`" true-value="true" false-value="false" color="success" v-model="editingItem.config['ipv6.routing']" persistent-hint hint="Route traffic in and out of the bridge."></v-switch>
-                      </v-flex>
-                    </v-layout>
-                    <h3 style="margin-top:20px">IPv6 DHCP <v-switch color="success" v-model="editingItem.config['ipv6.dhcp']" true-value="true" false-value="false" style="margin-left:100px;margin-right:-60px;margin-top:-28px;width:50%;"></v-switch></h3>
-                    <div v-if="editingItem.config['ipv6.dhcp'] === 'true'" style="margin-top:-20px">
-                      <v-text-field v-model="editingItem.config['ipv6.dhcp.expiry']" label="IPv6 DHCP expiry:" placeholder="" hint="When to expire DHCP leases."></v-text-field>
-                      <h4>Stateful</h4>
-                      <v-switch :label="`${editingItem.config['ipv6.dhcp.stateful'] === 'true' ? 'Yes' : 'No'}`" true-value="true" false-value="false" color="success" v-model="editingItem.config['ipv6.dhcp.stateful']" persistent-hint hint="Whether to allocate addresses using DHCP."></v-switch>
-                      <v-text-field style="margin-top:10px" v-model="editingItem.config['ipv6.dhcp.ranges']" label="IPv6 DHCP ranges:" placeholder="" :hint="`Comma separated list of IP ranges to use for DHCP (e.g: ${editingItem.config['ipv6.address'].substring(0, editingItem.config['ipv6.address'].lastIndexOf(':') + 1)}2-${editingItem.config['ipv6.address'].substring(0, editingItem.config['ipv6.address'].lastIndexOf(':') + 1)}255)`"></v-text-field>
-                    </div>
                   </div>
                 </v-form>
               </v-card-text>
@@ -155,7 +171,12 @@
         isAuthenticated: 'auth/isAuthenticated',
         loggedUser: 'auth/loggedUser',
         loggedToken: 'auth/loggedToken'
-      })
+      }),
+      networks: function () {
+        return this.items.filter(item => {
+          return item.managed === true;
+        })
+      }
     },
     data: () => ({
       dialog: false,
@@ -207,6 +228,10 @@
       editingIndex: -1,
       editingItem: {
         config: {
+          "bridge.driver": "native",
+          "bridge.external_interfaces": "",
+          "bridge.mode": "standard",
+          "bridge.mtu": 1500,
           "ipv4.address": "",
           "ipv4.nat": "",
           "ipv6.address": "",
@@ -222,6 +247,10 @@
       },
       defaultItem: {
         config: {
+          "bridge.driver": "native",
+          "bridge.external_interfaces": "",
+          "bridge.mode": "standard",
+          "bridge.mtu": 1500,
           "ipv4.address": "",
           "ipv4.nat": "",
           "ipv6.address": "",
@@ -263,9 +292,9 @@
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/networks')
           this.items = response.data.data
         } catch (error) {
-          this.items = [];
-          this.tableNoData = 'No data.';
-          this.error.global = 'Could not fetch data from server.';
+          this.items = []
+          this.tableNoData = 'No data.'
+          this.error.global = 'Could not fetch data from server.'
         }
         this.tableLoading = false
       },
@@ -279,39 +308,47 @@
         this.state.ip4 = this.editingItem.config['ipv4.address'] !== 'none'
         this.state.ip6 = this.editingItem.config['ipv6.address'] !== 'none'
         
+        // setup mode if not defined
+        if (!this.editingItem.config['bridge.mode']) {
+          this.editingItem.config['bridge.driver'] = "native"
+          this.editingItem.config['bridge.external_interfaces'] = ""
+          this.editingItem.config['bridge.mode'] = "standard"
+          this.editingItem.config['bridge.mtu'] = 1500
+        }
+        
         // workaround as cant remove keys
         if (this.editingItem.config['ipv4.routes'] === ' ') {
-          this.editingItem.config['ipv4.routes'] = '';
+          this.editingItem.config['ipv4.routes'] = ''
         }
         
         // workaround as cant remove keys
         if (this.editingItem.config['ipv6.routes'] === ' ') {
-          this.editingItem.config['ipv6.routes'] = '';
+          this.editingItem.config['ipv6.routes'] = ''
         }
 
         // apply change to the model
         if (this.editingItem.config['ipv4.address'] === 'none') {
-          this.editingItem.config['ipv4.address'] = '';
-          this.editingItem.config['ipv4.nat'] = 'false';
-          this.editingItem.config['ipv4.routes'] = '';
-          this.editingItem.config['ipv4.firewall'] = 'false';
-          this.editingItem.config['ipv4.routing'] = 'false';
-          this.editingItem.config['ipv4.dhcp'] = 'false';
-          this.editingItem.config['ipv4.dhcp.expiry'] = '';
-          this.editingItem.config['ipv4.dhcp.gateway'] = '';
-          this.editingItem.config['ipv4.dhcp.ranges'] = '';
+          this.editingItem.config['ipv4.address'] = ''
+          this.editingItem.config['ipv4.nat'] = 'false'
+          this.editingItem.config['ipv4.routes'] = ''
+          this.editingItem.config['ipv4.firewall'] = 'false'
+          this.editingItem.config['ipv4.routing'] = 'false'
+          this.editingItem.config['ipv4.dhcp'] = 'false'
+          this.editingItem.config['ipv4.dhcp.expiry'] = ''
+          this.editingItem.config['ipv4.dhcp.gateway'] = ''
+          this.editingItem.config['ipv4.dhcp.ranges'] = ''
         }
         
         if (this.editingItem.config['ipv6.address'] === 'none') {
-          this.editingItem.config['ipv6.address'] = '';
-          this.editingItem.config['ipv6.nat'] = 'false';
-          this.editingItem.config['ipv6.routes'] = '';
-          this.editingItem.config['ipv6.firewall'] = 'false';
-          this.editingItem.config['ipv6.routing'] = 'false';
-          this.editingItem.config['ipv6.dhcp'] = 'false';
-          this.editingItem.config['ipv6.dhcp.expiry'] = '';
-          this.editingItem.config['ipv6.dhcp.stateful'] = 'false';
-          this.editingItem.config['ipv6.dhcp.ranges'] = '';
+          this.editingItem.config['ipv6.address'] = ''
+          this.editingItem.config['ipv6.nat'] = 'false'
+          this.editingItem.config['ipv6.routes'] = ''
+          this.editingItem.config['ipv6.firewall'] = 'false'
+          this.editingItem.config['ipv6.routing'] = 'false'
+          this.editingItem.config['ipv6.dhcp'] = 'false'
+          this.editingItem.config['ipv6.dhcp.expiry'] = ''
+          this.editingItem.config['ipv6.dhcp.stateful'] = 'false'
+          this.editingItem.config['ipv6.dhcp.ranges'] = ''
         }
 
         this.dialog = true
@@ -329,23 +366,50 @@
             // remove IPv4 is turned off
             if (!this.state.ip4) {
               this.editingItem.config['ipv4.address'] = 'none'
-              this.editingItem.config['ipv4.nat'] = 'false';
+              this.editingItem.config['ipv4.nat'] = 'false'
             }
             
             // remove IPv6 is turned off
             if (!this.state.ip6) {
               this.editingItem.config['ipv6.address'] = 'none'
-              this.editingItem.config['ipv6.nat'] = 'false';
+              this.editingItem.config['ipv6.nat'] = 'false'
             }
             
             // workaround as cant remove keys
             if (this.editingItem.config['ipv4.routes'] === '') {
-              this.editingItem.config['ipv4.routes'] = ' ';
+              this.editingItem.config['ipv4.routes'] = ' '
             }
             
             // workaround as cant remove keys
             if (this.editingItem.config['ipv6.routes'] === '') {
-              this.editingItem.config['ipv6.routes'] = ' ';
+              this.editingItem.config['ipv6.routes'] = ' '
+            }
+            
+            // remove bridge mode
+            if (this.editingItem.config['bridge.mode'] === 'fan') {
+              delete this.editingItem.config['ipv4.address']
+              delete this.editingItem.config['ipv4.nat']
+              delete this.editingItem.config['ipv4.routes']
+              delete this.editingItem.config['ipv4.firewall']
+              delete this.editingItem.config['ipv4.routing']
+              delete this.editingItem.config['ipv4.dhcp']
+              delete this.editingItem.config['ipv4.dhcp.expiry']
+              delete this.editingItem.config['ipv4.dhcp.stateful']
+              delete this.editingItem.config['ipv4.dhcp.ranges']
+              
+              delete this.editingItem.config['ipv6.address']
+              delete this.editingItem.config['ipv6.nat']
+              delete this.editingItem.config['ipv6.routes']
+              delete this.editingItem.config['ipv6.firewall']
+              delete this.editingItem.config['ipv6.routing']
+              delete this.editingItem.config['ipv6.dhcp']
+              delete this.editingItem.config['ipv6.dhcp.expiry']
+              delete this.editingItem.config['ipv6.dhcp.stateful']
+              delete this.editingItem.config['ipv6.dhcp.ranges']
+            } else if (this.editingItem.config['bridge.mode'] === 'standard') {
+              delete this.editingItem.config['fan.overlay_subnet']
+              delete this.editingItem.config['fan.underlay_subnet']
+              delete this.editingItem.config['fan.type']
             }
 
             // edit
@@ -370,7 +434,7 @@
             
             // check errors
             if (response.data.code === 422) {
-              this.error.editing = response.data.error;
+              this.error.editing = response.data.error
             } else {
               this.error.editing = false
               // local
@@ -380,11 +444,11 @@
                 this.items.push(Object.assign({}, this.editingItem))
               }
               //
-              this.snackbar = true;
-              this.snackbarText = 'Network successfully saved.';
+              this.snackbar = true
+              this.snackbarText = 'Network successfully saved.'
             }
           } catch (error) {
-            this.error.global = 'Could not save network to server.';
+            this.error.global = 'Could not save network to server.'
           }
 
           if (!this.error.editing && this.editingIndex === -1) {
@@ -422,12 +486,12 @@
                   const response = await axios.delete(this.loggedUser.sub + '/api/lxd/networks/'+item.name)
 
                   //
-                  this.snackbar = true;
-                  this.snackbarColor = 'green';
-                  this.snackbarText = 'Network deleted.';
+                  this.snackbar = true
+                  this.snackbarColor = 'green'
+                  this.snackbarText = 'Network deleted.'
                 } catch (error) {
                   //
-                  this.error.global = 'Failed to delete network.';
+                  this.error.global = 'Failed to delete network.'
                 }
               }
             },
@@ -449,7 +513,7 @@
       },
 
       ucfirst(str) {
-        return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+        return String(str).charAt(0).toUpperCase() + String(str).slice(1)
       }
     }
   }
