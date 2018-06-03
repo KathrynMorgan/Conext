@@ -9,7 +9,6 @@ class Index extends \Base\Controller
 {
     public function beforeRoute(\Base $f3, $params)
     {
-        // check auth
         try {
             \Lib\JWT::checkAuthThen(function ($server) use ($f3) {
                 // set plinker client
@@ -40,13 +39,11 @@ class Index extends \Base\Controller
         $client = $f3->get('plinker');
         
         /**
-         * GET /api/lxd
+         * GET /api/lxd/resources
          */
         if ($verb === 'GET') {
             // get containers
-            $result = $client->lxd->containers->list('local', function ($result) {
-                return str_replace('/1.0/containers/', '', $result);
-            });
+            $result = $client->lxd->resources->list('local');
 
             $f3->response->json([
                 'error' => null,
@@ -58,6 +55,7 @@ class Index extends \Base\Controller
         /**
          * POST /api/lxd/containers
          */
+        /*
         if ($verb === 'POST') {
             $f3->response->json([
                 'error' => '',
@@ -65,10 +63,12 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
         }
+        */
         
         /**
          * PUT /api/lxd/containers
          */
+        /*
         if ($verb === 'PUT') {
             $item = json_decode($f3->get('BODY'), true);
             
@@ -86,10 +86,12 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
         }
+        */
         
         /**
          * DELETE /api/lxd/containers
          */
+        /*
         if ($verb === 'DELETE') {
             $item = json_decode($f3->get('BODY'), true);
             
@@ -107,6 +109,7 @@ class Index extends \Base\Controller
                 'data'  => []
             ]);
         }
+        */
     }
 
 }

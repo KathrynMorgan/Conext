@@ -21,14 +21,14 @@ module.exports = {
         'security.nesting': false,
         'limits.cpu': 1,
         'limits.cpu.priority': 5,
-        'limits.processes': 300,
+        'limits.processes': 500,
         'limits.memory.swap.priority': 5,
         'limits.disk.priority': 5,
         'limits.network.priority': 5,
-        'limits.cpu.allowance': 100,
+        'limits.cpu.allowance': 50,
         'limits.memory': 1024,
-        'limits.memory.swap': '1',
-        'limits.memory.enforce': 'hard'
+        'limits.memory.swap': '0',
+        'limits.memory.enforce': 'soft'
       },
       devices: {},
       ephemeral: false,
@@ -65,12 +65,7 @@ module.exports = {
       snapshots: []
     }
   },
-  max_memory: function () {
-    return 1000000
-  },
-  max_cpu: function () {
-    return 1
-  },
+
   /**
    * in fix: should be called before applying to model
    * - turns string values into numbers

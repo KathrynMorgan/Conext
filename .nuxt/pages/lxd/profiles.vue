@@ -91,7 +91,7 @@
                     <v-flex xs6>
                       <v-card-text class="px-1">
                         <h4 style="margin-bottom:-20px">CPU Cores ({{ editingItem.config['limits.cpu'] }})</h4>
-                        <v-slider v-model="editingItem.config['limits.cpu']" thumb-label max="2" ticks></v-slider>
+                        <v-slider v-model="editingItem.config['limits.cpu']" thumb-label :max="max_cpu" ticks></v-slider>
                         <h4 style="margin-bottom:-20px">Max Processes ({{ editingItem.config['limits.processes'] }})</h4>
                         <v-slider v-model="editingItem.config['limits.processes']" thumb-label max="20000" step="100" ticks></v-slider>
                       </v-card-text>
@@ -110,7 +110,7 @@
                     <v-flex xs6>
                       <v-card-text class="px-1">
                         <h4 style="margin-bottom:-20px">Memory ({{ editingItem.config['limits.memory'] }}MB)</h4>
-                        <v-slider v-model="editingItem.config['limits.memory']" max="16000" thumb-label step="64" ticks></v-slider>
+                        <v-slider v-model="editingItem.config['limits.memory']" :max="max_memory" thumb-label step="64" ticks></v-slider>
                         <h4 style="margin-bottom:-20px">Swap Priority ({{ editingItem.config['limits.memory.swap.priority'] }}/10)</h4>
                         <v-slider v-model="editingItem.config['limits.memory.swap.priority']" thumb-label max="10" step="1" ticks></v-slider>
                       </v-card-text>
@@ -179,6 +179,12 @@
       }),
       empty_profile: function () {
         return profile.empty()
+      },
+      max_memory: function () {
+        return this.resources.memory.total / 1000 / 1000
+      },
+      max_cpu: function () {
+        return Number(this.resources.cpu.total)
       }
     },
     data: () => ({
@@ -196,6 +202,14 @@
 
       // table & items
       items: [],
+      resources: {
+        cpu: {
+          total: 0
+        },
+        memory: {
+          total: 0
+        }
+      },
 
       tableLoading: true,
       tableHeaders: [
@@ -217,6 +231,7 @@
     mounted: function () {
       axios.defaults.headers.common['Authorization'] = 'Bearer ' + this.loggedToken
       this.initialize()
+      this.getResources()
     },
     watch: {
       dialog (val) {
@@ -240,6 +255,23 @@
           this.error = 'Could not fetch data from server.';
         }
         this.tableLoading = false
+      },
+      
+      async getResources () {
+        //
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/resources')
+          
+          this.resources = response.data.data
+
+        } catch (error) {
+          this.resources = {};
+        }
       },
 
       // create or edit item
