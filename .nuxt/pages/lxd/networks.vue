@@ -75,14 +75,14 @@
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the network."></v-text-field>
                   <v-text-field v-model="editingItem.description" label="Description:" placeholder="" hint="Enter a description for the network."></v-text-field>
-                  
+
                   <h2>Bridge</h2>
                   <v-select :items="['native','openvswitch']" v-model="editingItem.config['bridge.driver']" label="Driver:"></v-select>
                   <v-text-field v-model="editingItem.config['bridge.external_interfaces']" label="External Interfaces:" placeholder="" hint="Comma separate list of unconfigured network interfaces to include in the bridge."></v-text-field>
                   <v-select :items="['standard','fan']" v-model="editingItem.config['bridge.mode']" label="Mode:"></v-select>
                   <v-text-field v-model="editingItem.config['bridge.mtu']" label="MTU:" placeholder="" hint="Bridge MTU (default varies if tunnel or fan setup)"></v-text-field>
 
-                  <div v-if="editingItem.config['bridge.mode'] === 'standard'">
+                  <div v-show="editingItem.config['bridge.mode'] == 'standard'">
                     <h2>IPv4 <v-switch color="success" v-model="state.ip4" style="margin-left:60px;margin-right:-60px;margin-top:-30px;width:50%;"></v-switch></h2>
                     <div v-if="state.ip4" style="margin-top:-20px">
                       <v-text-field v-model="editingItem.config['ipv4.address']" label="IPv4 address:" required placeholder="" hint="IPv4 address for the bridge (CIDR notation). Enter &quot;auto&quot; to generate a new one."></v-text-field>
@@ -136,12 +136,11 @@
                       </div>
                     </div>
                   </div>
-                  <div v-if="editingItem.config['bridge.mode'] === 'fan'">
+                  <div v-show="editingItem.config['bridge.mode'] == 'fan'">
                     <h2>Fan</h2>
                     <v-text-field v-model="editingItem.config['fan.overlay_subnet']" label="Overlay Subnet:" placeholder="" hint="Subnet to use as the overlay for the FAN (CIDR notation)."></v-text-field>
                     <v-text-field v-model="editingItem.config['fan.underlay_subnet']" label="Underlay Subnet:" placeholder="" hint="Subnet to use as the underlay for the FAN (CIDR notation)."></v-text-field>
                     <v-select :items="['vxlan','ipip']" v-model="editingItem.config['fan.type']" label="Type:"></v-select>
-
                   </div>
                 </v-form>
               </v-card-text>
@@ -231,7 +230,7 @@
           "bridge.driver": "native",
           "bridge.external_interfaces": "",
           "bridge.mode": "standard",
-          "bridge.mtu": 1500,
+          "bridge.mtu": "1500",
           "ipv4.address": "",
           "ipv4.nat": "",
           "ipv6.address": "",
@@ -250,7 +249,7 @@
           "bridge.driver": "native",
           "bridge.external_interfaces": "",
           "bridge.mode": "standard",
-          "bridge.mtu": 1500,
+          "bridge.mtu": "1500",
           "ipv4.address": "",
           "ipv4.nat": "",
           "ipv6.address": "",
@@ -310,10 +309,12 @@
         
         // setup mode if not defined
         if (!this.editingItem.config['bridge.mode']) {
-          this.editingItem.config['bridge.driver'] = "native"
-          this.editingItem.config['bridge.external_interfaces'] = ""
-          this.editingItem.config['bridge.mode'] = "standard"
-          this.editingItem.config['bridge.mtu'] = 1500
+          this.editingItem = Object.assign({}, this.editingItem.config, {
+            'bridge.driver': "native",
+            'bridge.external_interfaces': "",
+            'bridge.mode': "standard",
+            'bridge.mtu': "1500",
+          })
         }
         
         // workaround as cant remove keys
