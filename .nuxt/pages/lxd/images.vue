@@ -140,7 +140,7 @@
         loggedToken: 'auth/loggedToken'
       }),
       image_list: function () {
-        return this.items.filter((row) => {
+        return this.items.filter(row => {
           if (this.activeDistro.toLowerCase() !== row.properties.os.toLowerCase()) {
             return false
           }

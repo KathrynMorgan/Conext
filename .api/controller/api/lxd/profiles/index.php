@@ -81,7 +81,7 @@ class Index extends \Base\Controller
             }
             
             // fix devices (cast to object)
-            if (!empty($body['devices'])) {
+            if (isset($body['devices'])) {
                 $body['devices'] = (object) $body['devices'];
             }
             
