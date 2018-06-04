@@ -53,9 +53,9 @@
       },
       curlParams () {
         var ret = ''
-        ret += '\'to\' => \''+this.to+'\',\n';
+        ret += '"to" => "'+this.to+'",\n';
         this.parameters.forEach(value => {
-          ret += '    \''+value.key+'\' => \''+value.value+'\',\n';
+          ret += '    "'+value.key.replace('"','\\"')+'" => "'+value.value.replace('"','\\"')+'",\n';
         })
         return ret
       },

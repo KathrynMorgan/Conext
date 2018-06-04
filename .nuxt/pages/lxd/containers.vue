@@ -22,8 +22,8 @@
                     <tr>
                       <td><a href="javascript:void(0)" @click.stop="editContainer(props.item)">{{ props.item.name }}</a></td>
                       <td>
-                        <span v-if="check_started_with_ip(props.item)">{{ props.item.network.eth0.addresses[0].address }}</span>
-                        <span v-if="props.item.status === 'Running' && (props.item.network.eth0.addresses.length === 0 || isIP4(props.item.network.eth0.addresses[0].address) === false)">
+                        <span v-if="check_started_with_ip(props.item)">{{ props.item.network && props.item.network.eth0.addresses[0].address ? props.item.network.eth0.addresses[0].address : '-' }}</span>
+                        <span v-if="props.item.network && props.item.status === 'Running' && (props.item.network.eth0.addresses.length === 0 || isIP4(props.item.network.eth0.addresses[0].address) === false)">
                           <v-icon size="15" @click="initialize()" color="orange darken-2">fa fa-refresh</v-icon>
                         </span>
                         <span v-if="props.item.status === 'Stopped'">-</span>
@@ -32,8 +32,8 @@
                       <td>{{ props.item.processes ? props.item.processes : '-' }}</td>
                       <td>{{ props.item.memory && props.item.memory.usage ? formatBytes(props.item.memory.usage) : '-' }}</td>
                       <td>
-                        {{ props.item.network.eth0 && props.item.network.eth0.counters ? formatBytes(props.item.network.eth0.counters.bytes_received) : '-' }} /
-                        {{ props.item.network.eth0 && props.item.network.eth0.counters ? formatBytes(props.item.network.eth0.counters.bytes_sent) : '-' }}
+                        {{ props.item.network && props.item.network.eth0 && props.item.network.eth0.counters ? formatBytes(props.item.network.eth0.counters.bytes_received) : '-' }} /
+                        {{ props.item.network && props.item.network.eth0 && props.item.network.eth0.counters ? formatBytes(props.item.network.eth0.counters.bytes_sent) : '-' }}
                       </td>
                       <td>{{ props.item.status }}</td>
                       <td class="px-0">
@@ -82,13 +82,14 @@
             </v-btn>
             <v-toolbar-title>Container: {{ container.info && container.info.name }}</v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-toolbar-items v-if="activeTab !== 'tab-snapshots'">
+            <v-toolbar-items v-if="activeTab !== 'tab-snapshots' && activeTab !== 'tab-devices'">
               <v-btn dark flat @click.native="saveContainer()">Save</v-btn>
             </v-toolbar-items>
           </v-toolbar>
           <v-card-text style="padding: 0px;">
-            <v-tabs v-model="activeTab">
+            <v-tabs v-model="activeTab" show-arrows>
               <v-tab ripple :href="`#tab-configuration`">Configuration</v-tab>
+              <v-tab ripple :href="`#tab-devices`">Devices</v-tab>
               <v-tab ripple :href="`#tab-snapshots`">Snapshots</v-tab>
               <v-tab-item :id="`tab-configuration`" v-if="container.info">
                 <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
@@ -196,6 +197,33 @@
                   <snapshots :item="container" :key="editingIndex" @snackbar="setSnackbar"></snapshots>
                 </v-card>
               </v-tab-item>
+              <v-tab-item :id="`tab-devices`">
+                <v-card flat style="overflow-x:hidden; overflow-y: auto; height:calc(100vh - 215px);">
+                  <v-tabs v-model="activeDeviceTab" show-arrows>
+                    <!--<v-tab ripple :href="`#blocker`">Blocker</v-tab>-->
+                    <v-tab ripple :href="`#nic`">Nic</v-tab>
+                    <!--<v-tab ripple :href="`#disk`">Disk</v-tab>-->
+                    <!--<v-tab ripple :href="`#unix-char`">Unix-char</v-tab>-->
+                    <!--<v-tab ripple :href="`#unix-block`">Unix-block</v-tab>-->
+                    <!--<v-tab ripple :href="`#usb`">USB</v-tab>-->
+                    <!--<v-tab ripple :href="`#gpu`">GPU</v-tab>-->
+                    <!--<v-tab ripple :href="`#infiniband`">InfiniBand</v-tab>-->
+                    <!--<v-tab ripple :href="`#proxy`">Proxy</v-tab>-->
+                    
+                    <!--<v-tab-item :id="`blocker`">blocker</v-tab-item>-->
+                    <v-tab-item :id="`nic`" v-if="container.info">
+                      <nic @snackbar="setSnackbar" ref="nic" :linked="container.info"></nic>
+                    </v-tab-item>
+                    <!--<v-tab-item :id="`disk`">disk</v-tab-item>-->
+                    <!--<v-tab-item :id="`unix-char`">unix-char</v-tab-item>-->
+                    <!--<v-tab-item :id="`unix-block`">unix-block</v-tab-item>-->
+                    <!--<v-tab-item :id="`usb`">usb</v-tab-item>-->
+                    <!--<v-tab-item :id="`gpu`">gpu</v-tab-item>-->
+                    <!--<v-tab-item :id="`infiniband`">infiniband</v-tab-item>-->
+                    <!--<v-tab-item :id="`proxy`">proxy</v-tab-item>-->
+                  </v-tabs>
+                </v-card>
+              </v-tab-item>
             </v-tabs>
           </v-card-text>
           <div style="flex: 1 1 auto;"></div>
@@ -211,6 +239,8 @@
   import axios from 'axios'
   // components
   import snapshots from '~/components/lxd/snapshots.vue'
+  // devices components
+  import nic from '~/components/lxd/devices/nic.vue'
   
   import { Terminal } from 'xterm'
   import * as fit from 'xterm/lib/addons/fit/fit'
@@ -226,7 +256,7 @@
       'authenticated'
     ],
     components: {
-      snapshots
+      snapshots, nic
     },
     computed: {
       ...mapGetters({
@@ -298,6 +328,7 @@
 
       // tab
       activeTab: 'tab-configuration',
+      activeDeviceTab: 'nic',
 
       dialog: false,
       consoleDialog: false,
@@ -635,8 +666,9 @@
             this.container.info = Object.assign({}, container.outfix(this.container.info))
 
             //
-            const response = await axios.patch(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name, {
+            const response = await axios.put(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name, {
               config: this.container.info.config,
+              devices: this.container.info.devices,
               ephemeral: this.container.info.ephemeral,
               stateful: this.container.info.stateful,
               profiles: this.container.info.profiles

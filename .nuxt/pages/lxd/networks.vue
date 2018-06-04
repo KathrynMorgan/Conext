@@ -230,7 +230,7 @@
           "bridge.driver": "native",
           "bridge.external_interfaces": "",
           "bridge.mode": "standard",
-          "bridge.mtu": "1500",
+          "bridge.mtu": "",
           "ipv4.address": "",
           "ipv4.nat": "",
           "ipv6.address": "",
@@ -249,7 +249,7 @@
           "bridge.driver": "native",
           "bridge.external_interfaces": "",
           "bridge.mode": "standard",
-          "bridge.mtu": "1500",
+          "bridge.mtu": "",
           "ipv4.address": "",
           "ipv4.nat": "",
           "ipv6.address": "",
@@ -313,18 +313,8 @@
             'bridge.driver': "native",
             'bridge.external_interfaces': "",
             'bridge.mode': "standard",
-            'bridge.mtu': "1500",
+            'bridge.mtu': "",
           })
-        }
-        
-        // workaround as cant remove keys
-        if (this.editingItem.config['ipv4.routes'] === ' ') {
-          this.editingItem.config['ipv4.routes'] = ''
-        }
-        
-        // workaround as cant remove keys
-        if (this.editingItem.config['ipv6.routes'] === ' ') {
-          this.editingItem.config['ipv6.routes'] = ''
         }
 
         // apply change to the model
@@ -377,40 +367,57 @@
             }
             
             // workaround as cant remove keys
+            if (this.editingItem.config['bridge.mtu'] === '') {
+              this.$delete(this.editingItem.config, 'bridge.mtu')
+            }
+            
+            // workaround as cant remove keys
             if (this.editingItem.config['ipv4.routes'] === '') {
-              this.editingItem.config['ipv4.routes'] = ' '
+              this.$delete(this.editingItem.config, 'ipv4.routes')
+            }
+            
+            if (this.editingItem.config['ipv4.dhcp.ranges'] === '') {
+              this.$delete(this.editingItem.config, 'ipv4.dhcp.ranges')
             }
             
             // workaround as cant remove keys
             if (this.editingItem.config['ipv6.routes'] === '') {
-              this.editingItem.config['ipv6.routes'] = ' '
+              this.$delete(this.editingItem.config, 'ipv6.routes')
+            }
+            
+            if (this.editingItem.config['ipv6.dhcp.ranges'] === '') {
+              this.$delete(this.editingItem.config, 'ipv6.dhcp.ranges')
             }
             
             // remove bridge mode
             if (this.editingItem.config['bridge.mode'] === 'fan') {
-              delete this.editingItem.config['ipv4.address']
-              delete this.editingItem.config['ipv4.nat']
-              delete this.editingItem.config['ipv4.routes']
-              delete this.editingItem.config['ipv4.firewall']
-              delete this.editingItem.config['ipv4.routing']
-              delete this.editingItem.config['ipv4.dhcp']
-              delete this.editingItem.config['ipv4.dhcp.expiry']
-              delete this.editingItem.config['ipv4.dhcp.stateful']
-              delete this.editingItem.config['ipv4.dhcp.ranges']
-              
-              delete this.editingItem.config['ipv6.address']
-              delete this.editingItem.config['ipv6.nat']
-              delete this.editingItem.config['ipv6.routes']
-              delete this.editingItem.config['ipv6.firewall']
-              delete this.editingItem.config['ipv6.routing']
-              delete this.editingItem.config['ipv6.dhcp']
-              delete this.editingItem.config['ipv6.dhcp.expiry']
-              delete this.editingItem.config['ipv6.dhcp.stateful']
-              delete this.editingItem.config['ipv6.dhcp.ranges']
+              // ip4
+              this.$delete(this.editingItem.config, 'ipv4.address')
+              this.$delete(this.editingItem.config, 'ipv4.nat')
+              this.$delete(this.editingItem.config, 'ipv4.routes')
+              this.$delete(this.editingItem.config, 'ipv4.firewall')
+              this.$delete(this.editingItem.config, 'ipv4.routing')
+              this.$delete(this.editingItem.config, 'ipv4.dhcp')
+              this.$delete(this.editingItem.config, 'ipv4.dhcp.expiry')
+              this.$delete(this.editingItem.config, 'ipv4.dhcp.stateful')
+              this.$delete(this.editingItem.config, 'ipv4.dhcp.ranges')
+
+              // ip6
+              this.$delete(this.editingItem.config, 'ipv6.address')
+              this.$delete(this.editingItem.config, 'ipv6.nat')
+              this.$delete(this.editingItem.config, 'ipv6.routes')
+              this.$delete(this.editingItem.config, 'ipv6.firewall')
+              this.$delete(this.editingItem.config, 'ipv6.routing')
+              this.$delete(this.editingItem.config, 'ipv6.dhcp')
+              this.$delete(this.editingItem.config, 'ipv6.dhcp.expiry')
+              this.$delete(this.editingItem.config, 'ipv6.dhcp.stateful')
+              this.$delete(this.editingItem.config, 'ipv6.dhcp.ranges')
+
             } else if (this.editingItem.config['bridge.mode'] === 'standard') {
-              delete this.editingItem.config['fan.overlay_subnet']
-              delete this.editingItem.config['fan.underlay_subnet']
-              delete this.editingItem.config['fan.type']
+              // fan
+              this.$delete(this.editingItem.config, 'fan.overlay_subnet')
+              this.$delete(this.editingItem.config, 'fan.underlay_subnet')
+              this.$delete(this.editingItem.config, 'fan.type')
             }
 
             // edit
@@ -510,6 +517,7 @@
         setTimeout(() => {
           this.editingItem = Object.assign({}, this.defaultItem)
           this.editingIndex = -1
+          this.error.editing = false
         }, 300)
       },
 

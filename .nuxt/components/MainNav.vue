@@ -94,7 +94,7 @@
             model: false,
             children: modules
           });
-          
+
           modules = [];
         }
 
@@ -108,7 +108,7 @@
           if (this.loggedUser.mod.api.includes('email')) {
             modules.push({ icon: 'chevron_right', text: 'Email', route: '/api/email' })
           }
-          
+
           items.push({
             icon: 'keyboard_arrow_up',
             'icon-alt': 'keyboard_arrow_down',
@@ -116,7 +116,7 @@
             model: false,
             children: modules
           })
-          
+
           modules = [];
         }
 
@@ -141,6 +141,10 @@
           //
           if (this.loggedUser.mod.lxd.includes('networks')) {
             modules.push({ icon: 'chevron_right', text: 'Networks', route: '/lxd/networks' })
+          }
+          //
+          if (this.loggedUser.mod.lxd.includes('devices')) {
+            modules.push({ icon: 'chevron_right', text: 'Devices', route: '/lxd/devices' })
           }
           //
           if (this.loggedUser.mod.lxd.includes('files')) {
@@ -174,7 +178,7 @@
             model: false,
             children: modules
           })
-          
+
           modules = [];
         }
 
@@ -188,7 +192,7 @@
           if (this.loggedUser.mod.routes.includes('port')) {
             modules.push({ icon: 'chevron_right', text: 'Port Forwards', route: '/routes/port-forwards' })
           }
-          
+
           items.push({
             icon: 'keyboard_arrow_up',
             'icon-alt': 'keyboard_arrow_down',
@@ -196,7 +200,7 @@
             model: false,
             children: modules
           })
-          
+
           modules = [];
         }
 
@@ -204,9 +208,9 @@
         if (this.loggedUser.mod.tasks.constructor === Array) {
           items.push({ icon: 'chevron_right', text: 'Tasks', route: '/tasks' })
         }
-        
+
         items.push({ icon: 'exit_to_app', text: 'Sign Out', route: '/auth/sign-out' });
-        
+
         return items
       }
     },
