@@ -11,6 +11,9 @@
             <v-layout column>
               <v-flex tag="h1" class="display mb-2">
                 LXD - Containers
+                <v-btn dark color="orange" @click="restartAll()" style="float:right">Restart All</v-btn>
+                <v-btn :dark="!all_stopped" color="red" @click="stopAll()" style="float:right" :disabled="all_stopped">Stop All</v-btn>
+                <v-btn :dark="!all_running" color="green" @click="startAll()" style="float:right" :disabled="all_running">Start All</v-btn>
               </v-flex>
               <v-flex>
                 <v-alert v-if="alert.msg" :value="alert.msg" :outline="alert.outline" :color="alert.color" :icon="alert.icon" dismissible>
@@ -272,7 +275,19 @@
       },
       max_cpu: function () {
         return Number(this.resources.cpu.total)
-      }
+      },
+      all_stopped: function (){
+        var state = this.items.filter(item => {
+          return item.status === 'Stopped';
+        })
+        return state.length === this.items.length
+      },
+      all_running: function (){
+        var state = this.items.filter(item => {
+          return item.status === 'Running';
+        })
+        return state.length === this.items.length
+      },
     },
     data: () => ({
       valid: true,
@@ -429,6 +444,45 @@
         } catch (error) {
           this.profiles = [];
         }
+      },
+      
+      startAll() {
+        this.items.forEach((item) => {
+          if (item.status === 'Stopped') {
+            axios.put(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/state', {
+              "action": 'start',
+              "timeout": 30,
+              "force": true,
+              "stateful": false
+            })
+          }
+        })
+      },
+      
+      stopAll() {
+        this.items.forEach((item) => {
+          if (item.status === 'Running') {
+            axios.put(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/state', {
+              "action": 'stop',
+              "timeout": 30,
+              "force": true,
+              "stateful": false
+            })
+          }
+        })
+      },
+      
+      restartAll() {
+        this.items.forEach((item) => {
+          if (item.status === 'Running') {
+            axios.put(this.loggedUser.sub + '/api/lxd/containers/' + item.name + '/state', {
+              "action": 'restart',
+              "timeout": 30,
+              "force": true,
+              "stateful": false
+            })
+          }
+        })
       },
 
       async stateContainer (action, item) {

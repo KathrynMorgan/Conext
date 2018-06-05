@@ -12,6 +12,7 @@
               <v-flex tag="h1" class="display mb-2">
                 LXD - Networks
                 <v-btn color="success" @click="dialog = true" style="float:right">New Network</v-btn>
+                <v-btn @click="show_unmanaged = !show_unmanaged" style="float:right">{{ show_unmanaged ? 'Hide' : 'Show'}} Unmanaged</v-btn>
               </v-flex>
               <v-flex>
                 <v-alert type="error" :value="error.global">
@@ -35,6 +36,7 @@
                         <span v-else>-</span>
                       </td>
                       <td>{{ props.item.type ? ucfirst(props.item.type) : '-' }}</td>
+                      <td>{{ props.item.used_by ? props.item.used_by.length : '0' }}</td>
                       <td>{{ props.item.managed ? ucfirst(props.item.managed) : '-' }}</td>
                       <td>
                         <v-btn icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)" :disabled="!props.item.managed">
@@ -72,9 +74,15 @@
                 <v-alert type="error" :value="error.editing">
                   {{ error.editing }}
                 </v-alert>
+                <v-alert type="warning" :value="editingItem.used_by.length > 0" outline color="warning" icon="priority_high">
+                  This network is used by {{ editingItem.used_by.length }} container{{ editingItem.used_by.length > 1 ? 's' : '' }}.
+                </v-alert>
+
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the network."></v-text-field>
                   <v-text-field v-model="editingItem.description" label="Description:" placeholder="" hint="Enter a description for the network."></v-text-field>
+                  
+                  <v-checkbox :label="`Restart container${editingItem.used_by.length > 1 ? 's' : ''} on save.`" v-model="restart_on_save" v-if="editingItem.used_by.length > 0" color="orange"></v-checkbox>
 
                   <h2>Bridge</h2>
                   <v-select :items="['native','openvswitch']" v-model="editingItem.config['bridge.driver']" label="Driver:"></v-select>
@@ -172,6 +180,10 @@
         loggedToken: 'auth/loggedToken'
       }),
       networks: function () {
+        if (this.show_unmanaged) {
+          return this.items
+        }
+        
         return this.items.filter(item => {
           return item.managed === true;
         })
@@ -208,9 +220,13 @@
         { text: 'IPv4 Address', value: 'ipv4' },
         { text: 'IPv6 Address', value: 'ipv6' },
         { text: 'Type', value: 'type' },
+        { text: 'Used By', value: 'used_by' },
         { text: 'Managed', value: 'managed' },
         { text: 'Actions', value: 'action', sortable: false, align: 'right' }
       ],
+      
+      restart_on_save: true,
+      show_unmanaged: false,
 
       // determines the state of the configuration
       state: {
@@ -454,6 +470,21 @@
               //
               this.snackbar = true
               this.snackbarText = 'Network successfully saved.'
+              
+              //
+              if (this.restart_on_save) {
+                setTimeout(() => {
+                  this.editingItem.used_by.forEach((item) => {
+                    let container = item.substr(item.lastIndexOf('/') + 1)
+                    axios.put(this.loggedUser.sub + '/api/lxd/containers/' + container + '/state', {
+                      "action": 'restart',
+                      "timeout": 30,
+                      "force": true,
+                      "stateful": false
+                    })
+                  })
+                }, 1000)
+              }
             }
           } catch (error) {
             this.error.global = 'Could not save network to server.'
