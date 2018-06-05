@@ -206,15 +206,22 @@ class Index extends \Base\Controller
                     'data'  => []
                 ]); 
             }
-
-            //
-            $result = $client->lxd->containers->update('local', $params['name'], $options);
             
-            $f3->response->json([
-                'error' => null,
-                'code'  => 200,
-                'data'  => $result
-            ]);
+            try {
+                $result = [
+                    'error' => '',
+                    'code'  => 200,
+                    'data'  => $client->lxd->containers->update('local', $params['name'], $options)
+                ];
+            } catch (\Exception $e) {
+                $result = [
+                    'error' => $e->getMessage(),
+                    'code'  => 422,
+                    'data'  => []
+                ];
+            }
+            
+            $f3->response->json($result);
         }
         
         if ($verb === 'PUT') {
