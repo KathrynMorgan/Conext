@@ -317,7 +317,7 @@
       // create or edit item
       editItem (item) {
         this.editingIndex = this.items.indexOf(item)
-        this.editingItem = Object.assign({}, item)
+        this.editingItem = Object.assign(this.defaultItem, item)
         
         // apply toggle states
         this.state.ip4 = this.editingItem.config['ipv4.address'] !== 'none'
