@@ -205,7 +205,7 @@
                   <v-tabs v-model="activeDeviceTab" show-arrows>
                     <!--<v-tab ripple :href="`#blocker`">Blocker</v-tab>-->
                     <v-tab ripple :href="`#nic`">Nic</v-tab>
-                    <!--<v-tab ripple :href="`#disk`">Disk</v-tab>-->
+                    <v-tab ripple :href="`#disk`">Disk</v-tab>
                     <!--<v-tab ripple :href="`#unix-char`">Unix-char</v-tab>-->
                     <!--<v-tab ripple :href="`#unix-block`">Unix-block</v-tab>-->
                     <!--<v-tab ripple :href="`#usb`">USB</v-tab>-->
@@ -216,6 +216,9 @@
                     <!--<v-tab-item :id="`blocker`">blocker</v-tab-item>-->
                     <v-tab-item :id="`nic`" v-if="container.info">
                       <nic @snackbar="setSnackbar" ref="nic" :linked="container.info"></nic>
+                    </v-tab-item>
+                    <v-tab-item :id="`disk`" v-if="container.info">
+                      <disk @snackbar="setSnackbar" ref="disk" :linked="container.info"></disk>
                     </v-tab-item>
                     <!--<v-tab-item :id="`disk`">disk</v-tab-item>-->
                     <!--<v-tab-item :id="`unix-char`">unix-char</v-tab-item>-->
@@ -244,6 +247,7 @@
   import snapshots from '~/components/lxd/snapshots.vue'
   // devices components
   import nic from '~/components/lxd/devices/nic.vue'
+  import disk from '~/components/lxd/devices/disk.vue'
   
   import { Terminal } from 'xterm'
   import * as fit from 'xterm/lib/addons/fit/fit'
@@ -259,7 +263,7 @@
       'authenticated'
     ],
     components: {
-      snapshots, nic
+      snapshots, nic, disk
     },
     computed: {
       ...mapGetters({

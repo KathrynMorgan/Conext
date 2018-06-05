@@ -20,7 +20,7 @@
                 <v-tabs v-model="activeTab" show-arrows class="elevation-1">
                   <!--<v-tab ripple :href="`#blocker`">Blocker</v-tab>-->
                   <v-tab ripple :href="`#nic`">Nic</v-tab>
-                  <!--<v-tab ripple :href="`#disk`">Disk</v-tab>-->
+                  <v-tab ripple :href="`#disk`">Disk</v-tab>
                   <!--<v-tab ripple :href="`#unix-char`">Unix-char</v-tab>-->
                   <!--<v-tab ripple :href="`#unix-block`">Unix-block</v-tab>-->
                   <!--<v-tab ripple :href="`#usb`">USB</v-tab>-->
@@ -32,7 +32,9 @@
                   <v-tab-item :id="`nic`">
                     <nic @snackbar="setSnackbar" ref="nic"></nic>
                   </v-tab-item>
-                  <!--<v-tab-item :id="`disk`">disk</v-tab-item>-->
+                  <v-tab-item :id="`disk`">
+                    <disk @snackbar="setSnackbar" ref="disk"></disk>
+                  </v-tab-item>
                   <!--<v-tab-item :id="`unix-char`">unix-char</v-tab-item>-->
                   <!--<v-tab-item :id="`unix-block`">unix-block</v-tab-item>-->
                   <!--<v-tab-item :id="`usb`">usb</v-tab-item>-->
@@ -52,10 +54,11 @@
 <script>
   // components
   import nic from '~/components/lxd/devices/nic.vue'
+  import disk from '~/components/lxd/devices/disk.vue'
 
   export default {
     components: {
-      nic
+      nic, disk
     },
     data: () => ({
       error: '',
