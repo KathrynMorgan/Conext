@@ -206,7 +206,7 @@ class Index extends \Base\Controller
                     'data'  => []
                 ]); 
             }
-            
+
             //
             $result = $client->lxd->containers->update('local', $params['name'], $options);
             
@@ -218,19 +218,24 @@ class Index extends \Base\Controller
         }
         
         if ($verb === 'PUT') {
-            /*
-            $item = json_decode($f3->get('BODY'), true);
-           
-            if (empty($item) || !is_numeric($params['id'])) {
+            $options = json_decode($f3->get('BODY'), true);
+
+            if (empty($options) || empty($params['name'])) {
               $f3->response->json([
                     'error' => 'Invalid PUT body, expecting item',
                     'code'  => 422,
                     'data'  => []
                 ]); 
             }
+
+            //
+            $result = $client->lxd->containers->replace('local', $params['name'], $options);
             
-            //...
-            */
+            $f3->response->json([
+                'error' => null,
+                'code'  => 200,
+                'data'  => $result
+            ]);
         }
         
         if ($verb === 'DELETE') {

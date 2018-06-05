@@ -176,7 +176,7 @@ db.host=\"\"
 db.name=\"\"
 db.username=\"\"
 db.password=\"\"
-db.freeze=true
+db.freeze=false
 db.debug=false
 db.session=false
 

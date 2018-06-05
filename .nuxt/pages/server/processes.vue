@@ -11,23 +11,37 @@
               <v-alert type="error" :value="error">
                 {{ error }}
               </v-alert>
-              <v-data-table :headers="tableHeaders" :items="items" hide-actions class="elevation-1" :loading="tableLoading">
-                <template slot="items" slot-scope="props">
-                  <td>{{ props.item['PID'] }}</td>
-                  <td>{{ props.item['USER'] }}</td>
-                  <td>{{ props.item['PR'] }}</td>
-                  <td>{{ props.item['NI'] }}</td>
-                  <td>{{ props.item['VIRT'] }}</td>
-                  <td>{{ props.item['RES'] }}</td>
-                  <td>{{ props.item['SHR'] }}</td>
-                  <td>{{ props.item['S'] }}</td>
-                  <td>{{ props.item['%CPU'] }}</td>
-                  <td>{{ props.item['%MEM'] }}</td>
-                  <td>{{ props.item['TIME+'] }}</td>
-                  <td>{{ props.item['COMMAND'] }}</td>
-                </template>
-                <template slot="no-data"></template>
-              </v-data-table>
+              <v-card>
+                <v-card-title>
+                  <v-layout row wrap style="margin-top:-15px">
+                    <v-flex xs8>
+                    </v-flex>
+                    <v-flex xs4>
+                      <v-text-field v-model="search" append-icon="search" label="Search..." single-line hide-details></v-text-field>
+                    </v-flex>
+                  </v-layout>
+                </v-card-title>
+                <v-data-table :headers="tableHeaders" :items="items" hide-actions :search="search"  :loading="tableLoading">
+                  <template slot="items" slot-scope="props">
+                    <td>{{ props.item['PID'] }}</td>
+                    <td>{{ props.item['USER'] }}</td>
+                    <td>{{ props.item['PR'] }}</td>
+                    <td>{{ props.item['NI'] }}</td>
+                    <td>{{ props.item['VIRT'] }}</td>
+                    <td>{{ props.item['RES'] }}</td>
+                    <td>{{ props.item['SHR'] }}</td>
+                    <td>{{ props.item['S'] }}</td>
+                    <td>{{ props.item['%CPU'] }}</td>
+                    <td>{{ props.item['%MEM'] }}</td>
+                    <td>{{ props.item['TIME+'] }}</td>
+                    <td>{{ props.item['COMMAND'] }}</td>
+                  </template>
+                  <template slot="no-data"></template>
+                  <template slot="no-results" :value="true" color="error" icon="warning">
+                    No processes found matching "{{ search }}".
+                  </template>
+                </v-data-table>
+              </v-card>
             </v-flex>
           </v-layout>
         </v-flex>
@@ -70,6 +84,7 @@
         { text: 'COMMAND', value: 'COMMAND' }
       ],
       items: [],
+      search: '',
       pollItem: 0
     }),
     beforeDestroy: function() {

@@ -12,6 +12,7 @@
               <v-flex tag="h1" class="display mb-2">
                 LXD - Networks
                 <v-btn color="success" @click="dialog = true" style="float:right">New Network</v-btn>
+                <v-btn @click="show_unmanaged = !show_unmanaged" style="float:right">{{ show_unmanaged ? 'Hide' : 'Show'}} Unmanaged</v-btn>
               </v-flex>
               <v-flex>
                 <v-alert type="error" :value="error.global">
@@ -35,6 +36,7 @@
                         <span v-else>-</span>
                       </td>
                       <td>{{ props.item.type ? ucfirst(props.item.type) : '-' }}</td>
+                      <td>{{ props.item.used_by ? props.item.used_by.length : '0' }}</td>
                       <td>{{ props.item.managed ? ucfirst(props.item.managed) : '-' }}</td>
                       <td>
                         <v-btn icon class="mx-0" style="float:right" @click.stop="deleteItem(props.item)" :disabled="!props.item.managed">
@@ -72,9 +74,15 @@
                 <v-alert type="error" :value="error.editing">
                   {{ error.editing }}
                 </v-alert>
+                <v-alert type="warning" :value="editingItem.used_by.length > 0" outline color="warning" icon="priority_high">
+                  This network is used by {{ editingItem.used_by.length }} container{{ editingItem.used_by.length > 1 ? 's' : '' }}.
+                </v-alert>
+
                 <v-form ref="form" v-model="valid" lazy-validation>
                   <v-text-field v-model="editingItem.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the network."></v-text-field>
                   <v-text-field v-model="editingItem.description" label="Description:" placeholder="" hint="Enter a description for the network."></v-text-field>
+                  
+                  <v-checkbox :label="`Restart container${editingItem.used_by.length > 1 ? 's' : ''} on save.`" v-model="restart_on_save" v-if="editingItem.used_by.length > 0" color="orange"></v-checkbox>
 
                   <h2>Bridge</h2>
                   <v-select :items="['native','openvswitch']" v-model="editingItem.config['bridge.driver']" label="Driver:"></v-select>
@@ -172,6 +180,10 @@
         loggedToken: 'auth/loggedToken'
       }),
       networks: function () {
+        if (this.show_unmanaged) {
+          return this.items
+        }
+        
         return this.items.filter(item => {
           return item.managed === true;
         })
@@ -208,9 +220,13 @@
         { text: 'IPv4 Address', value: 'ipv4' },
         { text: 'IPv6 Address', value: 'ipv6' },
         { text: 'Type', value: 'type' },
+        { text: 'Used By', value: 'used_by' },
         { text: 'Managed', value: 'managed' },
         { text: 'Actions', value: 'action', sortable: false, align: 'right' }
       ],
+      
+      restart_on_save: true,
+      show_unmanaged: false,
 
       // determines the state of the configuration
       state: {
@@ -230,7 +246,7 @@
           "bridge.driver": "native",
           "bridge.external_interfaces": "",
           "bridge.mode": "standard",
-          "bridge.mtu": "1500",
+          "bridge.mtu": "",
           "ipv4.address": "",
           "ipv4.nat": "",
           "ipv6.address": "",
@@ -249,7 +265,7 @@
           "bridge.driver": "native",
           "bridge.external_interfaces": "",
           "bridge.mode": "standard",
-          "bridge.mtu": "1500",
+          "bridge.mtu": "",
           "ipv4.address": "",
           "ipv4.nat": "",
           "ipv6.address": "",
@@ -313,18 +329,8 @@
             'bridge.driver': "native",
             'bridge.external_interfaces': "",
             'bridge.mode': "standard",
-            'bridge.mtu': "1500",
+            'bridge.mtu': "",
           })
-        }
-        
-        // workaround as cant remove keys
-        if (this.editingItem.config['ipv4.routes'] === ' ') {
-          this.editingItem.config['ipv4.routes'] = ''
-        }
-        
-        // workaround as cant remove keys
-        if (this.editingItem.config['ipv6.routes'] === ' ') {
-          this.editingItem.config['ipv6.routes'] = ''
         }
 
         // apply change to the model
@@ -377,40 +383,57 @@
             }
             
             // workaround as cant remove keys
+            if (this.editingItem.config['bridge.mtu'] === '') {
+              this.$delete(this.editingItem.config, 'bridge.mtu')
+            }
+            
+            // workaround as cant remove keys
             if (this.editingItem.config['ipv4.routes'] === '') {
-              this.editingItem.config['ipv4.routes'] = ' '
+              this.$delete(this.editingItem.config, 'ipv4.routes')
+            }
+            
+            if (this.editingItem.config['ipv4.dhcp.ranges'] === '') {
+              this.$delete(this.editingItem.config, 'ipv4.dhcp.ranges')
             }
             
             // workaround as cant remove keys
             if (this.editingItem.config['ipv6.routes'] === '') {
-              this.editingItem.config['ipv6.routes'] = ' '
+              this.$delete(this.editingItem.config, 'ipv6.routes')
+            }
+            
+            if (this.editingItem.config['ipv6.dhcp.ranges'] === '') {
+              this.$delete(this.editingItem.config, 'ipv6.dhcp.ranges')
             }
             
             // remove bridge mode
             if (this.editingItem.config['bridge.mode'] === 'fan') {
-              delete this.editingItem.config['ipv4.address']
-              delete this.editingItem.config['ipv4.nat']
-              delete this.editingItem.config['ipv4.routes']
-              delete this.editingItem.config['ipv4.firewall']
-              delete this.editingItem.config['ipv4.routing']
-              delete this.editingItem.config['ipv4.dhcp']
-              delete this.editingItem.config['ipv4.dhcp.expiry']
-              delete this.editingItem.config['ipv4.dhcp.stateful']
-              delete this.editingItem.config['ipv4.dhcp.ranges']
-              
-              delete this.editingItem.config['ipv6.address']
-              delete this.editingItem.config['ipv6.nat']
-              delete this.editingItem.config['ipv6.routes']
-              delete this.editingItem.config['ipv6.firewall']
-              delete this.editingItem.config['ipv6.routing']
-              delete this.editingItem.config['ipv6.dhcp']
-              delete this.editingItem.config['ipv6.dhcp.expiry']
-              delete this.editingItem.config['ipv6.dhcp.stateful']
-              delete this.editingItem.config['ipv6.dhcp.ranges']
+              // ip4
+              this.$delete(this.editingItem.config, 'ipv4.address')
+              this.$delete(this.editingItem.config, 'ipv4.nat')
+              this.$delete(this.editingItem.config, 'ipv4.routes')
+              this.$delete(this.editingItem.config, 'ipv4.firewall')
+              this.$delete(this.editingItem.config, 'ipv4.routing')
+              this.$delete(this.editingItem.config, 'ipv4.dhcp')
+              this.$delete(this.editingItem.config, 'ipv4.dhcp.expiry')
+              this.$delete(this.editingItem.config, 'ipv4.dhcp.stateful')
+              this.$delete(this.editingItem.config, 'ipv4.dhcp.ranges')
+
+              // ip6
+              this.$delete(this.editingItem.config, 'ipv6.address')
+              this.$delete(this.editingItem.config, 'ipv6.nat')
+              this.$delete(this.editingItem.config, 'ipv6.routes')
+              this.$delete(this.editingItem.config, 'ipv6.firewall')
+              this.$delete(this.editingItem.config, 'ipv6.routing')
+              this.$delete(this.editingItem.config, 'ipv6.dhcp')
+              this.$delete(this.editingItem.config, 'ipv6.dhcp.expiry')
+              this.$delete(this.editingItem.config, 'ipv6.dhcp.stateful')
+              this.$delete(this.editingItem.config, 'ipv6.dhcp.ranges')
+
             } else if (this.editingItem.config['bridge.mode'] === 'standard') {
-              delete this.editingItem.config['fan.overlay_subnet']
-              delete this.editingItem.config['fan.underlay_subnet']
-              delete this.editingItem.config['fan.type']
+              // fan
+              this.$delete(this.editingItem.config, 'fan.overlay_subnet')
+              this.$delete(this.editingItem.config, 'fan.underlay_subnet')
+              this.$delete(this.editingItem.config, 'fan.type')
             }
 
             // edit
@@ -447,6 +470,21 @@
               //
               this.snackbar = true
               this.snackbarText = 'Network successfully saved.'
+              
+              //
+              if (this.restart_on_save) {
+                setTimeout(() => {
+                  this.editingItem.used_by.forEach((item) => {
+                    let container = item.substr(item.lastIndexOf('/') + 1)
+                    axios.put(this.loggedUser.sub + '/api/lxd/containers/' + container + '/state', {
+                      "action": 'restart',
+                      "timeout": 30,
+                      "force": true,
+                      "stateful": false
+                    })
+                  })
+                }, 1000)
+              }
             }
           } catch (error) {
             this.error.global = 'Could not save network to server.'
@@ -510,6 +548,7 @@
         setTimeout(() => {
           this.editingItem = Object.assign({}, this.defaultItem)
           this.editingIndex = -1
+          this.error.editing = false
         }, 300)
       },
 
