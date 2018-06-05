@@ -51,7 +51,7 @@
             <v-text-field v-model="editingItem.dict.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the nic device."></v-text-field>
             <v-select :items="['bridged','macvlan','p2p','physical','sriov']" v-model="editingItem.dict.nictype" label="NIC Type:"></v-select>
             <div v-if="['bridged','macvlan', 'p2p', 'sriov'].includes(editingItem.dict.nictype)">
-              <v-select :items="['lxdbr0']" v-model="editingItem.dict.parent" label="Parent:"></v-select>
+              <v-select :items="networks" v-model="editingItem.dict.parent" label="Parent:"></v-select>
               <v-text-field v-model="editingItem.dict['host_name']" label="Hostname:" placeholder="" hint="Hostname of the interface inside the host."></v-text-field>
             </div>
             <v-layout row wrap>
@@ -150,6 +150,7 @@
 
       tableLoading: true,
 
+      networks: [],
       items: [],
       editingIndex: -1,
       editingItem: {
@@ -225,6 +226,8 @@
           //
           const response = await axios.get(this.loggedUser.sub + '/api/lxd/devices/nic')
           this.items = response.data.data
+          
+          this.getNetworks()
         } catch (error) {
           this.error = 'Could not fetch data from server.';
         }
@@ -255,6 +258,27 @@
           stateful: this.linkedItem.stateful,
           profiles: this.linkedItem.profiles
         })
+      },
+      
+      async getNetworks () {
+        //
+        try {
+          if (!this.loggedUser) {
+            this.$router.replace('/servers')
+          }
+
+          //
+          const response = await axios.get(this.loggedUser.sub + '/api/lxd/networks')
+          
+          this.networks = []
+          response.data.data.forEach(item => {
+            if (item.managed) {
+              this.networks.push(item.name);
+            }
+          });
+        } catch (error) {
+          this.networks = [];
+        }
       },
 
       // create or edit item
