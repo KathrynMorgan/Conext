@@ -8,7 +8,7 @@
             <span v-if="linkedItem.devices">{{ props.item.dict.name }}</span>
             <span v-else><a href="javascript:void(0)" @click.stop="editItem(props.item)">{{ props.item.dict.name }}</a></span>
           </td>
-          <td>{{ props.item.dict.nictype }}</td>
+          <td>{{ ucfirst(props.item.dict.nictype) }}</td>
           <td>{{ props.item.dict.parent }}</td>
           <td>
             <span v-if="linkedItem.devices">
@@ -43,9 +43,10 @@
           </v-toolbar-items>
         </v-toolbar>
         <v-card-text>
-          <!--<pre>{{ editingItem }}</pre>-->
-
           <v-form ref="form" v-model="valid" lazy-validation>
+            <v-alert type="error" :value="error">
+              {{ error }}
+            </v-alert>
             <h3>General</h3>
             <v-text-field v-model="editingItem.dict.name" :rules="nameRule" label="Name:" placeholder="" required hint="Enter a name for the nic device."></v-text-field>
             <v-select :items="['bridged','macvlan','p2p','physical','sriov']" v-model="editingItem.dict.nictype" label="NIC Type:"></v-select>
@@ -279,31 +280,40 @@
 
             // edit
             if (this.editingIndex > -1) {
-              var response = await axios.put(this.loggedUser.sub + '/api/lxd/devices/nic/'+this.editingItem.name, this.editingItem)
+              var response = await axios.put(this.loggedUser.sub + '/api/lxd/devices/nic/'+this.editingItem.id, this.editingItem)
             } 
             // add
             else {
               var response = await axios.post(this.loggedUser.sub + '/api/lxd/devices/nic', this.editingItem)
             }
 
-            //
-            this.$emit('snackbar', 'Device successfully saved.')
+            if (response.data.error) {
+              if (response.data.error.name) {
+                this.error = response.data.error.name
+              }
+              if (response.data.error.parent) {
+                this.error = response.data.error.parent
+              }
+            } else {
+              //
+              this.$emit('snackbar', 'Device successfully saved.')
+              
+              // local
+              if (this.editingIndex > -1) {
+                Object.assign(this.items[this.editingIndex], this.editingItem)
+              } else {
+                this.items.push(Object.assign({}, this.editingItem))
+              }
+    
+              if (this.editingIndex === -1) {
+                this.close()
+              }
+    
+              this.initialize()
+            }
           } catch (error) {
             this.error = 'Could not save device to server.';
           }
-          
-          // local
-          if (this.editingIndex > -1) {
-            Object.assign(this.items[this.editingIndex], this.editingItem)
-          } else {
-            this.items.push(Object.assign({}, this.editingItem))
-          }
-
-          if (this.editingIndex === -1) {
-            this.close()
-          }
-
-          this.initialize()
         }
       },
 
@@ -329,7 +339,7 @@
                 // remote
                 try {
                   //
-                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/devices/nic/'+item.name)
+                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/devices/nic/'+item.id)
 
                   //
                   this.$emit('snackbar', 'Device successfully saved.')
@@ -347,147 +357,6 @@
         })
       },
 
-
-
-      /*
-      async saveContainer () {
-        // remote
-          try {
-            if (!this.loggedUser) {
-              this.$router.replace('/servers')
-            }
-
-            //
-            const response = await axios.patch(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name, {
-              devices: this.container.info.devices
-            })
-
-            this.$emit('snackbar', 'Containers device configuration saved.')
-          } catch (error) {
-            this.error = 'Could not save container device configuration.';
-          }
-      },
-      */
-
-      /*
-      deleteSnapshot (item) {
-        this.$prompt.show({
-          persistent: true,
-          width: 400,
-          toolbar: {
-            color: 'red darken-3',
-            closable: false,
-          },
-          title: 'Delete snapshot?',
-          text: 'Are you sure you want to delete snapshot:<br><b>'+item.name.substr(item.name.lastIndexOf('/') + 1)+'</b>',
-          buttons: [
-            {
-              title: 'Yes',
-              color: 'success',
-              handler: async () => { 
-                try {
-                  if (!this.loggedUser) {
-                    this.$router.replace('/servers')
-                  }
-
-                  // delete local
-                  const index = this.items.indexOf(item)
-                  this.items.splice(index, 1)
-
-                  // remote
-                  const response = await axios.delete(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name + '/snapshots/'+item.name.substr(item.name.lastIndexOf('/') + 1))
-                  this.$emit('snackbar', 'Snapshot deleted.')
-                } catch (error) {
-                  this.$emit('snackbar', 'Failed to delete snapshot.')
-                }
-              }
-            },
-            {
-              title: 'No',
-              color: 'error'
-            }
-         ]
-        })
-      },
-      */
-
-      /*
-      restoreSnapshot (item) {
-        this.$prompt.show({
-          persistent: true,
-          width: 400,
-          toolbar: {
-            color: 'orange darken-3',
-            closable: false,
-          },
-          title: 'Restore snapshot?',
-          text: 'Are you sure you want to restore container from snapshot:<br><b>'+item.name.substr(item.name.lastIndexOf('/') + 1)+'</b><p class="text-md-center red--text"><br><b>Current container state will be overwritten!</b></p>',
-          buttons: [
-            {
-              title: 'Yes',
-              color: 'success',
-              handler: async () => { 
-                try {
-                  if (!this.loggedUser) {
-                    this.$router.replace('/servers')
-                  }
-
-                  //
-                  const response = await axios.put(this.loggedUser.sub + '/api/lxd/containers/' + this.container.info.name + '/snapshots', {
-                    name: item.name.substr(item.name.lastIndexOf('/') + 1)
-                  })
-                  this.$emit('snackbar', 'Snapshot restored.')
-                } catch (error) {
-                  this.$emit('snackbar', 'Failed to restore snapshot.')
-                }
-              }
-            },
-            {
-              title: 'No',
-              color: 'error'
-            }
-         ]
-        })
-      },
-      */
-
-      /*
-      async imageSnapshot (item) {
-        //
-        try {
-          if (!this.loggedUser) {
-            this.$router.replace('/servers')
-          }
-
-          //
-          const response = await axios.post(this.loggedUser.sub + '/api/lxd/images', {
-            source: {
-              type: 'snapshot',
-              name: item.name
-            },
-            public: false,
-            properties: {
-              // image name: `container-name (01/01/2018, 01:23:45)`
-              description: item.name.split('/')[0] + ' (' + new Date(item.name.substr(item.name.lastIndexOf('/') + 1)).toLocaleString()+')',
-              label: (item.config['image.label'] ? item.config['image.label'] : ''),
-              architecture: (item.config['image.architecture'] ? item.config['image.architecture'] : ''),
-              build: new Date(),
-              distribution: (item.config['image.distribution'] ? item.config['image.distribution'] : ''),
-              os: (item.config['image.os'] ? item.config['image.os'] : ''),
-              release: (item.config['image.release'] ? item.config['image.release'] : ''),
-              version: (item.config['image.version'] ? item.config['image.version'] : '')
-            },
-            auto_update: false
-          })
-
-          this.$emit('snackbar', 'Imaging snapshot.')
-
-        } catch (error) {
-          this.$emit('snackbar', 'Failed to imaging snapshot.')
-        }
-      }
-      */
-
       openDialog(){
         this.dialog = true
       },
@@ -499,6 +368,10 @@
           this.editingItem = Object.assign({}, this.defaultItem)
           this.editingIndex = -1
         }, 300)
+      },
+            
+      ucfirst(str) {
+          return String(str).charAt(0).toUpperCase() + String(str).slice(1);
       }
     }
   }

@@ -38,19 +38,14 @@ class Nic extends \Base\Controller
         
         // plinker client
         $client = $f3->get('plinker');
-        
-         $result = $this->devices->findAll('type = "nic" AND name=""');
-         foreach ($result as $row) {
-            $this->devices->trash($row);
-         }
-        
+
         /**
          * GET /api/lxd/devices/nic
          */
         if ($verb === 'GET') {
             try {
                 $result = $this->devices->findAll('type = "nic"');
-                
+
                 foreach ($result as &$row) {
                     $row['dict'] = json_decode($row['dict']);
                 }
@@ -74,6 +69,31 @@ class Nic extends \Base\Controller
             if (empty($body) || !is_numeric($body['id'])) {
                $f3->response->json([
                     'error' => 'Invalid PUT body',
+                    'code'  => 422,
+                    'data'  => []
+                ]); 
+            }
+            
+            $body = $f3->recursive($body, function($value) {
+            	return trim($value);
+            });
+
+            $errors = [];
+            //
+            if (empty($body['name'])) {
+                $errors['name'] = 'Device name cannot be empty';
+            }
+            
+            //
+            if (empty($body['dict']['parent'])) {
+                $errors['dict'] = [
+                    'parent' => 'Device parent cannot be empty'
+                ];
+            }
+
+            if (!empty($errors)) {
+               $f3->response->json([
+                    'error' => $errors,
                     'code'  => 422,
                     'data'  => []
                 ]); 
@@ -115,52 +135,7 @@ class Nic extends \Base\Controller
                 'data'  => []
             ]);
         }
-        
-        /**
-         * PUT /api/lxd/devices/nic
-         */
-        /*
-        if ($verb === 'PUT') {
-            $item = json_decode($f3->get('BODY'), true);
-            
-            if (empty($item) || !is_numeric($item['id'])) {
-               $f3->response->json([
-                    'error' => 'Invalid PUT body, expecting item',
-                    'code'  => 422,
-                    'data'  => []
-                ]); 
-            }
-            
-            $f3->response->json([
-                'error' => '',
-                'code'  => 200,
-                'data'  => []
-            ]);
-        }
-        */
 
-        /**
-         * DELETE /api/lxd/devices/nic
-         */
-        /*
-        if ($verb === 'DELETE') {
-            $item = json_decode($f3->get('BODY'), true);
-            
-            if (empty($item) || !is_numeric($item['id'])) {
-               $f3->response->json([
-                    'error' => 'Invalid DELETE body, expecting item',
-                    'code'  => 422,
-                    'data'  => []
-                ]); 
-            }
-            
-            $f3->response->json([
-                'error' => '',
-                'code'  => 200,
-                'data'  => []
-            ]);
-        }
-        */
     }
     
     /**
@@ -175,11 +150,11 @@ class Nic extends \Base\Controller
         $client = $f3->get('plinker');
         
         /**
-         * GET /api/lxd/devices/nic/@name
+         * GET /api/lxd/devices/nic/@id
          */
         if ($verb === 'GET') {
             try {
-                $result = $this->devices->findOne('type = "nic" AND name = ?', [$params['name']]);
+                $result = $this->devices->load($params['id']);
                 
                 if (!empty($result->id)) {
                     $result['dict'] = json_decode($result['dict']);
@@ -198,50 +173,14 @@ class Nic extends \Base\Controller
         }
         
         /**
-         * POST /api/lxd/devices/nic/@name
+         * POST /api/lxd/devices/nic/@id
          */
         if ($verb === 'POST') {
-            /*
-            $body = json_decode($f3->get('BODY'), true);
-            
-            $errors = [];
-            if (empty($body['name'])) {
-                $errors['name'] = 'Profiles name cannot be empty'; 
-            }
 
-            if (!empty($errors)) {
-                $f3->response->json([
-                    'error' => $errors,
-                    'code'  => 400,
-                    'data'  => []
-                ]);
-            }
-            
-            // fix devices (cast to object)
-            if (isset($body['devices'])) {
-                $body['devices'] = (object) $body['devices'];
-            }
-            
-            try {
-                $result = [
-                    'error' => '',
-                    'code'  => 200,
-                    'data'  => $client->lxd->profiles->create('local', $body)
-                ];
-            } catch (\Exception $e) {
-                $result = [
-                    'error' => $e->getMessage(),
-                    'code'  => 422,
-                    'data'  => []
-                ];
-            }
-            
-            $f3->response->json($result);
-            */
         }
         
         /**
-         * PUT /api/lxd/devices/nic/@name
+         * PUT /api/lxd/devices/nic/@id
          */
         if ($verb === 'PUT') {
             $body = json_decode($f3->get('BODY'), true);
@@ -254,8 +193,33 @@ class Nic extends \Base\Controller
                 ]); 
             }
             
+            $body = $f3->recursive($body, function($value) {
+            	return trim($value);
+            });
+            
+            $errors = [];
+            //
+            if (empty($body['name'])) {
+                $errors['name'] = 'Device name cannot be empty';
+            }
+            
+            //
+            if (empty($body['dict']['parent'])) {
+                $errors['dict'] = [
+                    'parent' => 'Device parent cannot be empty'
+                ];
+            }
+
+            if (!empty($errors)) {
+               $f3->response->json([
+                    'error' => $errors,
+                    'code'  => 422,
+                    'data'  => []
+                ]); 
+            }
+            
             try {
-                $result = $this->devices->findOne('type = "nic" AND name = ?', [$params['name']]);
+                $result = $this->devices->load($params['id']);
                 
                 if (!empty($result->id)) {
                     
@@ -299,11 +263,11 @@ class Nic extends \Base\Controller
         }
 
         /**
-         * DELETE /api/lxd/devices/nic/@name
+         * DELETE /api/lxd/devices/nic/@id
          */
         if ($verb === 'DELETE') {
             try {
-                $result = $this->devices->findOne('type = "nic" AND name = ?', [$params['name']]);
+                $result = $this->devices->load($params['id']);
                 
                 if (!empty($result->id)) {
                     $this->devices->trash($result);

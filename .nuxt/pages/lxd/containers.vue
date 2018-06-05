@@ -11,7 +11,7 @@
             <v-layout column>
               <v-flex tag="h1" class="display mb-2">
                 LXD - Containers
-                <v-btn dark color="orange" @click="restartAll()" style="float:right">Restart All</v-btn>
+                <v-btn :dark="items.length > 0" color="orange" @click="restartAll()" style="float:right" :disabled="items.length === 0">Restart All</v-btn>
                 <v-btn :dark="!all_stopped" color="red" @click="stopAll()" style="float:right" :disabled="all_stopped">Stop All</v-btn>
                 <v-btn :dark="!all_running" color="green" @click="startAll()" style="float:right" :disabled="all_running">Start All</v-btn>
               </v-flex>
@@ -318,9 +318,9 @@
       tableNoData: 'You have not added any containers.',
       tableHeaders: [
         { text: 'Name', value: 'name' },
-        { text: 'IP', value: 'network.eth0.addresses[0].address' },
+        { text: 'IP', value: 'ip' },
         { text: 'CPU', value: 'cpu.usage' },
-        { text: 'Processes:', value: 'processes:' },
+        { text: 'Processes', value: 'processes' },
         { text: 'Memory', value: 'memory.usage' },
         { text: 'Network (In/Out)', value: 'network' },
         { text: 'Status', value: 'status' },
